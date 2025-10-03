@@ -11,14 +11,14 @@ export interface OpenAIResponse {
   };
 }
 
-export interface OpenAIClient {
+export interface AiClient {
   submitImage(imageBuffer: Buffer, prompt: string): Promise<OpenAIResponse>;
 }
 
 /**
  * Real implementation of the OpenAI API client
  */
-export class RealOpenAIClient implements OpenAIClient {
+export class OpenAIClient implements AiClient {
   private client: OpenAI;
 
   constructor() {
@@ -84,7 +84,7 @@ export class RealOpenAIClient implements OpenAIClient {
 /**
  * Mock implementation of the OpenAI API client for development
  */
-export class MockOpenAIClient implements OpenAIClient {
+export class MockAIClient implements AiClient {
   async submitImage(
     _imageBuffer: Buffer,
     _prompt: string
@@ -122,13 +122,11 @@ export class MockOpenAIClient implements OpenAIClient {
 /**
  * Factory function to get the appropriate client based on environment
  */
-export const getOpenAIClient = (): OpenAIClient => {
-  return config.openai.useMock
-    ? new MockOpenAIClient()
-    : new RealOpenAIClient();
+export const getAIClient = (): AiClient => {
+  return config.openai.useMock ? new MockAIClient() : new OpenAIClient();
 };
 
 /**
  * Export a singleton instance for convenience
  */
-export const openAIClient = getOpenAIClient();
+export const aiClient = getAIClient();

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { openAIClient } from './openai-client.js';
+import { aiClient } from './ai-client';
 import { ReceiptAnalysisResponse } from '../../../types/shared.js';
 
 const ProductSchema = z.object({
@@ -63,13 +63,13 @@ export const analyzeReceipt = async (
 ): Promise<ReceiptAnalysisResponse> => {
   try {
     // Submit image to OpenAI
-    const openAIResponse = await openAIClient.submitImage(
+    const aiResponse = await aiClient.submitImage(
       imageBuffer,
       RECEIPT_PROMPT
     );
 
     // Parse the JSON response
-    const jsonResult = JSON.parse(openAIResponse.content);
+    const jsonResult = JSON.parse(aiResponse.content);
 
     console.log('OpenAI raw response from photo analysis:', jsonResult);
 
@@ -78,8 +78,8 @@ export const analyzeReceipt = async (
 
     return {
       result: validatedResult,
-      model: openAIResponse.model,
-      usage: openAIResponse.usage,
+      model: aiResponse.model,
+      usage: aiResponse.usage,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
