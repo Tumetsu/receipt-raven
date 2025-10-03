@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { openAIClient } from './openai-client.js';
-import { ReceiptAnalysisResponse } from '../types/shared.js';
+import { ReceiptAnalysisResponse } from '../../../types/shared.js';
 
 const ProductSchema = z.object({
   name: z.string(),

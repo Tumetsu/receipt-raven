@@ -3,11 +3,11 @@ import { createWriteStream } from 'fs';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { pipeline } from 'stream/promises';
-import { config } from '../config/index.js';
-import { analyzeReceipt } from '../services/receipt-extraction.js';
-import { receiptDatabase } from '../services/database.js';
+import { config } from '../../config/index.js';
+import { analyzeReceipt } from './services/receipt-extraction.js';
+import { receiptRepository } from './repositories/receipt-repository.js';
 
-const uploadRoutes: FastifyPluginAsync = async fastify => {
+const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.post('/upload', async (request, reply) => {
     const data = await request.file();
 
@@ -30,11 +30,11 @@ const uploadRoutes: FastifyPluginAsync = async fastify => {
     const analysisResult = await analyzeReceipt(imageBuffer);
 
     // Save analysis results to database
-    const savedReceipt = receiptDatabase.saveReceipt(
+    const savedReceipt = receiptRepository.saveReceipt(
       filename,
       filepath,
       analysisResult.result,
-        analysisResult.model
+      analysisResult.model
     );
 
     return {
@@ -49,4 +49,4 @@ const uploadRoutes: FastifyPluginAsync = async fastify => {
   });
 };
 
-export default uploadRoutes;
+export default analyzeRoutes;

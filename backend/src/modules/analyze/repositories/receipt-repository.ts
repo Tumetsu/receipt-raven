@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
-import { config } from '../config/index.js';
-import { ReceiptAnalysisResult } from '../types/shared.js';
+import { config } from '../../../config/index.js';
+import { ReceiptAnalysisResult } from '../../../types/shared.js';
 
 export interface ReceiptRecord {
   id: number;
@@ -25,9 +25,9 @@ export interface ReceiptItemRecord {
 }
 
 /**
- * Database interface for receipt storage operations
+ * Repository for receipt data access operations
  */
-export interface IReceiptDatabase {
+export interface IReceiptRepository {
   /**
    * Initialize database schema
    */
@@ -38,12 +38,14 @@ export interface IReceiptDatabase {
    * @param objectKey File identifier (filename or object key)
    * @param filepath Full path to the receipt image file
    * @param analysis Receipt analysis result
+   * @param parsedBy Model identifier that parsed this receipt
    * @returns The saved receipt record
    */
   saveReceipt(
     objectKey: string,
     filepath: string,
-    analysis: ReceiptAnalysisResult
+    analysis: ReceiptAnalysisResult,
+    parsedBy?: string
   ): ReceiptRecord;
 
   /**
@@ -53,9 +55,9 @@ export interface IReceiptDatabase {
 }
 
 /**
- * SQLite implementation of receipt database
+ * SQLite implementation of receipt repository
  */
-export class SQLiteReceiptDatabase implements IReceiptDatabase {
+export class SQLiteReceiptRepository implements IReceiptRepository {
   private db: Database.Database | null = null;
   private dbPath: string;
 
@@ -166,5 +168,5 @@ export class SQLiteReceiptDatabase implements IReceiptDatabase {
   }
 }
 
-// Export singleton instance
-export const receiptDatabase = new SQLiteReceiptDatabase();
+// Export singleton instance for the analyze module
+export const receiptRepository = new SQLiteReceiptRepository();

@@ -3,8 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { config } from './config/index.js';
 import { registerPlugins } from './plugins/index.js';
-import uploadRoutes from './routes/upload.js';
-import { receiptDatabase } from './services/database.js';
+import { analyzeModule } from './modules/analyze/index.js';
 
 const fastify = Fastify({
   logger: true,
@@ -19,18 +18,16 @@ const start = async () => {
     const dbDir = path.dirname(config.database.path);
     await fs.mkdir(dbDir, { recursive: true });
 
-    // Initialize database
-    receiptDatabase.initialize();
-
     // Register plugins
     await registerPlugins(fastify);
 
-    // Register routes
+    // Register modules
+    await fastify.register(analyzeModule);
+
+    // Register health check route
     fastify.get('/health', async () => {
       return { status: 'ok' };
     });
-
-    await fastify.register(uploadRoutes, { prefix: '/api' });
 
     // Start server
     await fastify.listen({ port: config.port, host: '0.0.0.0' });
