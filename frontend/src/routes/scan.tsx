@@ -1,7 +1,11 @@
 import { Box, Button, Container, styled } from '@mui/material';
 import { createFileRoute } from '@tanstack/react-router';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
+import config from '../config.ts';
 
 export const Route = createFileRoute('/scan')({
   component: Scan,
@@ -29,6 +33,24 @@ const StyledImg = styled('img')({
 function Scan() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const submitImageMutation = useMutation({
+    mutationFn: async (receiptImage: string) => {
+      const response = await fetch(receiptImage);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append('image', blob, 'camera_capture.jpg');
+
+      return fetch(`${config.api.baseUrl}/api/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+    },
+    onSuccess: data => {
+      console.log(data);
+      setCapturedImage(null);
+    },
+  });
 
   const handleCameraClick = () => {
     if (fileInputRef.current) {
@@ -36,7 +58,7 @@ function Scan() {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
@@ -54,6 +76,13 @@ function Scan() {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
+
+      <Backdrop
+        sx={theme => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={submitImageMutation.isPending}
+      >
+        <CircularProgress />
+      </Backdrop>
       <StyledCard onClick={handleCameraClick}>
         {capturedImage ? (
           <StyledImg src={capturedImage} alt="Captured" />
@@ -63,7 +92,13 @@ function Scan() {
       </StyledCard>
       {capturedImage ? (
         <Box sx={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Button variant="contained">Submit</Button>
+          <Button
+            variant="contained"
+            disabled={submitImageMutation.isPending}
+            onClick={() => submitImageMutation.mutate(capturedImage)}
+          >
+            Submit
+          </Button>
         </Box>
       ) : (
         <Box sx={{ textAlign: 'center', marginTop: '2rem' }}>
