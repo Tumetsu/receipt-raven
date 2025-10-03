@@ -5,6 +5,7 @@ import path from 'path';
 import { pipeline } from 'stream/promises';
 import { config } from '../config/index.js';
 import { analyzeReceipt } from '../services/receipt-extraction.js';
+import { receiptDatabase } from '../services/database.js';
 
 const uploadRoutes: FastifyPluginAsync = async fastify => {
   fastify.post('/upload', async (request, reply) => {
@@ -28,6 +29,14 @@ const uploadRoutes: FastifyPluginAsync = async fastify => {
     // Analyze the receipt using OpenAI
     const analysisResult = await analyzeReceipt(imageBuffer);
 
+    // Save analysis results to database
+    const savedReceipt = receiptDatabase.saveReceipt(
+      filename,
+      filepath,
+      analysisResult.result,
+        analysisResult.model
+    );
+
     return {
       success: true,
       filename,
@@ -35,6 +44,7 @@ const uploadRoutes: FastifyPluginAsync = async fastify => {
       mimetype: data.mimetype,
       size: data.file.bytesRead,
       analysis: analysisResult,
+      receiptId: savedReceipt.id,
     };
   });
 };
