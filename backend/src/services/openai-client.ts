@@ -37,7 +37,7 @@ export class RealOpenAIClient implements OpenAIClient {
       const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
       const response = await this.client.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-5-mini',
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -53,7 +53,7 @@ export class RealOpenAIClient implements OpenAIClient {
             ],
           },
         ],
-        max_tokens: 1000,
+        max_completion_tokens: 4000,
       });
 
       const result = response.choices[0];
@@ -109,7 +109,7 @@ export class MockOpenAIClient implements OpenAIClient {
         ],
         total: 15.79,
       }),
-      model: 'gpt-4o',
+      model: 'gpt-5',
       usage: {
         promptTokens: 150,
         completionTokens: 200,
