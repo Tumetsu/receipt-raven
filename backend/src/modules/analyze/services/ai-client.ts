@@ -90,6 +90,8 @@ export class MockAIClient implements AiClient {
     _prompt: string
   ): Promise<OpenAIResponse> {
     console.log('Using mock OpenAI client');
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
     // Return a mock response
     return {
       content: JSON.stringify({
