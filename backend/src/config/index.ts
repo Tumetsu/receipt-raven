@@ -7,12 +7,12 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
-    useMock: process.env.USE_MOCK_OPENAI === 'true'
+    useMock: process.env.USE_MOCK_OPENAI === 'true',
   },
   storage: {
-    uploadsDir: process.env.UPLOADS_DIR || './uploads'
+    uploadsDir: process.env.UPLOADS_DIR || './uploads',
   },
   database: {
-    path: process.env.DATABASE_PATH || './data/receipts.db'
-  }
+    path: process.env.DATABASE_PATH || './data/receipts.db',
+  },
 };

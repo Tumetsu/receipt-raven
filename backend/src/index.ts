@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import { config } from './config/index.js';
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
 });
 
 fastify.get('/health', async () => {
