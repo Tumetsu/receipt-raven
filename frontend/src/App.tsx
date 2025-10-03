@@ -1,34 +1,19 @@
-import { useState, type ReactElement } from 'react';
-import { styled } from '@mui/material/styles';
-import { Button, Typography, Container, Box } from '@mui/material';
+import { type ReactElement, StrictMode } from 'react';
+import { routeTree } from './routeTree.gen';
+import { createRouter, RouterProvider } from '@tanstack/react-router';
 
-const StyledCard = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[2],
-  textAlign: 'center',
-}));
+const router = createRouter({ routeTree });
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+}
 
 function App(): ReactElement {
-  const [count, setCount] = useState(0);
-
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          Receipt Raven
-        </Typography>
-        <StyledCard>
-          <Button
-            variant="contained"
-            onClick={() => setCount(count => count + 1)}
-          >
-            count is {count}
-          </Button>
-        </StyledCard>
-      </Box>
-    </Container>
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>
   );
 }
 
