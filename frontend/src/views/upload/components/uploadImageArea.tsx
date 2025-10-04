@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, useRef } from 'react';
+import { ChangeEvent, ReactElement, RefObject } from 'react';
 import { Box, styled } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
@@ -21,26 +21,15 @@ const StyledImg = styled('img')({
   borderRadius: '8px',
 });
 
+// Meant to be used with useImageCapture hook
 function UploadImageArea(props: {
-  setCapturedImage: (imageUrl: string) => void;
   capturedImage: string | null;
+  fileInputRef: RefObject<HTMLInputElement>;
+  handleCameraClick: () => void;
+  handleFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }): ReactElement {
-  const { capturedImage, setCapturedImage } = props;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleCameraClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setCapturedImage(imageUrl);
-    }
-  };
+  const { capturedImage, fileInputRef, handleFileChange, handleCameraClick } =
+    props;
 
   return (
     <StyledCard onClick={handleCameraClick}>

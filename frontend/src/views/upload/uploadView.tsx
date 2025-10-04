@@ -1,12 +1,14 @@
 import { Box, Button, Container } from '@mui/material';
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import config from '../../config';
 import UploadImageArea from './components/uploadImageArea.tsx';
 import { FullscreenSpinner } from '../../common/components/fullscreenSpinner.tsx';
+import { useImageCapture } from './hooks/useImageCapture.ts';
 
 export function UploadView(): ReactElement {
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const { capturedImage, clearImage, ...imageCapture } = useImageCapture();
+
   const submitImageMutation = useMutation({
     mutationFn: async (receiptImage: string) => {
       const response = await fetch(receiptImage);
@@ -22,17 +24,14 @@ export function UploadView(): ReactElement {
     },
     onSuccess: data => {
       console.log(data);
-      setCapturedImage(null);
+      clearImage();
     },
   });
 
   return (
     <Container>
       <FullscreenSpinner open={submitImageMutation.isPending} />
-      <UploadImageArea
-        capturedImage={capturedImage}
-        setCapturedImage={setCapturedImage}
-      />
+      <UploadImageArea capturedImage={capturedImage} {...imageCapture} />
 
       {capturedImage ? (
         <Box sx={{ textAlign: 'center', marginTop: '2rem' }}>
