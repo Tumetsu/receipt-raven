@@ -16,8 +16,8 @@ const RootLayout = () => (
       <Link to="/" className="[&.active]:font-bold">
         Home
       </Link>{' '}
-      <Link to="/scan" className="[&.active]:font-bold">
-        About
+      <Link to="/upload" className="[&.active]:font-bold">
+        Upload
       </Link>
     </div>
     <hr />
