@@ -63,10 +63,7 @@ export const analyzeReceipt = async (
 ): Promise<ReceiptAnalysisResponse> => {
   try {
     // Submit image to OpenAI
-    const aiResponse = await aiClient.submitImage(
-      imageBuffer,
-      RECEIPT_PROMPT
-    );
+    const aiResponse = await aiClient.submitImage(imageBuffer, RECEIPT_PROMPT);
 
     // Parse the JSON response
     const jsonResult = JSON.parse(aiResponse.content);

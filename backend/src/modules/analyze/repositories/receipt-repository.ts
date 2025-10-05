@@ -1,28 +1,42 @@
-import Database from 'better-sqlite3';
 import { config } from '../../../config/index.js';
 import { ReceiptAnalysisResult } from '../../../types/shared.js';
+import {
+  ColumnType,
+  Generated,
+  InsertObject,
+  Kysely,
+  Selectable,
+  SqliteDialect,
+} from 'kysely';
+import SQLite from 'better-sqlite3';
 
-export interface ReceiptRecord {
-  id: number;
-  objectKey: string;
-  filepath: string;
-  shop: string;
-  receiptDate: string;
-  totalSum: number;
-  parsedBy?: string;
-  createdAt: string;
-  updatedAt: string;
+export interface Database {
+  receipts: ReceiptsTable;
+  receipt_items: ReceiptItemsTable;
 }
 
-export interface ReceiptItemRecord {
-  id: number;
-  receiptId: number;
+interface ReceiptsTable {
+  id: Generated<bigint>;
+  job_id: bigint;
+  shop: string;
+  receipt_date: string;
+  total_sum: number;
+  parsed_by: string;
+  created_at: ColumnType<Date, string | undefined, never>;
+}
+
+interface ReceiptItemsTable {
+  id: Generated<bigint>;
+  receipt_id: bigint;
   name: string;
   category: string;
   price: number;
-  parsedBy?: string;
-  createdAt: string;
+  parsed_by: string;
+  created_at: ColumnType<Date, string | undefined, never>;
 }
+
+export type Receipt = Selectable<ReceiptsTable>;
+export type ReceiptItem = Selectable<ReceiptItemsTable>;
 
 /**
  * Repository for receipt data access operations
@@ -33,20 +47,11 @@ export interface IReceiptRepository {
    */
   initialize(): void;
 
-  /**
-   * Save receipt analysis result
-   * @param objectKey File identifier (filename or object key)
-   * @param filepath Full path to the receipt image file
-   * @param analysis Receipt analysis result
-   * @param parsedBy Model identifier that parsed this receipt
-   * @returns The saved receipt record
-   */
   saveReceipt(
-    objectKey: string,
-    filepath: string,
+    jobId: bigint,
     analysis: ReceiptAnalysisResult,
     parsedBy?: string
-  ): ReceiptRecord;
+  ): Promise<void>;
 
   /**
    * Close database connection
@@ -58,7 +63,7 @@ export interface IReceiptRepository {
  * SQLite implementation of receipt repository
  */
 export class SQLiteReceiptRepository implements IReceiptRepository {
-  private db: Database.Database | null = null;
+  private db: Kysely<Database> | null = null;
   private dbPath: string;
 
   constructor(dbPath: string = config.database.path) {
@@ -66,104 +71,59 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
   }
 
   initialize(): void {
+    // TODO: Use single kysely instance!
+    if (this.db) {
+      return;
+    }
     // Create database connection when initializing
-    this.db = new Database(this.dbPath);
-
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS receipts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        objectKey TEXT NOT NULL,
-        filepath TEXT NOT NULL,
-        shop TEXT NOT NULL,
-        receiptDate DATE NOT NULL,
-        totalSum DECIMAL(10,2) NOT NULL,
-        parsedBy TEXT,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS receipt_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        receiptId INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        category TEXT NOT NULL,
-        price DECIMAL(10,2) NOT NULL,
-        parsedBy TEXT,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (receiptId) REFERENCES receipts(id)
-      );
-    `);
+    const dialect = new SqliteDialect({
+      database: new SQLite(this.dbPath),
+    });
+    this.db = new Kysely<Database>({
+      dialect,
+    });
   }
 
-  saveReceipt(
-    objectKey: string,
-    filepath: string,
+  async saveReceipt(
+    jobId: bigint,
     analysis: ReceiptAnalysisResult,
     parsedBy?: string
-  ): ReceiptRecord {
+  ): Promise<void> {
     if (!this.db) {
       throw new Error('Database not initialized. Call initialize() first.');
     }
 
-    const db = this.db; // Capture for use in transaction closure
+    const receipt = await this.db
+      .insertInto('receipts')
+      .values({
+        job_id: jobId,
+        shop: analysis.shop,
+        receipt_date: analysis.date,
+        total_sum: analysis.total,
+        parsed_by: parsedBy ?? 'unknown',
+      })
+      .executeTakeFirstOrThrow();
 
-    const transaction = db.transaction(
-      (
-        objectKey: string,
-        filepath: string,
-        analysis: ReceiptAnalysisResult
-      ) => {
-        // Insert receipt
-        const receiptStmt = db.prepare(`
-        INSERT INTO receipts (objectKey, filepath, shop, receiptDate, totalSum, parsedBy)
-        VALUES (@objectKey, @filepath, @shop, @receiptDate, @totalSum, @parsedBy)
-      `);
+    if (!receipt.insertId) {
+      throw new Error('Insert failed');
+    }
+    const insertedId = receipt.insertId;
 
-        const insertResult = receiptStmt.run({
-          objectKey,
-          filepath,
-          shop: analysis.shop,
-          receiptDate: analysis.date,
-          parsedBy: parsedBy || null,
-          totalSum: analysis.total,
-        });
+    const items: InsertObject<Database, 'receipt_items'>[] =
+      analysis.products.map(p => ({
+        receipt_id: insertedId,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        parsed_by: parsedBy ?? 'unknown',
+      }));
 
-        console.log('Receipt insert result:', insertResult);
-        console.log('Last insert rowid:', insertResult.lastInsertRowid);
-
-        // Fetch the inserted receipt
-        const receipt = db
-          .prepare(`SELECT * FROM receipts WHERE id = ?`)
-          .get(insertResult.lastInsertRowid) as ReceiptRecord;
-
-        console.log('Fetched receipt:', receipt);
-
-        // Insert receipt items
-        const itemStmt = db.prepare(`
-        INSERT INTO receipt_items (receiptId, name, category, price, parsedBy)
-        VALUES (@receiptId, @name, @category, @price, @parsedBy)
-      `);
-
-        for (const product of analysis.products) {
-          itemStmt.run({
-            receiptId: receipt.id,
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            parsedBy: parsedBy || null,
-          });
-        }
-
-        return receipt;
-      }
-    );
-
-    return transaction(objectKey, filepath, analysis);
+    await this.db.insertInto('receipt_items').values(items).execute();
   }
 
   close(): void {
     if (this.db) {
-      this.db.close();
+      this.db.destroy();
     }
   }
 }

@@ -3,7 +3,7 @@ import { createWriteStream } from 'fs';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { config } from '../../config';
-import { receiptJobQueueRepository } from './repositories/receipt-job-repository';
+import { receiptJobQueueRepository } from '../../repositories/receipt-job-repository';
 
 const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.post('/upload', async (request, reply) => {

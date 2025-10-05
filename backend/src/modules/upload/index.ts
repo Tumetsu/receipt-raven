@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import { receiptJobQueueRepository } from './repositories/receipt-job-repository';
+import { receiptJobQueueRepository } from '../../repositories/receipt-job-repository';
 import uploadRoutes from './routes';
 
 /**
