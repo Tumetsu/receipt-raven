@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { config } from './config/index.js';
 import { registerPlugins } from './plugins/index.js';
-import { analyzeModule } from './modules/analyze/index.js';
+import { uploadModule } from './modules/upload';
 
 const fastify = Fastify({
   logger: true,
@@ -22,7 +22,7 @@ const start = async () => {
     await registerPlugins(fastify);
 
     // Register modules
-    await fastify.register(analyzeModule);
+    await fastify.register(uploadModule);
 
     // Register health check route
     fastify.get('/health', async () => {
