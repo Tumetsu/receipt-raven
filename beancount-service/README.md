@@ -123,15 +123,43 @@ beancount-service/
 ├── main.py                 # FastAPI application
 ├── models.py              # Pydantic models
 ├── requirements.txt       # Python dependencies
+├── requirements-dev.txt   # Development dependencies
+├── pytest.ini             # Pytest configuration
 ├── services/
 │   ├── accounts.py       # Account extraction logic
 │   ├── categories.py     # Category extraction logic
 │   ├── payees.py         # Payee extraction logic
 │   └── transactions.py   # Transaction creation and submission
+├── tests/
+│   ├── test_ledger.beancount  # Test ledger file
+│   └── test_transactions.py   # Transaction service tests
 └── .env                   # Environment configuration
 ```
 
-### Testing
+### Running Tests
+
+1. Install development dependencies:
+```bash
+pip install -r requirements-dev.txt
+```
+
+2. Run tests:
+```bash
+pytest
+```
+
+3. Run tests with coverage:
+```bash
+pytest --cov=services --cov-report=html
+```
+
+The test suite includes:
+- Transaction validation (balance checking, account existence)
+- Receipt conversion to transactions
+- Beancount data structure creation
+- File I/O operations with temporary ledgers
+
+### Manual Testing
 
 Test the endpoints using curl:
 
@@ -159,9 +187,21 @@ curl -X POST http://localhost:8000/transactions?dry_run=true \
   }'
 ```
 
+## Transaction Validation
+
+The service validates all transactions before writing to the ledger:
+
+1. **Balance Validation**: Ensures all postings sum to zero for each currency (with 0.005 tolerance for rounding)
+2. **Account Validation**: Ensures all referenced accounts exist in the ledger
+3. **Data Structure Validation**: Uses Beancount's official data structures and validation
+
+Invalid transactions will be rejected with clear error messages:
+- Unbalanced transactions: `"Transaction does not balance for EUR: sum is 10.50 (should be 0)"`
+- Invalid accounts: `"Invalid account(s): Expenses:NonExistent. These accounts do not exist in the ledger."`
+
 ## Notes
 
 - Transactions are appended to the ledger file specified in `BEANCOUNT_LEDGER_PATH`
-- The service does not validate account balance or enforce beancount's validation rules
-- It's recommended to run `bean-check` on your ledger file after adding transactions
+- All transactions are validated before being written to the ledger
+- The service uses Beancount's native data structures and validation
 - For production, consider using a process manager like systemd or supervisord
