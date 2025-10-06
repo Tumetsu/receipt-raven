@@ -2,8 +2,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { createWriteStream } from 'fs';
 import path from 'path';
 import { pipeline } from 'stream/promises';
-import { config } from '../../config';
-import { receiptJobQueueRepository } from '../../repositories/receipt-job-repository';
+import { config } from '../../config/index.js';
 
 const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.post('/upload', async (request, reply) => {
@@ -18,7 +17,9 @@ const analyzeRoutes: FastifyPluginAsync = async fastify => {
     const filepath = path.join(config.storage.uploadsDir, filename);
 
     await pipeline(data.file, createWriteStream(filepath));
-    await receiptJobQueueRepository.saveReceiptToBeProcessed(filepath);
+    await fastify.uploadReceiptJobQueueRepository.saveReceiptToBeProcessed(
+      filepath
+    );
 
     return {
       success: true,

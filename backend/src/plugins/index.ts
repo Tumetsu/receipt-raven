@@ -6,8 +6,12 @@ import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import path from 'path';
 import { config } from '../config/index.js';
+import databasePlugin from './database.js';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
+  // Database (must be first so it's available to other plugins/modules)
+  await fastify.register(databasePlugin);
+
   // CORS
   await fastify.register(cors, {
     origin: true, // Allow all origins in development

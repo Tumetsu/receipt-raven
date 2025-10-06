@@ -1,12 +1,14 @@
-import { receiptJobQueueRepository } from '../../repositories/receipt-job-repository';
+import { IReceiptJobQueueRepository } from '../../repositories/receipt-job-repository.js';
 import { readFile } from 'fs/promises';
-import { analyzeReceipt } from './services/receipt-extraction';
+import { analyzeReceipt } from './services/receipt-extraction.js';
 import { FastifyBaseLogger } from 'fastify';
-import { receiptRepository } from './repositories/receipt-repository';
+import { IReceiptRepository } from './repositories/receipt-repository.js';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
-  logger: FastifyBaseLogger
+  logger: FastifyBaseLogger,
+  receiptRepository: IReceiptRepository,
+  receiptJobQueueRepository: IReceiptJobQueueRepository
 ): Promise<void> => {
   if (isProcessing) return; // Prevent concurrent processing
   isProcessing = true;

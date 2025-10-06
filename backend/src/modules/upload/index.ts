@@ -1,13 +1,21 @@
 import { FastifyPluginAsync } from 'fastify';
-import { receiptJobQueueRepository } from '../../repositories/receipt-job-repository';
-import uploadRoutes from './routes';
+import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
+import uploadRoutes from './routes.js';
 
 /**
  * Upload module plugin - handles receipt image upload and storage
  */
 export const uploadModule: FastifyPluginAsync = async (fastify, _opts) => {
-  // Initialize the repository
-  receiptJobQueueRepository.initialize();
+  // Create repository with injected database
+  const receiptJobQueueRepository = new SQLiteReceiptJoqbQueueRepository(
+    fastify.db
+  );
+
+  // Store repository in fastify instance for access in routes
+  fastify.decorate(
+    'uploadReceiptJobQueueRepository',
+    receiptJobQueueRepository
+  );
 
   // Register routes with /api prefix
   await fastify.register(uploadRoutes, { prefix: '/api' });
