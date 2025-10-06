@@ -37,4 +37,4 @@ wheels/
 # OS
 .DS_Store
 Thumbs.db
-ledger/
+../ledger/
