@@ -9,45 +9,106 @@ from beancount.parser import printer
 from models import Transaction, ReceiptTransactionData, TransactionSubmitResponse
 
 
-def format_transaction_entry(txn: Transaction) -> str:
+def create_beancount_transaction(txn: Transaction) -> data.Transaction:
     """
-    Format a transaction into beancount syntax
+    Create a beancount Transaction object from our Transaction model
 
     Args:
         txn: Transaction model
 
     Returns:
-        Formatted beancount transaction string
+        beancount Transaction object
+
+    Raises:
+        ValueError: If transaction data is invalid
     """
-    lines = []
+    # Parse the date
+    date_parts = txn.date.split("-")
+    txn_date = datetime(
+        int(date_parts[0]), int(date_parts[1]), int(date_parts[2])
+    ).date()
 
-    # Date and header
-    date_str = txn.date
-    tags_str = " ".join([f"#{tag}" for tag in txn.tags]) if txn.tags else ""
-    links_str = " ".join([f"^{link}" for link in txn.links]) if txn.links else ""
-
-    header = f'{date_str} * "{txn.payee}" "{txn.narration}"'
-    if tags_str:
-        header += f" {tags_str}"
-    if links_str:
-        header += f" {links_str}"
-
-    lines.append(header)
-
-    # Metadata
-    if txn.metadata:
-        for key, value in txn.metadata.items():
-            lines.append(f"  {key}: {value}")
-
-    # Postings
+    # Create postings
+    postings = []
     for posting in txn.postings:
         currency = posting.currency or "EUR"
-        posting_line = f"  {posting.account:<50} {posting.amount:>12.2f} {currency}"
-        if posting.comment:
-            posting_line += f"  ; {posting.comment}"
-        lines.append(posting_line)
+        amt = amount.Amount(Decimal(str(posting.amount)), currency)
 
-    return "\n".join(lines)
+        # Create metadata for posting if there's a comment
+        posting_meta = {}
+        if posting.comment:
+            posting_meta["comment"] = posting.comment
+
+        bean_posting = data.Posting(
+            account=posting.account,
+            units=amt,
+            cost=None,
+            price=None,
+            flag=None,
+            meta=posting_meta if posting_meta else None,
+        )
+        postings.append(bean_posting)
+
+    # Create tags and links
+    tags = set(txn.tags) if txn.tags else set()
+    links = set(txn.links) if txn.links else set()
+
+    # Create metadata
+    meta = {}
+    if txn.metadata:
+        meta.update(txn.metadata)
+
+    # Create the transaction
+    bean_txn = data.Transaction(
+        meta=meta,
+        date=txn_date,
+        flag="*",
+        payee=txn.payee,
+        narration=txn.narration,
+        tags=tags,
+        links=links,
+        postings=postings,
+    )
+
+    return bean_txn
+
+
+def validate_transaction(bean_txn: data.Transaction) -> tuple[bool, Optional[str]]:
+    """
+    Validate that a transaction balances correctly
+
+    Args:
+        bean_txn: beancount Transaction object
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    # Group postings by currency
+    currency_totals = {}
+
+    for posting in bean_txn.postings:
+        if posting.units is None:
+            # Empty posting - beancount will auto-balance this
+            continue
+
+        currency = posting.units.currency
+        if currency not in currency_totals:
+            currency_totals[currency] = Decimal("0")
+
+        currency_totals[currency] += posting.units.number
+
+    # Check that each currency balances (sums to zero)
+    # Allow a small tolerance for rounding errors
+    tolerance = Decimal("0.005")
+
+    for currency, total in currency_totals.items():
+        if abs(total) > tolerance:
+            return False, f"Transaction does not balance for {currency}: sum is {total} (should be 0)"
+
+    # If there's an empty posting, that's fine - it will be auto-balanced
+    # If there's no empty posting, all currencies should sum to zero (which we checked above)
+
+    return True, None
 
 
 def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transaction:
@@ -118,20 +179,30 @@ def submit_transaction(
         TransactionSubmitResponse with success status
     """
     try:
-        # Format the transaction
-        formatted_txn = format_transaction_entry(transaction)
+        # Create beancount transaction object
+        bean_txn = create_beancount_transaction(transaction)
+
+        # Validate that the transaction balances
+        is_valid, error_message = validate_transaction(bean_txn)
+        if not is_valid:
+            return TransactionSubmitResponse(
+                success=False, message=f"Transaction validation failed: {error_message}"
+            )
+
+        # Format using beancount's printer for proper formatting
+        formatted_txn = printer.format_entry(bean_txn)
 
         if dry_run:
             # Just return the formatted transaction for validation
             return TransactionSubmitResponse(
                 success=True,
-                message="Dry run - transaction validated",
+                message="Dry run - transaction validated and balances correctly",
                 transaction_id=None,
             )
 
         # Append to ledger file
         with open(ledger_path, "a", encoding="utf-8") as f:
-            f.write("\n\n")
+            f.write("\n")
             f.write(formatted_txn)
             f.write("\n")
 
