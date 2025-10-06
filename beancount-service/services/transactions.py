@@ -6,6 +6,8 @@ from datetime import datetime
 from decimal import Decimal
 from beancount.core import data, amount
 from beancount.parser import printer
+from beancount.loader import load_file
+from beancount.core.getters import get_accounts
 from models import Transaction, ReceiptTransactionData, TransactionSubmitResponse
 
 
@@ -111,6 +113,42 @@ def validate_transaction(bean_txn: data.Transaction) -> tuple[bool, Optional[str
     return True, None
 
 
+def validate_accounts_exist(
+    bean_txn: data.Transaction, ledger_path: str
+) -> tuple[bool, Optional[str]]:
+    """
+    Validate that all accounts referenced in the transaction exist in the ledger
+
+    Args:
+        bean_txn: beancount Transaction object
+        ledger_path: Path to the ledger file
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    # Load the ledger to get all defined accounts
+    entries, errors, options = load_file(ledger_path)
+
+    if errors:
+        # If there are parse errors in the ledger, we should still try to validate
+        # but log this for debugging
+        pass
+
+    # Get all account names that have been opened in the ledger
+    valid_accounts = get_accounts(entries)
+
+    # Check each posting's account
+    invalid_accounts = []
+    for posting in bean_txn.postings:
+        if posting.account not in valid_accounts:
+            invalid_accounts.append(posting.account)
+
+    if invalid_accounts:
+        return False, f"Invalid account(s): {', '.join(invalid_accounts)}. These accounts do not exist in the ledger."
+
+    return True, None
+
+
 def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transaction:
     """
     Convert receipt data into a beancount transaction
@@ -187,6 +225,13 @@ def submit_transaction(
         if not is_valid:
             return TransactionSubmitResponse(
                 success=False, message=f"Transaction validation failed: {error_message}"
+            )
+
+        # Validate that all accounts exist in the ledger
+        is_valid, error_message = validate_accounts_exist(bean_txn, ledger_path)
+        if not is_valid:
+            return TransactionSubmitResponse(
+                success=False, message=f"Account validation failed: {error_message}"
             )
 
         # Format using beancount's printer for proper formatting
