@@ -5,6 +5,7 @@ import { config } from './config/index.js';
 import { registerPlugins } from './plugins/index.js';
 import { uploadModule } from './modules/upload';
 import { analyzeModule } from './modules/analyze';
+import { ledgerModule } from './modules/ledger';
 
 const fastify = Fastify({
   logger: true,
@@ -25,6 +26,7 @@ const start = async () => {
     // Register modules
     await fastify.register(uploadModule);
     await fastify.register(analyzeModule);
+    await fastify.register(ledgerModule);
 
     // Register health check route
     fastify.get('/health', async () => {

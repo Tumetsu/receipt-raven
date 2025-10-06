@@ -15,4 +15,8 @@ export const config = {
   database: {
     path: process.env.DATABASE_PATH || './data/receipts.db',
   },
+  ledger: {
+    beancountServiceUrl:
+      process.env.BEANCOUNT_SERVICE_URL || 'http://localhost:8000',
+  },
 };
