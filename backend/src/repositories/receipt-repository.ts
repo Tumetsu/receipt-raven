@@ -1,6 +1,6 @@
-import { ReceiptAnalysisResult } from '../../../types/shared.js';
+import { ReceiptAnalysisResult } from '../types/shared';
 import { InsertObject, Kysely, Selectable } from 'kysely';
-import { Database } from '../../../database/schema.js';
+import { Database } from '../database/schema';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;
@@ -14,6 +14,10 @@ export interface IReceiptRepository {
     analysis: ReceiptAnalysisResult,
     parsedBy?: string
   ): Promise<void>;
+
+  getReceiptById(receiptId: bigint): Promise<Receipt | undefined>;
+
+  getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]>;
 }
 
 /**
@@ -53,5 +57,21 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       }));
 
     await this.db.insertInto('receipt_items').values(items).execute();
+  }
+
+  async getReceiptById(receiptId: bigint): Promise<Receipt | undefined> {
+    return await this.db
+      .selectFrom('receipts')
+      .selectAll()
+      .where('id', '=', receiptId)
+      .executeTakeFirst();
+  }
+
+  async getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]> {
+    return await this.db
+      .selectFrom('receipt_items')
+      .selectAll()
+      .where('receipt_id', '=', receiptId)
+      .execute();
   }
 }

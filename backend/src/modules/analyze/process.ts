@@ -2,7 +2,7 @@ import { IReceiptJobQueueRepository } from '../../repositories/receipt-job-repos
 import { readFile } from 'fs/promises';
 import { analyzeReceipt } from './services/receipt-extraction.js';
 import { FastifyBaseLogger } from 'fastify';
-import { IReceiptRepository } from './repositories/receipt-repository.js';
+import { IReceiptRepository } from '../../repositories/receipt-repository';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
