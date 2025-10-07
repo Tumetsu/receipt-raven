@@ -83,7 +83,7 @@ backend/src/
 └── modules/
     └── analyze/          # Receipt analysis module
         ├── index.ts      # Module plugin
-        ├── routes.ts     # HTTP routes
+        ├── receipts.ts     # HTTP routes
         ├── services/     # Business logic (OpenAI, extraction)
         └── repositories/ # Data access (SQLite)
 ```

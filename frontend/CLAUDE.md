@@ -2691,7 +2691,7 @@ The `HistoryState` interface is an interface exported by the `history` package t
 You can extend this interface to add additional properties to the state object across your application.
 
 ```tsx
-// src/main.tsx
+// src/receipts.tsx
 declare module '@tanstack/react-router' {
   // ...
 
@@ -9688,7 +9688,7 @@ export const router = createRouter({
 })
 ```
 
-- `src/main.tsx`
+- `src/receipts.tsx`
 
 ```tsx
 import { RouterProvider } from '@tanstack/react-router'
@@ -13118,7 +13118,7 @@ Virtual file routes are a powerful concept that allows you to build a route tree
 Here's a quick example of using virtual file routes to map a route tree to a set of real files in your project:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import {
   rootRoute,
   route,
@@ -13163,7 +13163,7 @@ export default defineConfig({
   plugins: [
     tanstackRouter({
       target: 'react',
-      virtualRouteConfig: './routes.ts',
+      virtualRouteConfig: './receipts.ts',
     }),
     react(),
   ],
@@ -13203,7 +13203,7 @@ To create virtual file routes, you'll need to import the `@tanstack/virtual-file
 The `rootRoute` function is used to create a virtual root route. It takes a file name and an array of children routes. Here's an example of a virtual root route:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import { rootRoute } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('root.tsx', [
@@ -13216,7 +13216,7 @@ export const routes = rootRoute('root.tsx', [
 The `route` function is used to create a virtual route. It takes a path, a file name, and an array of children routes. Here's an example of a virtual route:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import { route } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('root.tsx', [
@@ -13229,7 +13229,7 @@ export const routes = rootRoute('root.tsx', [
 You can also define a virtual route without a file name. This allows to set a common path prefix for its children:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import { route } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('root.tsx', [
@@ -13255,7 +13255,7 @@ const routes = rootRoute('root.tsx', [index('index.tsx')])
 The `layout` function is used to create a virtual pathless route. It takes a file name, an array of children routes, and an optional pathless ID. Here's an example of a virtual pathless route:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import { layout } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('root.tsx', [
@@ -13268,7 +13268,7 @@ export const routes = rootRoute('root.tsx', [
 You can also specify a pathless ID to give the route a unique identifier that is different from the filename:
 
 ```tsx
-// routes.ts
+// receipts.ts
 import { layout } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('root.tsx', [
@@ -13310,7 +13310,7 @@ Consider the following file structure:
 Let's use virtual routes to customize our route tree for everything but `posts`, then use physical virtual routes to mount the `posts` directory under the `/posts` path:
 
 ```tsx
-// routes.ts
+// receipts.ts
 export const routes = rootRoute('root.tsx', [
   // Set up your virtual routes as normal
   index('index.tsx'),
@@ -13401,7 +13401,7 @@ If you're using the TanStack Router CLI, you can configure virtual file routes b
 ```json
 // tsr.config.json
 {
-  "virtualRouteConfig": "./routes.ts"
+  "virtualRouteConfig": "./receipts.ts"
 }
 ```
 
@@ -13699,7 +13699,7 @@ Create the following files:
 - `src/routes/__root.tsx` (with two '`_`' characters)
 - `src/routes/index.tsx`
 - `src/routes/about.tsx`
-- `src/main.tsx`
+- `src/receipts.tsx`
 
 #### `src/routes/__root.tsx`
 
@@ -13758,7 +13758,7 @@ function About() {
 }
 ```
 
-#### `src/main.tsx`
+#### `src/receipts.tsx`
 
 Regardless of whether you are using the `@tanstack/router-plugin` package and running the `npm run dev`/`npm run build` scripts, or manually running the `tsr watch`/`tsr generate` commands from your package scripts, the route tree file will be generated at `src/routeTree.gen.ts`.
 
@@ -14078,8 +14078,8 @@ Here is the [example repo](https://github.com/Benanna2019/SickFitsForEveryone/tr
 - [ ] Create Routes for each existing React Router route we have
 - [ ] Create root route
 - [ ] Create router instance
-- [ ] Add global module in main.tsx
-- [ ] Remove any React Router (`createBrowserRouter` or `BrowserRouter`), `Routes`, and `Route` Components from main.tsx
+- [ ] Add global module in receipts.tsx
+- [ ] Remove any React Router (`createBrowserRouter` or `BrowserRouter`), `Routes`, and `Route` Components from receipts.tsx
 - [ ] **Optional:** Refactor `render` function for custom setup/providers - The repo referenced above has an example - This was necessary in the case of Supertokens. Supertoken has a specific setup with React Router and a different setup with all other React implementations
 - [ ] Set RouterProvider and pass it the router as the prop
 - [ ] Replace all instances of React Router `Link` component with `@tanstack/react-router` `Link` component

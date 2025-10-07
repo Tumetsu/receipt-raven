@@ -7,6 +7,7 @@ import { registerPlugins } from '../plugins/index.js';
 import { uploadModule } from '../modules/upload';
 import { analyzeModule } from '../modules/analyze';
 import { ledgerModule } from '../modules/ledger';
+import { appModule } from '../modules/app';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,7 @@ async function exportOpenAPI() {
     await fastify.register(uploadModule);
     await fastify.register(analyzeModule);
     await fastify.register(ledgerModule);
+    await fastify.register(appModule);
 
     // Register health check route
     fastify.get('/health', {

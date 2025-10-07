@@ -16,6 +16,7 @@ export interface IReceiptRepository {
   ): Promise<void>;
 
   getReceiptById(receiptId: bigint): Promise<Receipt | undefined>;
+  getReceipts(): Promise<Receipt[]>;
 
   getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]>;
 }
@@ -65,6 +66,10 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .selectAll()
       .where('id', '=', receiptId)
       .executeTakeFirst();
+  }
+
+  async getReceipts(): Promise<Receipt[]> {
+    return await this.db.selectFrom('receipts').selectAll().execute();
   }
 
   async getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]> {

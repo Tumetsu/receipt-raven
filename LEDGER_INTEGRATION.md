@@ -71,7 +71,7 @@ The ledger module provides a clean abstraction for ledger operations:
 - `schemas/index.ts` - Zod validation schemas
 - `services/ledger-service.ts` - Abstract `ILedgerService` interface
 - `services/beancount-adapter.ts` - HTTP client implementation
-- `routes.ts` - REST API endpoints for frontend
+- `receipts.ts` - REST API endpoints for frontend
 - `index.ts` - Module registration
 
 **API Endpoints (exposed to frontend):**
