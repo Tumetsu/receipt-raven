@@ -76,6 +76,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '*.js', 'public/'],
+    ignores: ['dist/', 'node_modules/', '*.js', 'public/', 'src/api/generated'],
   },
 ];
