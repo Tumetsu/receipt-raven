@@ -1,14 +1,13 @@
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import App from './App.tsx';
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-  },
-});
+import { theme } from './common/theme.ts';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

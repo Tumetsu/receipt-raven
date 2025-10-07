@@ -34,6 +34,7 @@ import type {
   GetApiLedgerHealth503,
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
+  GetApiReceipts200Item,
   GetHealth200,
   PostApiLedgerSubmitReceiptReceiptId200,
   PostApiLedgerSubmitReceiptReceiptId404,
@@ -818,6 +819,133 @@ export function useGetApiLedgerHealth<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetApiLedgerHealthQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Get receipts
+ */
+export const getApiReceipts = (
+  options?: AxiosRequestConfig
+): Promise<AxiosResponse<GetApiReceipts200Item[]>> => {
+  return axios.default.get(`http://localhost:3001/api/receipts`, options);
+};
+
+export const getGetApiReceiptsQueryKey = () => {
+  return [`http://localhost:3001/api/receipts`] as const;
+};
+
+export const getGetApiReceiptsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiReceipts>>,
+  TError = AxiosError<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+  >;
+  axios?: AxiosRequestConfig;
+}) => {
+  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiReceiptsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiReceipts>>> = ({
+    signal,
+  }) => getApiReceipts({ signal, ...axiosOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiReceipts>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetApiReceiptsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getApiReceipts>>
+>;
+export type GetApiReceiptsQueryError = AxiosError<unknown>;
+
+export function useGetApiReceipts<
+  TData = Awaited<ReturnType<typeof getApiReceipts>>,
+  TError = AxiosError<unknown>,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReceipts>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReceipts>>
+        >,
+        'initialData'
+      >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReceipts<
+  TData = Awaited<ReturnType<typeof getApiReceipts>>,
+  TError = AxiosError<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReceipts>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReceipts>>
+        >,
+        'initialData'
+      >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReceipts<
+  TData = Awaited<ReturnType<typeof getApiReceipts>>,
+  TError = AxiosError<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+    >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetApiReceipts<
+  TData = Awaited<ReturnType<typeof getApiReceipts>>,
+  TError = AxiosError<unknown>,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+    >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetApiReceiptsQueryOptions(options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

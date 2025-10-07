@@ -17,6 +17,7 @@ export * from './getApiLedgerHealth503';
 export * from './getApiLedgerHealth503Status';
 export * from './getApiLedgerPayees200';
 export * from './getApiLedgerPayees500';
+export * from './getApiReceipts200Item';
 export * from './getHealth200';
 export * from './getHealth200Status';
 export * from './postApiLedgerSubmitReceiptReceiptId200';
