@@ -9,6 +9,8 @@ import { useImageCapture } from './hooks/useImageCapture.ts';
 export function UploadView(): ReactElement {
   const { capturedImage, clearImage, ...imageCapture } = useImageCapture();
 
+  // Use manual tanstack-query mutation instead of Orval generated since seems like
+  // multipart + Axios + generated hooks cause problems.
   const submitImageMutation = useMutation({
     mutationFn: async (receiptImage: string) => {
       const response = await fetch(receiptImage);

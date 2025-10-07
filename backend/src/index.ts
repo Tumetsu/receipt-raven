@@ -29,8 +29,23 @@ const start = async () => {
     await fastify.register(ledgerModule);
 
     // Register health check route
-    fastify.get('/health', async () => {
-      return { status: 'ok' };
+    fastify.get('/health', {
+      schema: {
+        tags: ['health'],
+        description: 'Health check endpoint',
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', enum: ['ok'] },
+            },
+            required: ['status'],
+          },
+        },
+      },
+      handler: async () => {
+        return { status: 'ok' };
+      },
     });
 
     // Start server

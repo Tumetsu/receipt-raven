@@ -13,7 +13,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "migration:create": "kysely migrate:make new-migration",
-    "migration:run": "kysely migrate latest"
+    "migration:run": "kysely migrate latest",
+    "openapi:export": "tsx src/scripts/export-openapi.ts"
   },
   "keywords": [
     "fastify",
@@ -28,6 +29,8 @@
     "@fastify/helmet": "^12.0.1",
     "@fastify/multipart": "^9.0.1",
     "@fastify/static": "^8.0.2",
+    "@fastify/swagger": "^9.5.2",
+    "@fastify/swagger-ui": "^5.2.3",
     "better-sqlite3": "^11.7.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.0",
