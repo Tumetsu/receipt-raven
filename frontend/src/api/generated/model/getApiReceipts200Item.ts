@@ -13,4 +13,5 @@ export type GetApiReceipts200Item = {
   date: string;
   totalSum: number;
   status: string;
+  filepath: string;
 };

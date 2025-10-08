@@ -424,6 +424,9 @@
                       },
                       "status": {
                         "type": "string"
+                      },
+                      "filepath": {
+                        "type": "string"
                       }
                     },
                     "required": [
@@ -432,7 +435,8 @@
                       "payeeName",
                       "date",
                       "totalSum",
-                      "status"
+                      "status",
+                      "filepath"
                     ]
                   }
                 }

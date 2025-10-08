@@ -8,6 +8,15 @@ export const receiptDtoSchema = {
     date: { type: 'string' },
     totalSum: { type: 'number' },
     status: { type: 'string' },
+    filepath: { type: 'string' },
   },
-  required: ['id', 'jobId', 'payeeName', 'date', 'totalSum', 'status'],
+  required: [
+    'id',
+    'jobId',
+    'payeeName',
+    'date',
+    'totalSum',
+    'status',
+    'filepath',
+  ],
 };

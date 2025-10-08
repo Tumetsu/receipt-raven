@@ -1,6 +1,7 @@
 import { ReceiptAnalysisResult } from '../types/shared';
 import { InsertObject, Kysely, Selectable } from 'kysely';
 import { Database } from '../database/schema';
+import { ReceiptJob } from './receipt-job-repository';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;
@@ -16,7 +17,7 @@ export interface IReceiptRepository {
   ): Promise<void>;
 
   getReceiptById(receiptId: bigint): Promise<Receipt | undefined>;
-  getReceipts(): Promise<Receipt[]>;
+  getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]>;
 
   getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]>;
 }
@@ -68,8 +69,13 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .executeTakeFirst();
   }
 
-  async getReceipts(): Promise<Receipt[]> {
-    return await this.db.selectFrom('receipts').selectAll().execute();
+  async getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]> {
+    return this.db
+      .selectFrom('receipts')
+      .innerJoin('receipt_jobs as job', 'receipts.job_id', 'job.id')
+      .selectAll('receipts')
+      .select(['job.filepath'])
+      .execute();
   }
 
   async getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]> {
