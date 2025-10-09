@@ -1,4 +1,4 @@
-import { Box, Card, Grid, TextField } from '@mui/material';
+import { Box, Card, Grid, Stack, TextField } from '@mui/material';
 import { GetApiReceipts200Item } from '../../../api/generated/model';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
@@ -11,20 +11,42 @@ export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
     <Box>
       <Card sx={{ p: 2 }}>
         <Grid container spacing={2}>
-          <Grid size={6}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField label="Payee" value={receipt.payeeName} required />
-              <TextField label="Date" value={receipt.date} required />
-              <TextField label="Total sum" value={receipt.totalSum} required />
-            </Box>
-          </Grid>
-          <Grid size={6}>
-            <Img
-              sx={{ height: '20' }}
-              src={receipt.filepath}
-              alt="Receipt"
-              onClick={imgModal.openModal}
-            />
+          <Grid
+            size={{
+              xs: 12,
+              lg: 12,
+            }}
+          >
+            <Stack
+              spacing={2}
+              useFlexGap
+              direction={{
+                xs: 'column-reverse',
+                lg: 'row',
+              }}
+            >
+              <Stack spacing={2} useFlexGap>
+                <TextField label="Payee" value={receipt.payeeName} required />
+                <TextField label="Date" value={receipt.date} required />
+                <TextField
+                  label="Total sum"
+                  value={receipt.totalSum}
+                  required
+                />
+              </Stack>
+              <Img
+                sx={{
+                  height: '20',
+                  width: {
+                    xs: '100%',
+                    lg: '50%',
+                  },
+                }}
+                src={receipt.filepath}
+                alt="Receipt"
+                onClick={imgModal.openModal}
+              />
+            </Stack>
           </Grid>
         </Grid>
       </Card>
