@@ -11,15 +11,15 @@ export type ReceiptItem = Selectable<Database['receipt_items']>;
  */
 export interface IReceiptRepository {
   saveReceipt(
-    jobId: bigint,
+    jobId: number,
     analysis: ReceiptAnalysisResult,
     parsedBy?: string
   ): Promise<void>;
 
-  getReceiptById(receiptId: bigint): Promise<Receipt | undefined>;
+  getReceiptById(receiptId: number): Promise<Receipt | undefined>;
   getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]>;
 
-  getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]>;
+  getReceiptItems(receiptId: number): Promise<ReceiptItem[]>;
 }
 
 /**
@@ -29,7 +29,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
   constructor(private db: Kysely<Database>) {}
 
   async saveReceipt(
-    jobId: bigint,
+    jobId: number,
     analysis: ReceiptAnalysisResult,
     parsedBy?: string
   ): Promise<void> {
@@ -51,7 +51,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
 
     const items: InsertObject<Database, 'receipt_items'>[] =
       analysis.products.map(p => ({
-        receipt_id: insertedId,
+        receipt_id: Number(insertedId),
         name: p.name,
         category: p.category,
         price: p.price,
@@ -61,7 +61,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
     await this.db.insertInto('receipt_items').values(items).execute();
   }
 
-  async getReceiptById(receiptId: bigint): Promise<Receipt | undefined> {
+  async getReceiptById(receiptId: number): Promise<Receipt | undefined> {
     return await this.db
       .selectFrom('receipts')
       .selectAll()
@@ -78,7 +78,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .execute();
   }
 
-  async getReceiptItems(receiptId: bigint): Promise<ReceiptItem[]> {
+  async getReceiptItems(receiptId: number): Promise<ReceiptItem[]> {
     return await this.db
       .selectFrom('receipt_items')
       .selectAll()

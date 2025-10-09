@@ -210,7 +210,7 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
     },
     handler: async (request, reply) => {
       try {
-        const receiptId = BigInt(request.params.receiptId);
+        const receiptId = parseInt(request.params.receiptId);
         const { sourceAccount, currency, itemAccountMappings } = request.body;
 
         // Fetch receipt data from database

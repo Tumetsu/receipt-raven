@@ -10,8 +10,8 @@ export interface Database {
 }
 
 export interface ReceiptsTable {
-  id: Generated<bigint>;
-  job_id: bigint;
+  id: Generated<number>;
+  job_id: number;
   shop: string;
   receipt_date: string;
   total_sum: number;
@@ -20,8 +20,8 @@ export interface ReceiptsTable {
 }
 
 export interface ReceiptItemsTable {
-  id: Generated<bigint>;
-  receipt_id: bigint;
+  id: Generated<number>;
+  receipt_id: number;
   name: string;
   category: string;
   price: number;
@@ -30,7 +30,7 @@ export interface ReceiptItemsTable {
 }
 
 export interface ReceiptJobsTable {
-  id: Generated<bigint>;
+  id: Generated<number>;
   filepath: string;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string>;

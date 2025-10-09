@@ -15,7 +15,7 @@ export interface IReceiptJobQueueRepository {
 
   getUnprocessedJob(): Promise<ReceiptJob | undefined>;
 
-  markJobProcessed(jobId: bigint): Promise<void>;
+  markJobProcessed(jobId: number): Promise<void>;
 }
 
 /**
@@ -43,7 +43,7 @@ export class SQLiteReceiptJoqbQueueRepository
       .executeTakeFirst();
   }
 
-  async markJobProcessed(jobId: bigint): Promise<void> {
+  async markJobProcessed(jobId: number): Promise<void> {
     await this.db
       .updateTable('receipt_jobs')
       .set({ processed_at: new Date().toISOString() })

@@ -64,7 +64,7 @@ export interface Transaction {
  * Receipt-specific transaction data for convenience
  */
 export interface ReceiptTransactionData {
-  receiptId: bigint; // Receipt ID from database
+  receiptId: number; // Receipt ID from database
   shop: string; // Shop name
   date: string; // Receipt date
   items: ReceiptTransactionItem[]; // Receipt items
