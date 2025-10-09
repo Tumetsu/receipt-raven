@@ -1,10 +1,11 @@
-import { Paper } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Card } from '@mui/material';
+import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
 import { GetApiReceipts200Item } from '../../../api/generated/model';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200Item[]; // TODO: Fix with some non-dto type shared between backend and frontend?
+  onRowClick: (id: number) => void;
 }): ReactElement {
   const rows = props.receipts.map(r => ({
     id: r.id,
@@ -22,15 +23,22 @@ export function ReceiptList(props: {
   ];
   const paginationModel = { page: 0, pageSize: 50 };
 
+  const handleClick = (params: GridRowParams) => {
+    const id = params.id;
+    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
+    props.onRowClick(numericId);
+  };
+
   return (
-    <Paper sx={{ height: '90vh', width: '100%' }}>
+    <Card sx={{ height: '90vh', width: '100%' }}>
       <DataGrid
         rows={rows}
+        onRowClick={handleClick}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
         sx={{ border: 0 }}
       />
-    </Paper>
+    </Card>
   );
 }
