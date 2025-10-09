@@ -6,7 +6,7 @@ import receiptRoutes from './routes/receipts';
 /**
  * Frontend app module plugin - handles frontend UI endpoints
  */
-export const appModule: FastifyPluginAsync = async (fastify, opts) => {
+export const appModule: FastifyPluginAsync = async (fastify, _opts) => {
   // Create repositories with injected database
   const receiptRepository = new SQLiteReceiptRepository(fastify.db);
   const receiptJobQueueRepository = new SQLiteReceiptJoqbQueueRepository(

@@ -124,16 +124,4 @@ export class BeancountAdapter implements ILedgerService {
     const validated = TransactionSubmitResponseSchema.parse(data);
     return validated;
   }
-
-  async healthCheck(): Promise<boolean> {
-    try {
-      const url = new URL('/health', this.baseUrl);
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-      });
-      return response.ok;
-    } catch (error) {
-      return false;
-    }
-  }
 }

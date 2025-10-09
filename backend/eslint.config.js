@@ -50,6 +50,7 @@ export default [
       'object-shorthand': 'error',
       'prefer-arrow-callback': 'error',
       'prettier/prettier': 'error',
+      'no-undef': 'off',
     },
   },
   {
