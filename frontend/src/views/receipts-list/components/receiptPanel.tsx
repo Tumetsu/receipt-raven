@@ -1,15 +1,12 @@
-import { Box, Card, Grid, styled, TextField } from '@mui/material';
+import { Box, Card, Grid, TextField } from '@mui/material';
 import { GetApiReceipts200Item } from '../../../api/generated/model';
-
-const StyledImg = styled('img')({
-  width: '100%',
-  height: '20',
-  objectFit: 'cover',
-  borderRadius: '8px',
-});
+import { useModal } from '../hooks/useModal';
+import { ReceiptImageModal } from './receiptImageModal.tsx';
+import { Img } from '../../../common/components/Img.tsx';
 
 export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
   const { receipt } = props;
+  const imgModal = useModal();
   return (
     <Box>
       <Card sx={{ p: 2 }}>
@@ -22,10 +19,20 @@ export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
             </Box>
           </Grid>
           <Grid size={6}>
-            <StyledImg src={receipt.filepath} alt="Receipt" />
+            <Img
+              sx={{ height: '20' }}
+              src={receipt.filepath}
+              alt="Receipt"
+              onClick={imgModal.openModal}
+            />
           </Grid>
         </Grid>
       </Card>
+      <ReceiptImageModal
+        open={imgModal.isOpen}
+        onClose={imgModal.onModalClose}
+        imagePath={receipt.filepath}
+      />
     </Box>
   );
 }
