@@ -1,22 +1,33 @@
-import { Box, Card, Grid, Stack, TextField } from '@mui/material';
+import {
+  Box,
+  Card,
+  CircularProgress,
+  Grid,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { GetApiReceipts200Item } from '../../../api/generated/model';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
 import { Img } from '../../../common/components/Img.tsx';
+import { useGetApiReceiptsReceiptIdItems } from '../../../api/generated/api.ts';
+import { ReceiptItemList } from './receiptItemList.tsx';
 
-export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
+function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
   const { receipt } = props;
   const imgModal = useModal();
+
+  const {
+    isPending,
+    isSuccess,
+    data: result,
+  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
+
   return (
     <Box>
       <Card sx={{ p: 2 }}>
-        <Grid container spacing={2}>
-          <Grid
-            size={{
-              xs: 12,
-              lg: 12,
-            }}
-          >
+        <Grid container spacing={6}>
+          <Grid size={12}>
             <Stack
               spacing={2}
               useFlexGap
@@ -48,6 +59,20 @@ export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
               />
             </Stack>
           </Grid>
+          <Grid size={12}>
+            {isPending && (
+              <Box
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            )}
+            {isSuccess && <ReceiptItemList items={result.data} />}
+          </Grid>
         </Grid>
       </Card>
       <ReceiptImageModal
@@ -58,3 +83,5 @@ export function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
     </Box>
   );
 }
+
+export default ReceiptPanel;

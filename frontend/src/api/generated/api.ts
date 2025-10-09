@@ -35,6 +35,7 @@ import type {
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
   GetApiReceipts200Item,
+  GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
   PostApiLedgerSubmitReceiptReceiptId200,
   PostApiLedgerSubmitReceiptReceiptId404,
@@ -946,6 +947,175 @@ export function useGetApiReceipts<
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
   const queryOptions = getGetApiReceiptsQueryOptions(options);
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Get receipt items
+ */
+export const getApiReceiptsReceiptIdItems = (
+  receiptId: string,
+  options?: AxiosRequestConfig
+): Promise<AxiosResponse<GetApiReceiptsReceiptIdItems200Item[]>> => {
+  return axios.default.get(
+    `http://localhost:3001/api/receipts/${receiptId}/items`,
+    options
+  );
+};
+
+export const getGetApiReceiptsReceiptIdItemsQueryKey = (receiptId?: string) => {
+  return [`http://localhost:3001/api/receipts/${receiptId}/items`] as const;
+};
+
+export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+  TError = AxiosError<unknown>,
+>(
+  receiptId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+        TError,
+        TData
+      >
+    >;
+    axios?: AxiosRequestConfig;
+  }
+) => {
+  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetApiReceiptsReceiptIdItemsQueryKey(receiptId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
+  > = ({ signal }) =>
+    getApiReceiptsReceiptIdItems(receiptId, { signal, ...axiosOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!receiptId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetApiReceiptsReceiptIdItemsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
+>;
+export type GetApiReceiptsReceiptIdItemsQueryError = AxiosError<unknown>;
+
+export function useGetApiReceiptsReceiptIdItems<
+  TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+  TError = AxiosError<unknown>,
+>(
+  receiptId: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
+        >,
+        'initialData'
+      >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReceiptsReceiptIdItems<
+  TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+  TError = AxiosError<unknown>,
+>(
+  receiptId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
+        >,
+        'initialData'
+      >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReceiptsReceiptIdItems<
+  TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+  TError = AxiosError<unknown>,
+>(
+  receiptId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+        TError,
+        TData
+      >
+    >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetApiReceiptsReceiptIdItems<
+  TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+  TError = AxiosError<unknown>,
+>(
+  receiptId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
+        TError,
+        TData
+      >
+    >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetApiReceiptsReceiptIdItemsQueryOptions(
+    receiptId,
+    options
+  );
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

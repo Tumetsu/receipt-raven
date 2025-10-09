@@ -446,6 +446,64 @@
         }
       }
     },
+    "/api/receipts/{receiptId}/items": {
+      "get": {
+        "tags": [
+          "receipts"
+        ],
+        "description": "Get receipt items",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "receiptId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of receipt items in a receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List of receipt items in a receipt",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "receiptId": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "date": {
+                        "type": "string"
+                      },
+                      "price": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "receiptId",
+                      "name",
+                      "date",
+                      "price"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [

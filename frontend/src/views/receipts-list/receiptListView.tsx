@@ -3,7 +3,7 @@ import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
 import { GetApiReceipts200Item } from '../../api/generated/model';
-import { ReceiptPanel } from './components/receiptPanel.tsx';
+import ReceiptPanel from './components/receiptPanel.tsx';
 
 export function ReceiptListView(): ReactElement {
   const { isPending, isSuccess, data: result } = useGetApiReceipts();

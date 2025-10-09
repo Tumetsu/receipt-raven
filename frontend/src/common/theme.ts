@@ -3,6 +3,15 @@ import { responsiveFontSizes } from '@mui/material';
 
 const base = createTheme({
   palette: { mode: 'light' },
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          padding: '8px', // or theme.spacing(1)
+        },
+      },
+    },
+  },
 });
 
 // Overwrite typography variants

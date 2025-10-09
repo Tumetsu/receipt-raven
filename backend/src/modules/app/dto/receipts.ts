@@ -20,3 +20,14 @@ export const receiptDtoSchema = {
     'filepath',
   ],
 };
+
+export const receiptItemDtoSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'number' },
+    receiptId: { type: 'number' },
+    name: { type: 'string' },
+    price: { type: 'number' },
+  },
+  required: ['id', 'receiptId', 'name', 'price'],
+};
