@@ -254,46 +254,6 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
       }
     },
   });
-
-  /**
-   * GET /api/ledger/health
-   * Health check for the ledger service connection
-   */
-  fastify.get('/ledger/health', {
-    schema: {
-      tags: ['ledger'],
-      description: 'Health check for the ledger service connection',
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            status: { type: 'string', enum: ['ok'] },
-          },
-          required: ['status'],
-        },
-        503: {
-          type: 'object',
-          properties: {
-            status: { type: 'string', enum: ['unavailable', 'error'] },
-          },
-          required: ['status'],
-        },
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const isHealthy = await fastify.ledgerService.healthCheck();
-        if (isHealthy) {
-          return { status: 'ok' };
-        } else {
-          return reply.code(503).send({ status: 'unavailable' });
-        }
-      } catch (error) {
-        fastify.log.error({ error }, 'Ledger health check failed');
-        return reply.code(503).send({ status: 'error' });
-      }
-    },
-  });
 };
 
 export default ledgerRoutes;
