@@ -5,8 +5,10 @@ import {
   Card,
   Grid,
   Stack,
+  Box,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
+import AddIcon from '@mui/icons-material/Add';
 import { GetApiReceiptsReceiptIdItems200Item } from '../../../api/generated/model';
 
 export function ReceiptItemList(props: {
@@ -15,9 +17,14 @@ export function ReceiptItemList(props: {
   const { items } = props;
   return (
     <>
-      <Typography variant="h4" sx={{ marginBottom: 2 }}>
-        Products
-      </Typography>
+      <Box sx={{ position: 'relative' }}>
+        <Typography variant="h4" sx={{ marginBottom: 2 }}>
+          Products
+        </Typography>
+        <IconButton sx={{ position: 'absolute', right: 4, top: 1 }}>
+          <AddIcon />
+        </IconButton>
+      </Box>
       {items.map(row => (
         <Card
           variant="outlined"
