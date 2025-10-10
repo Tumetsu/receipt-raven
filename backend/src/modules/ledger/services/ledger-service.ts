@@ -53,10 +53,4 @@ export interface ILedgerService {
     message?: string;
     transactionId?: string;
   }>;
-
-  /**
-   * Health check for the ledger service
-   * @returns True if service is available
-   */
-  healthCheck(): Promise<boolean>;
 }
