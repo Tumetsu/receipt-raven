@@ -24,7 +24,6 @@ export function ReceiptListView(): ReactElement {
             receipts={result.data}
             onRowClick={id => {
               const receipt = result.data.find(r => r.id === id) || null;
-              console.log(id, receipt);
               setSelectedReceipt(receipt);
             }}
           ></ReceiptList>
