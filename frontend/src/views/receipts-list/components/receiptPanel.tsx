@@ -39,6 +39,7 @@ function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
               <Stack spacing={2} useFlexGap>
                 <TextField label="Payee" value={receipt.payeeName} required />
                 <TextField label="Date" value={receipt.date} required />
+                <TextField label="Account" required />
                 <TextField
                   label="Total sum"
                   value={receipt.totalSum}
