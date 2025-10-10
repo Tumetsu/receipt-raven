@@ -1,14 +1,10 @@
 import {
-  Box,
-  Table,
-  TableBody,
-  TableContainer,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
   IconButton,
+  Card,
+  Grid,
+  Stack,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import { GetApiReceiptsReceiptIdItems200Item } from '../../../api/generated/model';
@@ -19,40 +15,34 @@ export function ReceiptItemList(props: {
   const { items } = props;
   return (
     <>
-      <Typography variant="h4">Products</Typography>
-      <TableContainer component={Box}>
-        <Table sx={{ minWidth: '100%' }} aria-label="Receipt items table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {items.map(row => (
-              <TableRow
-                key={row.id}
-                sx={{
-                  '&:last-child td, &:last-child th': { border: 0 },
-                }}
-              >
-                <TableCell component="th" scope="row">
-                  <TextField value={row.name} />
-                </TableCell>
-                <TableCell align="right">
-                  <TextField value={row.price} />
-                </TableCell>
-                <TableCell padding="none">
-                  <IconButton>
-                    <ClearIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Typography variant="h4" sx={{ marginBottom: 2 }}>
+        Products
+      </Typography>
+      {items.map(row => (
+        <Card
+          key={row.id}
+          sx={{ position: 'relative', marginBottom: 2, padding: 2 }}
+        >
+          <IconButton sx={{ position: 'absolute', right: 4, top: 1 }}>
+            <ClearIcon />
+          </IconButton>
+          <Grid container gap={2}>
+            <Grid size={11}>
+              <Stack direction="row" useFlexGap gap={2}>
+                <TextField label="Product" value={row.name} />
+                <TextField label="Price" value={row.price} />
+              </Stack>
+            </Grid>
+            <Grid size={11}>
+              <TextField
+                sx={{ width: '100%' }}
+                label="Expense category"
+                value={row.category}
+              />
+            </Grid>
+          </Grid>
+        </Card>
+      ))}
     </>
   );
 }

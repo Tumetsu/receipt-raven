@@ -27,7 +27,8 @@ export const receiptItemDtoSchema = {
     id: { type: 'number' },
     receiptId: { type: 'number' },
     name: { type: 'string' },
+    category: { type: 'string' },
     price: { type: 'number' },
   },
-  required: ['id', 'receiptId', 'name', 'price'],
+  required: ['id', 'receiptId', 'name', 'price', 'category'],
 };

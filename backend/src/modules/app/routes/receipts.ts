@@ -62,7 +62,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
           receiptId: r.receipt_id,
           name: r.name,
           price: r.price,
-          totalSum: r.category,
+          category: r.category,
         };
       });
     },

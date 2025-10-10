@@ -10,6 +10,6 @@ export type GetApiReceiptsReceiptIdItems200Item = {
   id: number;
   receiptId: number;
   name: string;
-  date: string;
+  category: string;
   price: number;
 };

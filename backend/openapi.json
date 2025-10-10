@@ -482,7 +482,7 @@
                       "name": {
                         "type": "string"
                       },
-                      "date": {
+                      "category": {
                         "type": "string"
                       },
                       "price": {
@@ -493,8 +493,8 @@
                       "id",
                       "receiptId",
                       "name",
-                      "date",
-                      "price"
+                      "price",
+                      "category"
                     ]
                   }
                 }
