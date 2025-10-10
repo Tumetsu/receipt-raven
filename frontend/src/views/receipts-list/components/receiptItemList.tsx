@@ -36,7 +36,7 @@ export function ReceiptItemList(props: {
             </Grid>
             <Grid size={11}>
               <TextField
-                sx={{ width: '100%' }}
+                fullWidth
                 label="Expense category"
                 value={row.category}
               />
