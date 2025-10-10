@@ -10,11 +10,18 @@ import {
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { GetApiReceiptsReceiptIdItems200Item } from '../../../api/generated/model';
+import { useGetApiLedgerAccounts } from '../../../api/generated/api';
+import { ComboBox } from '../../../common/components/comboBox.tsx';
 
 export function ReceiptItemList(props: {
   items: GetApiReceiptsReceiptIdItems200Item[];
 }) {
   const { items } = props;
+
+  const expenseAccounts = useGetApiLedgerAccounts({
+    type: 'Expenses',
+  });
+
   return (
     <>
       <Box sx={{ position: 'relative' }}>
@@ -42,11 +49,12 @@ export function ReceiptItemList(props: {
               </Stack>
             </Grid>
             <Grid size={11}>
-              <TextField
-                fullWidth
-                label="Expense category"
-                value={row.category}
-              />
+              {expenseAccounts.isSuccess && (
+                <ComboBox
+                  options={expenseAccounts.data.data}
+                  label="Expense category"
+                />
+              )}
             </Grid>
           </Grid>
         </Card>

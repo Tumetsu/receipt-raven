@@ -28,7 +28,7 @@ class Category(BaseModel):
     """Category model"""
 
     name: str
-    account_mapping: Optional[str] = None
+    account_mapping: str
 
 
 class Payee(BaseModel):

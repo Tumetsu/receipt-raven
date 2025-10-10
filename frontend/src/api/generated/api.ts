@@ -25,10 +25,9 @@ import * as axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import type {
-  GetApiLedgerAccounts200,
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
-  GetApiLedgerCategories200,
+  GetApiLedgerCategories200Item,
   GetApiLedgerCategories500,
   GetApiLedgerHealth200,
   GetApiLedgerHealth503,
@@ -131,7 +130,7 @@ export const usePostApiUpload = <
 export const getApiLedgerAccounts = (
   params?: GetApiLedgerAccountsParams,
   options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiLedgerAccounts200>> => {
+): Promise<AxiosResponse<string[]>> => {
   return axios.default.get(`http://localhost:3001/api/ledger/accounts`, {
     ...options,
     params: { ...params, ...options?.params },
@@ -295,7 +294,7 @@ export function useGetApiLedgerAccounts<
  */
 export const getApiLedgerCategories = (
   options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiLedgerCategories200>> => {
+): Promise<AxiosResponse<GetApiLedgerCategories200Item[]>> => {
   return axios.default.get(
     `http://localhost:3001/api/ledger/categories`,
     options

@@ -24,14 +24,10 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
       },
       response: {
         200: {
-          type: 'object',
-          properties: {
-            accounts: {
-              type: 'array',
-              items: { type: 'string' },
-            },
+          type: 'array',
+          items: {
+            type: 'string',
           },
-          required: ['accounts'],
         },
         500: {
           type: 'object',
@@ -47,7 +43,7 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
       try {
         const { type } = request.query;
         const accounts = await fastify.ledgerService.getAccounts(type);
-        return { accounts };
+        return accounts.map(a => a.name);
       } catch (error) {
         fastify.log.error({ error }, 'Failed to fetch accounts from ledger');
         return reply.code(500).send({
@@ -68,14 +64,15 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
       description: 'Get expense categories from the ledger',
       response: {
         200: {
-          type: 'object',
-          properties: {
-            categories: {
-              type: 'array',
-              items: { type: 'string' },
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              account_mapping: { type: 'string' },
             },
+            required: ['name', 'account_mapping'],
           },
-          required: ['categories'],
         },
         500: {
           type: 'object',
@@ -90,6 +87,7 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
     handler: async (request, reply) => {
       try {
         const categories = await fastify.ledgerService.getCategories();
+        console.log(categories);
         return { categories };
       } catch (error) {
         fastify.log.error({ error }, 'Failed to fetch categories from ledger');

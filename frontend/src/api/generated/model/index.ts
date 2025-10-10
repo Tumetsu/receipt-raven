@@ -10,6 +10,7 @@ export * from './getApiLedgerAccounts200';
 export * from './getApiLedgerAccounts500';
 export * from './getApiLedgerAccountsParams';
 export * from './getApiLedgerCategories200';
+export * from './getApiLedgerCategories200Item';
 export * from './getApiLedgerCategories500';
 export * from './getApiLedgerHealth200';
 export * from './getApiLedgerHealth200Status';

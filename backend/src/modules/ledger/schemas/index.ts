@@ -15,7 +15,7 @@ export const AccountSchema = z.object({
 
 export const CategorySchema = z.object({
   name: z.string(),
-  accountMapping: z.string().optional(),
+  account_mapping: z.string(),
 });
 
 export const PayeeSchema = z.object({
