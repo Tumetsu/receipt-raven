@@ -20,6 +20,7 @@ export function ReceiptItemList(props: {
       </Typography>
       {items.map(row => (
         <Card
+          variant="outlined"
           key={row.id}
           sx={{ position: 'relative', marginBottom: 2, padding: 2 }}
         >
