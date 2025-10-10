@@ -16,15 +16,5 @@ export const ledgerModule: FastifyPluginAsync = async (fastify, _opts) => {
   // Register routes with /api prefix
   await fastify.register(ledgerRoutes, { prefix: '/api' });
 
-  // Health check on module registration
-  const isHealthy = await ledgerService.healthCheck();
-  if (isHealthy) {
-    fastify.log.info('Ledger service connection successful');
-  } else {
-    fastify.log.warn(
-      'Ledger service is not available - ledger endpoints will fail'
-    );
-  }
-
   fastify.log.info('Ledger module registered');
 };
