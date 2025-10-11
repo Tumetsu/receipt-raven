@@ -36,7 +36,34 @@ const receiptItemDtoSchema = {
   required: ['id', 'receiptId', 'name', 'price', 'category'],
 };
 
+const receiptSubmissionDtoSchema = {
+  $id: 'receiptSubmission',
+  type: 'object',
+  properties: {
+    account: { type: 'string' },
+    payeeName: { type: 'string' },
+    date: { type: 'string' },
+    totalSum: { type: 'number' },
+    items: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' }, // Missing from new items created on frontend
+          name: { type: 'string' },
+          price: { type: 'number' },
+          category: { type: 'string' },
+        },
+        required: ['name', 'price', 'category'],
+      },
+    },
+  },
+  required: ['account', 'payeeName', 'date', 'totalSum', 'items'],
+};
+
 export function addSchemas(fastify: FastifyInstance): void {
   fastify.addSchema(receiptDtoSchema);
   fastify.addSchema(receiptItemDtoSchema);
+  fastify.addSchema(receiptSubmissionDtoSchema);
 }

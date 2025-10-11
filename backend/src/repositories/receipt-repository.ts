@@ -16,6 +16,11 @@ export interface IReceiptRepository {
     parsedBy?: string
   ): Promise<void>;
 
+  updateReceipt(
+    receiptId: number,
+    data: { shop: string; receipt_date: string; total_sum: number }
+  ): Promise<void>;
+
   getReceiptById(receiptId: number): Promise<Receipt | undefined>;
   getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]>;
 
@@ -59,6 +64,17 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       }));
 
     await this.db.insertInto('receipt_items').values(items).execute();
+  }
+
+  async updateReceipt(
+    receiptId: number,
+    data: { shop: string; receipt_date: string; total_sum: number }
+  ): Promise<void> {
+    await this.db
+      .updateTable('receipts')
+      .set(data)
+      .where('id', '=', receiptId)
+      .execute();
   }
 
   async getReceiptById(receiptId: number): Promise<Receipt | undefined> {

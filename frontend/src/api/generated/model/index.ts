@@ -8,6 +8,8 @@
 
 export * from './def0';
 export * from './def1';
+export * from './def2';
+export * from './def2ItemsItem';
 export * from './getApiLedgerAccounts200';
 export * from './getApiLedgerAccounts500';
 export * from './getApiLedgerAccountsParams';

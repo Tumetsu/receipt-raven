@@ -27,6 +27,7 @@ import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import type {
   Def0,
   Def1,
+  Def2,
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
   GetApiLedgerCategories200Item,
@@ -807,6 +808,90 @@ export function useGetApiReceipts<
 
   return query;
 }
+
+/**
+ * Save receipt and its items to the ledger
+ */
+export const postApiReceiptsReceiptId = (
+  receiptId: string,
+  def2: Def2,
+  options?: AxiosRequestConfig
+): Promise<AxiosResponse<Def0>> => {
+  return axios.default.post(
+    `http://localhost:3001/api/receipts/${receiptId}`,
+    def2,
+    options
+  );
+};
+
+export const getPostApiReceiptsReceiptIdMutationOptions = <
+  TError = AxiosError<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
+    TError,
+    { receiptId: string; data: Def2 },
+    TContext
+  >;
+  axios?: AxiosRequestConfig;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
+  TError,
+  { receiptId: string; data: Def2 },
+  TContext
+> => {
+  const mutationKey = ['postApiReceiptsReceiptId'];
+  const { mutation: mutationOptions, axios: axiosOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, axios: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
+    { receiptId: string; data: Def2 }
+  > = props => {
+    const { receiptId, data } = props ?? {};
+
+    return postApiReceiptsReceiptId(receiptId, data, axiosOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiReceiptsReceiptIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiReceiptsReceiptId>>
+>;
+export type PostApiReceiptsReceiptIdMutationBody = Def2;
+export type PostApiReceiptsReceiptIdMutationError = AxiosError<unknown>;
+
+export const usePostApiReceiptsReceiptId = <
+  TError = AxiosError<unknown>,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
+      TError,
+      { receiptId: string; data: Def2 },
+      TContext
+    >;
+    axios?: AxiosRequestConfig;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
+  TError,
+  { receiptId: string; data: Def2 },
+  TContext
+> => {
+  const mutationOptions = getPostApiReceiptsReceiptIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
 
 /**
  * Get receipt items

@@ -70,6 +70,57 @@
           "category"
         ],
         "title": "receiptItem"
+      },
+      "def-2": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "totalSum": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "category": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "price",
+                "category"
+              ]
+            }
+          }
+        },
+        "required": [
+          "account",
+          "payeeName",
+          "date",
+          "totalSum",
+          "items"
+        ],
+        "title": "receiptSubmission"
       }
     }
   },
@@ -415,6 +466,45 @@
                   "items": {
                     "$ref": "#/components/schemas/def-0"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/receipts/{receiptId}": {
+      "post": {
+        "tags": [
+          "receipts"
+        ],
+        "description": "Save receipt and its items to the ledger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/def-2"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "receiptId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/def-0"
                 }
               }
             }

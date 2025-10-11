@@ -30,6 +30,66 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
     },
   });
 
+  fastify.post('/receipts/:receiptId', {
+    schema: {
+      tags: ['receipts'],
+      description: 'Save receipt and its items to the ledger',
+      params: {
+        type: 'object',
+        properties: {
+          receiptId: { type: 'string' },
+        },
+        required: ['receiptId'],
+      },
+      body: { $ref: 'receiptSubmission' },
+      response: {
+        200: { $ref: 'receipt' },
+        404: { error: 'string' },
+      },
+    },
+    handler: async (
+      request: FastifyRequest<{
+        Params: { receiptId: string };
+        Body: {
+          account: string;
+          payeeName: string;
+          date: string;
+          totalSum: number;
+          items: Array<{ name: string; price: number; category: string }>;
+        };
+      }>,
+      reply
+    ) => {
+      const receiptId = parseInt(request.params.receiptId, 10);
+      const { payeeName, date, totalSum } = request.body;
+
+      await fastify.receiptRepository.updateReceipt(receiptId, {
+        shop: payeeName,
+        receipt_date: date,
+        total_sum: totalSum,
+      });
+
+      // TODO: save receipt items
+      // TODO: save to ledger
+      // TODO: combine items to single expense categories?
+
+      // Return updated receipt
+      const updatedReceipt =
+        await fastify.receiptRepository.getReceiptById(receiptId);
+      if (!updatedReceipt) {
+        return reply.status(404).send({ error: 'Receipt not found' });
+      }
+
+      return {
+        id: updatedReceipt.id,
+        payeeName: updatedReceipt.shop,
+        date: updatedReceipt.receipt_date,
+        totalSum: updatedReceipt.total_sum,
+        status: 'waiting',
+      };
+    },
+  });
+
   fastify.get('/receipts/:receiptId/items', {
     schema: {
       tags: ['receipts'],
