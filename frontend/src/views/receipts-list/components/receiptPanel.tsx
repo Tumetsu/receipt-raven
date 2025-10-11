@@ -31,8 +31,7 @@ interface IReceiptInputs {
   }[];
 }
 
-function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
-  const { receipt } = props;
+function ReceiptPanel({ receipt }: { receipt: GetApiReceipts200Item }) {
   const imgModal = useModal();
   const {
     isPending,
