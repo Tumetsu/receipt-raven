@@ -1,5 +1,4 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import { receiptDtoSchema, receiptItemDtoSchema } from '../dto/receipts';
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
   fastify.get('/receipts', {
@@ -10,7 +9,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         200: {
           description: 'List of receipts',
           type: 'array',
-          items: receiptDtoSchema,
+          items: { $ref: 'receipt' },
         },
       },
     },
@@ -44,7 +43,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         200: {
           description: 'List of receipt items in a receipt',
           type: 'array',
-          items: receiptItemDtoSchema,
+          items: { $ref: 'receiptItem' },
         },
       },
     },

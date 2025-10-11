@@ -25,16 +25,14 @@ import * as axios from 'axios';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import type {
+  Def0,
+  Def1,
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
   GetApiLedgerCategories200Item,
   GetApiLedgerCategories500,
-  GetApiLedgerHealth200,
-  GetApiLedgerHealth503,
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
-  GetApiReceipts200Item,
-  GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
   PostApiLedgerSubmitReceiptReceiptId200,
   PostApiLedgerSubmitReceiptReceiptId404,
@@ -684,158 +682,11 @@ export const usePostApiLedgerSubmitReceiptReceiptId = <
 };
 
 /**
- * Health check for the ledger service connection
- */
-export const getApiLedgerHealth = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiLedgerHealth200>> => {
-  return axios.default.get(`http://localhost:3001/api/ledger/health`, options);
-};
-
-export const getGetApiLedgerHealthQueryKey = () => {
-  return [`http://localhost:3001/api/ledger/health`] as const;
-};
-
-export const getGetApiLedgerHealthQueryOptions = <
-  TData = Awaited<ReturnType<typeof getApiLedgerHealth>>,
-  TError = AxiosError<GetApiLedgerHealth503>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof getApiLedgerHealth>>,
-      TError,
-      TData
-    >
-  >;
-  axios?: AxiosRequestConfig;
-}) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getGetApiLedgerHealthQueryKey();
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getApiLedgerHealth>>
-  > = ({ signal }) => getApiLedgerHealth({ signal, ...axiosOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getApiLedgerHealth>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
-
-export type GetApiLedgerHealthQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getApiLedgerHealth>>
->;
-export type GetApiLedgerHealthQueryError = AxiosError<GetApiLedgerHealth503>;
-
-export function useGetApiLedgerHealth<
-  TData = Awaited<ReturnType<typeof getApiLedgerHealth>>,
-  TError = AxiosError<GetApiLedgerHealth503>,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiLedgerHealth>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiLedgerHealth>>,
-          TError,
-          Awaited<ReturnType<typeof getApiLedgerHealth>>
-        >,
-        'initialData'
-      >;
-    axios?: AxiosRequestConfig;
-  },
-  queryClient?: QueryClient
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiLedgerHealth<
-  TData = Awaited<ReturnType<typeof getApiLedgerHealth>>,
-  TError = AxiosError<GetApiLedgerHealth503>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiLedgerHealth>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiLedgerHealth>>,
-          TError,
-          Awaited<ReturnType<typeof getApiLedgerHealth>>
-        >,
-        'initialData'
-      >;
-    axios?: AxiosRequestConfig;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiLedgerHealth<
-  TData = Awaited<ReturnType<typeof getApiLedgerHealth>>,
-  TError = AxiosError<GetApiLedgerHealth503>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiLedgerHealth>>,
-        TError,
-        TData
-      >
-    >;
-    axios?: AxiosRequestConfig;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-
-export function useGetApiLedgerHealth<
-  TData = Awaited<ReturnType<typeof getApiLedgerHealth>>,
-  TError = AxiosError<GetApiLedgerHealth503>,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiLedgerHealth>>,
-        TError,
-        TData
-      >
-    >;
-    axios?: AxiosRequestConfig;
-  },
-  queryClient?: QueryClient
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetApiLedgerHealthQueryOptions(options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey;
-
-  return query;
-}
-
-/**
  * Get receipts
  */
 export const getApiReceipts = (
   options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiReceipts200Item[]>> => {
+): Promise<AxiosResponse<Def0[]>> => {
   return axios.default.get(`http://localhost:3001/api/receipts`, options);
 };
 
@@ -963,7 +814,7 @@ export function useGetApiReceipts<
 export const getApiReceiptsReceiptIdItems = (
   receiptId: string,
   options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiReceiptsReceiptIdItems200Item[]>> => {
+): Promise<AxiosResponse<Def1[]>> => {
   return axios.default.get(
     `http://localhost:3001/api/receipts/${receiptId}/items`,
     options

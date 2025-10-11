@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './def0';
+export * from './def1';
 export * from './getApiLedgerAccounts200';
 export * from './getApiLedgerAccounts500';
 export * from './getApiLedgerAccountsParams';

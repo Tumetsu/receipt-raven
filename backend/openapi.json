@@ -6,7 +6,72 @@
     "version": "1.0.0"
   },
   "components": {
-    "schemas": {}
+    "schemas": {
+      "def-0": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "jobId": {
+            "type": "number"
+          },
+          "payeeName": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "totalSum": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "filepath": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "jobId",
+          "payeeName",
+          "date",
+          "totalSum",
+          "status",
+          "filepath"
+        ],
+        "title": "receipt"
+      },
+      "def-1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "receiptId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "receiptId",
+          "name",
+          "price",
+          "category"
+        ],
+        "title": "receiptItem"
+      }
+    }
   },
   "paths": {
     "/api/upload": {
@@ -333,59 +398,6 @@
         }
       }
     },
-    "/api/ledger/health": {
-      "get": {
-        "tags": [
-          "ledger"
-        ],
-        "description": "Health check for the ledger service connection",
-        "responses": {
-          "200": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "ok"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "status"
-                  ]
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Default Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "unavailable",
-                        "error"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "status"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/receipts": {
       "get": {
         "tags": [
@@ -401,39 +413,7 @@
                   "description": "List of receipts",
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "jobId": {
-                        "type": "number"
-                      },
-                      "payeeName": {
-                        "type": "string"
-                      },
-                      "date": {
-                        "type": "string"
-                      },
-                      "totalSum": {
-                        "type": "number"
-                      },
-                      "status": {
-                        "type": "string"
-                      },
-                      "filepath": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "jobId",
-                      "payeeName",
-                      "date",
-                      "totalSum",
-                      "status",
-                      "filepath"
-                    ]
+                    "$ref": "#/components/schemas/def-0"
                   }
                 }
               }
@@ -467,31 +447,7 @@
                   "description": "List of receipt items in a receipt",
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "receiptId": {
-                        "type": "number"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "category": {
-                        "type": "string"
-                      },
-                      "price": {
-                        "type": "number"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "receiptId",
-                      "name",
-                      "price",
-                      "category"
-                    ]
+                    "$ref": "#/components/schemas/def-1"
                   }
                 }
               }

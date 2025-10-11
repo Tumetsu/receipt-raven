@@ -1,5 +1,7 @@
-// TODO: add these globally with fastify.addSchema
-export const receiptDtoSchema = {
+import { FastifyInstance } from 'fastify';
+
+const receiptDtoSchema = {
+  $id: 'receipt',
   type: 'object',
   properties: {
     id: { type: 'number' },
@@ -21,7 +23,8 @@ export const receiptDtoSchema = {
   ],
 };
 
-export const receiptItemDtoSchema = {
+const receiptItemDtoSchema = {
+  $id: 'receiptItem',
   type: 'object',
   properties: {
     id: { type: 'number' },
@@ -32,3 +35,8 @@ export const receiptItemDtoSchema = {
   },
   required: ['id', 'receiptId', 'name', 'price', 'category'],
 };
+
+export function addSchemas(fastify: FastifyInstance): void {
+  fastify.addSchema(receiptDtoSchema);
+  fastify.addSchema(receiptItemDtoSchema);
+}
