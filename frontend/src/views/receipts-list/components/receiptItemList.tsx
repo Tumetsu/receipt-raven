@@ -28,18 +28,28 @@ export function ReceiptItemList<
     type: 'Expenses',
   });
 
-  const { fields } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
 
+  const onAddItem = () => {
+    append({ name: '', price: 0, category: '' } as never);
+  };
+
+  const onRemoveItem = (idx: number) => {
+    remove(idx);
+  };
   return (
     <>
       <Box sx={{ position: 'relative' }}>
         <Typography variant="h4" sx={{ marginBottom: 2 }}>
           Products
         </Typography>
-        <IconButton sx={{ position: 'absolute', right: 4, top: 1 }}>
+        <IconButton
+          sx={{ position: 'absolute', right: 4, top: 1 }}
+          onClick={onAddItem}
+        >
           <AddIcon />
         </IconButton>
       </Box>
@@ -49,7 +59,10 @@ export function ReceiptItemList<
           key={field.id}
           sx={{ position: 'relative', marginBottom: 2, padding: 2 }}
         >
-          <IconButton sx={{ position: 'absolute', right: 4, top: 1 }}>
+          <IconButton
+            sx={{ position: 'absolute', right: 4, top: 1 }}
+            onClick={() => onRemoveItem(idx)}
+          >
             <ClearIcon />
           </IconButton>
           <Grid container gap={2}>
