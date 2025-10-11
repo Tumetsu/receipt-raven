@@ -170,7 +170,7 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            transactionId: { type: 'string' },
+            message: { type: 'string' },
           },
         },
         400: {
@@ -201,6 +201,8 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
       try {
         const receiptId = parseInt(request.params.receiptId);
 
+        // TODO: remove receipt db dependency from ledger module and pass all data here
+        // via http request!
         // Fetch receipt data from database
         const receipt =
           await fastify.receiptRepository.getReceiptById(receiptId);

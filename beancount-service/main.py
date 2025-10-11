@@ -162,11 +162,7 @@ async def submit_receipt_transaction_endpoint(
         result = submit_receipt_transaction(
             receipt_data, BEANCOUNT_LEDGER_PATH, dry_run
         )
-        if not result.success:
-            raise HTTPException(status_code=400, detail=result.message)
         return result
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to submit receipt transaction: {e}"

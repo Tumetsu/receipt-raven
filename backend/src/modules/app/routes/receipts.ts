@@ -121,14 +121,17 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         }
       );
 
-      if (!ledgerResponse.ok) {
-        const error = await ledgerResponse.json();
-        fastify.log.error(
-          { error, receiptId },
-          'Failed to submit receipt to ledger'
-        );
-        const statusCode = ledgerResponse.status as 400 | 404 | 500;
-        return reply.code(statusCode).send(error);
+      const responseData = (await ledgerResponse.json()) as {
+        success: boolean;
+        message?: string;
+      };
+
+      if (!ledgerResponse.ok || !responseData.success) {
+        console.log(responseData.message);
+        return reply.code(400).send({
+          error: 'Failed to submit receipt to ledger',
+          message: responseData.message,
+        });
       }
 
       await fastify.receiptRepository.updateReceipt(receiptId, {

@@ -367,7 +367,7 @@
                     "success": {
                       "type": "boolean"
                     },
-                    "transactionId": {
+                    "message": {
                       "type": "string"
                     }
                   }
@@ -498,8 +498,7 @@
                     }
                   },
                   "required": [
-                    "success",
-                    "transactionId"
+                    "success"
                   ]
                 }
               }

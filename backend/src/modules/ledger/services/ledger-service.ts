@@ -32,17 +32,6 @@ export interface ILedgerService {
   getPayees(): Promise<Payee[]>;
 
   /**
-   * Submit a transaction to the ledger
-   * @param transaction Transaction to submit
-   * @returns Success status and optional transaction ID
-   */
-  submitTransaction(transaction: Transaction): Promise<{
-    success: boolean;
-    message?: string;
-    transactionId?: string;
-  }>;
-
-  /**
    * Convert receipt data to a ledger transaction and submit it
    * This is a convenience method that handles the mapping
    * @param receiptData Receipt transaction data

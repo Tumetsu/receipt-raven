@@ -95,7 +95,7 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
           reset();
         },
         onError: error => {
-          console.error('Error saving receipt', error);
+          console.log('Error saving receipt', error.response?.data);
         },
       }
     );

@@ -8,5 +8,5 @@
 
 export type PostApiLedgerSubmitReceiptReceiptId200 = {
   success?: boolean;
-  transactionId?: string;
+  message?: string;
 };

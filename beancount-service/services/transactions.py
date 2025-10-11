@@ -286,7 +286,6 @@ def submit_receipt_transaction(
 
         # Submit the transaction
         return submit_transaction(transaction, ledger_path, dry_run)
-
     except Exception as e:
         return TransactionSubmitResponse(
             success=False, message=f"Failed to process receipt: {str(e)}"

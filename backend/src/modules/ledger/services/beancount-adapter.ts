@@ -1,16 +1,9 @@
-import {
-  Account,
-  Category,
-  Payee,
-  Transaction,
-  ReceiptTransactionData,
-} from '../types.js';
+import { Account, Category, Payee, ReceiptTransactionData } from '../types.js';
 import { ILedgerService } from './ledger-service.js';
 import {
   AccountsResponseSchema,
   CategoriesResponseSchema,
   PayeesResponseSchema,
-  TransactionSubmitResponseSchema,
 } from '../schemas/index.js';
 
 /**
@@ -72,35 +65,10 @@ export class BeancountAdapter implements ILedgerService {
     return validated.payees;
   }
 
-  async submitTransaction(transaction: Transaction): Promise<{
-    success: boolean;
-    message?: string;
-    transactionId?: string;
-  }> {
-    const url = new URL('/transactions', this.baseUrl);
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(transaction),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to submit transaction: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    const validated = TransactionSubmitResponseSchema.parse(data);
-    return validated;
-  }
-
   async submitReceiptTransaction(receiptData: ReceiptTransactionData): Promise<{
     success: boolean;
+    status?: number;
     message?: string;
-    transactionId?: string;
   }> {
     const url = new URL('/transactions/receipt', this.baseUrl);
     const response = await fetch(url.toString(), {
@@ -113,14 +81,23 @@ export class BeancountAdapter implements ILedgerService {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to submit receipt transaction: ${response.status} ${response.statusText}`
-      );
+    const responseData = (await response.json()) as {
+      success: boolean;
+      message?: string;
+    };
+
+    if (!response.ok || !responseData.success) {
+      return {
+        success: false,
+        status: response.status,
+        message: responseData.message,
+      };
     }
 
-    const data = await response.json();
-    const validated = TransactionSubmitResponseSchema.parse(data);
-    return validated;
+    return {
+      success: true,
+      status: response.status,
+      message: response.statusText,
+    };
   }
 }

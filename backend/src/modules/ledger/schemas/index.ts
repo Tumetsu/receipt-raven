@@ -68,9 +68,3 @@ export const CategoriesResponseSchema = z.object({
 export const PayeesResponseSchema = z.object({
   payees: z.array(PayeeSchema),
 });
-
-export const TransactionSubmitResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string().optional(),
-  transactionId: z.string().optional(),
-});
