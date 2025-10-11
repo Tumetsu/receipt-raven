@@ -23,27 +23,42 @@ interface IReceiptInputs {
   totalSum: number;
   date: string;
   payee: string;
+  items: {
+    id: number;
+    name: string;
+    price: number;
+    category: string;
+  }[];
 }
 
 function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
   const { receipt } = props;
   const imgModal = useModal();
+  const {
+    isPending,
+    isSuccess,
+    data: result,
+  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
+
   const { handleSubmit, control } = useForm<IReceiptInputs>({
     defaultValues: {
       account: '',
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payeeName,
+      items: result?.data ?? [],
+    },
+    values: {
+      account: '',
+      totalSum: receipt.totalSum,
+      date: receipt.date,
+      payee: receipt.payeeName,
+      items: result?.data ?? [],
     },
   });
+
   // TODO: handle form submit
   const onSubmit: SubmitHandler<IReceiptInputs> = data => console.log(data);
-
-  const {
-    isPending,
-    isSuccess,
-    data: result,
-  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
 
   const accounts = useAccounts();
   return (
@@ -128,7 +143,7 @@ function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
                   <CircularProgress />
                 </Box>
               )}
-              {isSuccess && <ReceiptItemList items={result.data} />}
+              {isSuccess && <ReceiptItemList name="items" control={control} />}
             </Grid>
           </Grid>
         </Card>

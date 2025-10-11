@@ -21,7 +21,6 @@ export function ComboBox({
 }: ComboBoxProps) {
   return (
     <Autocomplete
-      disablePortal
       options={options}
       sx={sx}
       value={value || null}

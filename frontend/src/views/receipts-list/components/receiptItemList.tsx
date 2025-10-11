@@ -1,25 +1,36 @@
-import {
-  TextField,
-  Typography,
-  IconButton,
-  Card,
-  Grid,
-  Stack,
-  Box,
-} from '@mui/material';
+import { Typography, IconButton, Card, Grid, Stack, Box } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
-import { GetApiReceiptsReceiptIdItems200Item } from '../../../api/generated/model';
 import { useGetApiLedgerAccounts } from '../../../api/generated/api';
-import { ComboBox } from '../../../common/components/ComboBox.tsx';
+import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
+import {
+  ArrayPath,
+  Control,
+  FieldValues,
+  Path,
+  useFieldArray,
+} from 'react-hook-form';
+import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 
-export function ReceiptItemList(props: {
-  items: GetApiReceiptsReceiptIdItems200Item[];
-}) {
-  const { items } = props;
+type ReceiptItemListProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldArrayName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>,
+> = {
+  control: Control<TFieldValues>;
+  name: TFieldArrayName;
+};
 
+export function ReceiptItemList<
+  TFieldValues extends FieldValues,
+  TFieldArrayName extends ArrayPath<TFieldValues>,
+>({ control, name }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
   const expenseAccounts = useGetApiLedgerAccounts({
     type: 'Expenses',
+  });
+
+  const { fields } = useFieldArray({
+    control,
+    name,
   });
 
   return (
@@ -32,10 +43,10 @@ export function ReceiptItemList(props: {
           <AddIcon />
         </IconButton>
       </Box>
-      {items.map(row => (
+      {fields.map((field, idx) => (
         <Card
           variant="outlined"
-          key={row.id}
+          key={field.id}
           sx={{ position: 'relative', marginBottom: 2, padding: 2 }}
         >
           <IconButton sx={{ position: 'absolute', right: 4, top: 1 }}>
@@ -44,13 +55,25 @@ export function ReceiptItemList(props: {
           <Grid container gap={2}>
             <Grid size={11}>
               <Stack direction="row" useFlexGap gap={2}>
-                <TextField label="Product" value={row.name} />
-                <TextField label="Price" value={row.price} />
+                <ControlledTextField
+                  name={`${name}.${idx}.name` as unknown as Path<TFieldValues>}
+                  label="Product"
+                  control={control}
+                />
+                <ControlledTextField
+                  name={`${name}.${idx}.price` as unknown as Path<TFieldValues>}
+                  label="Price"
+                  control={control}
+                />
               </Stack>
             </Grid>
             <Grid size={11}>
               {expenseAccounts.isSuccess && (
-                <ComboBox
+                <ControlledComboBox
+                  name={
+                    `${name}.${idx}.category` as unknown as Path<TFieldValues>
+                  }
+                  control={control}
                   options={expenseAccounts.data.data}
                   label="Expense category"
                 />
