@@ -11,7 +11,7 @@ export function ReceiptList(props: {
     id: r.id,
     status: r.status,
     date: r.date,
-    payee: r.payeeName,
+    payee: r.payee,
     cost: r.totalSum,
   }));
 

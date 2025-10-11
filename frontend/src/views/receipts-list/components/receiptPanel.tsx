@@ -54,14 +54,14 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
       account: '',
       totalSum: receipt.totalSum,
       date: receipt.date,
-      payee: receipt.payeeName,
+      payee: receipt.payee,
       items: result?.data ?? [],
     },
     values: {
       account: '',
       totalSum: receipt.totalSum,
       date: receipt.date,
-      payee: receipt.payeeName,
+      payee: receipt.payee,
       items: result?.data ?? [],
     },
   });
@@ -75,7 +75,7 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
         data: {
           account: data.account,
           date: data.date,
-          payeeName: data.payee,
+          payee: data.payee,
           totalSum: data.totalSum,
           items: data.items,
         },

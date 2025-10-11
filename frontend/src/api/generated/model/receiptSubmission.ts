@@ -9,7 +9,7 @@ import type { ReceiptSubmissionItemsItem } from './receiptSubmissionItemsItem';
 
 export interface ReceiptSubmission {
   account: string;
-  payeeName: string;
+  payee: string;
   date: string;
   totalSum: number;
   /** @minItems 1 */

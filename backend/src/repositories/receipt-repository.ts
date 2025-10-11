@@ -1,6 +1,6 @@
 import { ReceiptAnalysisResult } from '../types/shared';
 import { InsertObject, Kysely, Selectable } from 'kysely';
-import { Database } from '../database/schema';
+import { Database, ReceiptStatus } from '../database/schema';
 import { ReceiptJob } from './receipt-job-repository';
 
 export type Receipt = Selectable<Database['receipts']>;
@@ -18,7 +18,7 @@ export interface IReceiptRepository {
 
   updateReceipt(
     receiptId: number,
-    data: { shop: string; receipt_date: string; total_sum: number }
+    data: { payee: string; receipt_date: string; total_sum: number }
   ): Promise<void>;
 
   getReceiptById(receiptId: number): Promise<Receipt | undefined>;
@@ -42,10 +42,12 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .insertInto('receipts')
       .values({
         job_id: jobId,
-        shop: analysis.shop,
+        payee: analysis.shop,
         receipt_date: analysis.date,
         total_sum: analysis.total,
         parsed_by: parsedBy ?? 'unknown',
+        status: ReceiptStatus.UNAPPROVED,
+        expense_account: null, // TODO: set this based on AI analysis
       })
       .executeTakeFirstOrThrow();
 
@@ -68,7 +70,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
 
   async updateReceipt(
     receiptId: number,
-    data: { shop: string; receipt_date: string; total_sum: number }
+    data: { payee: string; receipt_date: string; total_sum: number }
   ): Promise<void> {
     await this.db
       .updateTable('receipts')

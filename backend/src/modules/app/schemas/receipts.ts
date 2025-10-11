@@ -5,13 +5,13 @@ const receiptDtoSchema = {
   type: 'object',
   properties: {
     id: { type: 'number' },
-    payeeName: { type: 'string' },
+    payee: { type: 'string' },
     date: { type: 'string' },
     totalSum: { type: 'number' },
     status: { type: 'string' },
     filepath: { type: 'string' },
   },
-  required: ['id', 'payeeName', 'date', 'totalSum', 'status', 'filepath'],
+  required: ['id', 'payee', 'date', 'totalSum', 'status', 'filepath'],
 };
 
 const receiptItemDtoSchema = {
@@ -32,7 +32,7 @@ const receiptSubmissionDtoSchema = {
   type: 'object',
   properties: {
     account: { type: 'string' },
-    payeeName: { type: 'string' },
+    payee: { type: 'string' },
     date: { type: 'string' },
     totalSum: { type: 'number' },
     items: {
@@ -50,7 +50,7 @@ const receiptSubmissionDtoSchema = {
       },
     },
   },
-  required: ['account', 'payeeName', 'date', 'totalSum', 'items'],
+  required: ['account', 'payee', 'date', 'totalSum', 'items'],
 };
 
 export function addSchemas(fastify: FastifyInstance): void {

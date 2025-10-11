@@ -13,7 +13,7 @@
           "id": {
             "type": "number"
           },
-          "payeeName": {
+          "payee": {
             "type": "string"
           },
           "date": {
@@ -31,7 +31,7 @@
         },
         "required": [
           "id",
-          "payeeName",
+          "payee",
           "date",
           "totalSum",
           "status",
@@ -73,7 +73,7 @@
           "account": {
             "type": "string"
           },
-          "payeeName": {
+          "payee": {
             "type": "string"
           },
           "date": {
@@ -111,7 +111,7 @@
         },
         "required": [
           "account",
-          "payeeName",
+          "payee",
           "date",
           "totalSum",
           "items"

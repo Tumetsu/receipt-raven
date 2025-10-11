@@ -1,5 +1,9 @@
 import { ColumnType, Generated } from 'kysely';
 
+export enum ReceiptStatus {
+  APPROVED = 'approved',
+  UNAPPROVED = 'unapproved',
+}
 /**
  * Combined database schema for all tables
  */
@@ -12,10 +16,12 @@ export interface Database {
 export interface ReceiptsTable {
   id: Generated<number>;
   job_id: number;
-  shop: string;
+  payee: string;
   receipt_date: string;
   total_sum: number;
   parsed_by: string;
+  expense_account: string | null;
+  status: ReceiptStatus;
   created_at: ColumnType<Date, string | undefined, never>;
 }
 

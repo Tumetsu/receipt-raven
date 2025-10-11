@@ -8,7 +8,7 @@
 
 export interface Receipt {
   id: number;
-  payeeName: string;
+  payee: string;
   date: string;
   totalSum: number;
   status: string;
