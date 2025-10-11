@@ -7,6 +7,8 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { GetApiReceipts200Item } from '../../../api/generated/model';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
@@ -18,18 +20,22 @@ import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 
-interface IReceiptInputs {
-  account: string;
-  totalSum: number;
-  date: string;
-  payee: string;
-  items: {
-    id: number;
-    name: string;
-    price: number;
-    category: string;
-  }[];
-}
+const receiptFormSchema = z.object({
+  account: z.string(),
+  totalSum: z.coerce.number<number>(),
+  date: z.string(),
+  payee: z.string(),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        price: z.coerce.number<number>(),
+        category: z.string(),
+      })
+    )
+    .min(1),
+});
+type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
 function ReceiptPanel({ receipt }: { receipt: GetApiReceipts200Item }) {
   const imgModal = useModal();
@@ -40,6 +46,7 @@ function ReceiptPanel({ receipt }: { receipt: GetApiReceipts200Item }) {
   } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
 
   const { handleSubmit, control } = useForm<IReceiptInputs>({
+    resolver: zodResolver(receiptFormSchema),
     defaultValues: {
       account: '',
       totalSum: receipt.totalSum,

@@ -34,7 +34,7 @@ export function ReceiptItemList<
   });
 
   const onAddItem = () => {
-    append({ name: '', price: 0, category: '' } as never);
+    append({ name: '', price: '', category: '' } as never);
   };
 
   const onRemoveItem = (idx: number) => {
@@ -72,11 +72,13 @@ export function ReceiptItemList<
                   name={`${name}.${idx}.name` as unknown as Path<TFieldValues>}
                   label="Product"
                   control={control}
+                  required
                 />
                 <ControlledTextField
                   name={`${name}.${idx}.price` as unknown as Path<TFieldValues>}
                   label="Price"
                   control={control}
+                  required
                 />
               </Stack>
             </Grid>
@@ -89,6 +91,7 @@ export function ReceiptItemList<
                   control={control}
                   options={expenseAccounts.data.data}
                   label="Expense category"
+                  required
                 />
               )}
             </Grid>
