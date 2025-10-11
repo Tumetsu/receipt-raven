@@ -25,6 +25,16 @@ export interface IReceiptRepository {
   getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]>;
 
   getReceiptItems(receiptId: number): Promise<ReceiptItem[]>;
+
+  setReceiptItems(
+    receiptId: number,
+    items: Array<{
+      id?: number;
+      name: string;
+      category: string;
+      price: number;
+    }>
+  ): Promise<void>;
 }
 
 /**
@@ -102,5 +112,75 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .selectAll()
       .where('receipt_id', '=', receiptId)
       .execute();
+  }
+
+  async setReceiptItems(
+    receiptId: number,
+    items: Array<{
+      id?: number;
+      name: string;
+      category: string;
+      price: number;
+    }>
+  ): Promise<void> {
+    await this.db.transaction().execute(async trx => {
+      // Fetch existing items for this receipt
+      const existingItems = await trx
+        .selectFrom('receipt_items')
+        .selectAll()
+        .where('receipt_id', '=', receiptId)
+        .execute();
+
+      const existingItemIds = new Set(existingItems.map(item => item.id));
+      const incomingItemIds = new Set(
+        items.filter(item => item.id !== undefined).map(item => item.id!)
+      );
+
+      // Find items to delete (exist in DB but not in incoming list)
+      const itemsToDelete = existingItems.filter(
+        item => !incomingItemIds.has(item.id)
+      );
+
+      // Delete removed items
+      if (itemsToDelete.length > 0) {
+        await trx
+          .deleteFrom('receipt_items')
+          .where(
+            'id',
+            'in',
+            itemsToDelete.map(item => item.id)
+          )
+          .execute();
+      }
+
+      // Process each incoming item
+      for (const item of items) {
+        if (item.id !== undefined && existingItemIds.has(item.id)) {
+          // Update existing item
+          await trx
+            .updateTable('receipt_items')
+            .set({
+              name: item.name,
+              category: item.category,
+              price: item.price,
+            })
+            .where('id', '=', item.id)
+            .execute();
+        } else if (item.id === undefined) {
+          // Insert new item (no id provided)
+          await trx
+            .insertInto('receipt_items')
+            .values({
+              receipt_id: receiptId,
+              name: item.name,
+              category: item.category,
+              price: item.price,
+              parsed_by: 'user', // Items edited by user
+            })
+            .execute();
+        }
+        // If item.id is provided but doesn't exist in DB, we skip it (invalid id)
+      }
+    });
   }
 }

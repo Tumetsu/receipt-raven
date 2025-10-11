@@ -32,6 +32,7 @@ const receiptFormSchema = z.object({
   items: z
     .array(
       z.object({
+        id: z.number().optional(),
         name: z.string().min(1),
         price: z.coerce.number<number>(),
         category: z.string(),

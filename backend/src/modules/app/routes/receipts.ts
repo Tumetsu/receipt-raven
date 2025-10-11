@@ -61,7 +61,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       reply
     ) => {
       const receiptId = parseInt(request.params.receiptId, 10);
-      const { payee, date, totalSum, expenseAccount } = request.body;
+      const { payee, date, totalSum, expenseAccount, items } = request.body;
 
       await fastify.receiptRepository.updateReceipt(receiptId, {
         payee,
@@ -70,7 +70,8 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         total_sum: totalSum,
       });
 
-      // TODO: save receipt items
+      await fastify.receiptRepository.setReceiptItems(receiptId, items);
+
       // TODO: save to ledger
       // TODO: combine items to single expense categories?
 
