@@ -26,6 +26,7 @@ export function ControlledTextField<T extends FieldValues>(
           {...textFieldProps}
           error={!!fieldState.error}
           helperText={fieldState.error?.message || textFieldProps.helperText}
+          required
         />
       )}
     />
