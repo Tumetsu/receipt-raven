@@ -346,36 +346,6 @@
           "ledger"
         ],
         "description": "Submit a receipt to the ledger as a transaction",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "sourceAccount": {
-                    "type": "string",
-                    "description": "Source account for the transaction"
-                  },
-                  "currency": {
-                    "type": "string",
-                    "description": "Currency code (optional)"
-                  },
-                  "itemAccountMappings": {
-                    "type": "object",
-                    "description": "Map item names to expense accounts",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": [
-                  "sourceAccount"
-                ]
-              }
-            }
-          },
-          "required": true
-        },
         "parameters": [
           {
             "schema": {
@@ -401,6 +371,24 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
                 }
               }
             }
@@ -503,7 +491,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "success": "boolean"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "transactionId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -513,7 +528,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "error": "string"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }

@@ -70,12 +70,12 @@ class ReceiptTransactionItem(BaseModel):
 class ReceiptTransactionData(BaseModel):
     """Receipt transaction data for convenience endpoint"""
 
-    receipt_id: str
-    shop: str
+    receipt_id: int
+    payee: str
+    expense_account: str
     date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
     items: List[ReceiptTransactionItem]
     total: float
-    source_account: str
     currency: Optional[str] = "EUR"
 
 

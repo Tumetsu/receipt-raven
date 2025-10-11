@@ -110,7 +110,6 @@ export class BeancountAdapter implements ILedgerService {
       },
       body: JSON.stringify({
         ...receiptData,
-        receiptId: receiptData.receiptId.toString(), // Convert bigint to string for JSON
       }),
     });
 

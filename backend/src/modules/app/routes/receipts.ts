@@ -1,4 +1,6 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import { config } from '../../../config/index.js';
+import { ReceiptStatus } from '../../../database/schema';
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
   fastify.get('/receipts', {
@@ -23,7 +25,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
           expenseAccount: r.expense_account,
           date: r.receipt_date,
           totalSum: r.total_sum,
-          status: 'waiting', // TODO: ...
+          status: r.status,
           filepath: r.filepath,
         };
       });
@@ -43,8 +45,34 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       },
       body: { $ref: 'receiptSubmission' },
       response: {
-        200: { success: 'boolean' },
-        404: { error: 'string' },
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+          },
+          required: ['success'],
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' },
+          },
+        },
+        404: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' },
+          },
+        },
+        500: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+            message: { type: 'string' },
+          },
+        },
       },
     },
     handler: async (
@@ -72,8 +100,33 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
 
       await fastify.receiptRepository.setReceiptItems(receiptId, items);
 
-      // TODO: save to ledger
-      // TODO: combine items to single expense categories?
+      // Submit receipt to ledger via HTTP request to the ledger module
+      const ledgerResponse = await fetch(
+        `http://localhost:${config.port}/api/ledger/submit-receipt/${receiptId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sourceAccount: expenseAccount,
+          }),
+        }
+      );
+
+      if (!ledgerResponse.ok) {
+        const error = await ledgerResponse.json();
+        fastify.log.error(
+          { error, receiptId },
+          'Failed to submit receipt to ledger'
+        );
+        const statusCode = ledgerResponse.status as 400 | 404 | 500;
+        return reply.code(statusCode).send(error);
+      }
+
+      await fastify.receiptRepository.updateReceipt(receiptId, {
+        status: ReceiptStatus.APPROVED,
+      });
 
       return {
         success: true,

@@ -64,13 +64,12 @@ export interface Transaction {
  * Receipt-specific transaction data for convenience
  */
 export interface ReceiptTransactionData {
-  receiptId: number; // Receipt ID from database
-  shop: string; // Shop name
+  receipt_id: number; // Receipt ID from database
+  expense_account: string; // Expense account to use for the receipt
+  payee: string; // Shop name
   date: string; // Receipt date
   items: ReceiptTransactionItem[]; // Receipt items
   total: number; // Total amount
-  sourceAccount: string; // Source account (e.g., Assets:Bank:Checking)
-  currency?: string; // Currency (default: EUR)
 }
 
 /**
@@ -80,5 +79,4 @@ export interface ReceiptTransactionItem {
   name: string; // Item name
   category: string; // Item category
   price: number; // Item price
-  expenseAccount?: string; // Mapped expense account (optional)
 }

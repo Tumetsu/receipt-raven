@@ -169,7 +169,7 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
             expense_account = item.expense_account
         else:
             # Default to a generic expense account with the category
-            expense_account = f"Expenses:{item.category}"
+            expense_account = f"{item.category}"
 
         postings.append(
             {
@@ -183,7 +183,7 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Add the source account posting (negative, as money is leaving)
     postings.append(
         {
-            "account": receipt_data.source_account,
+            "account": receipt_data.expense_account,
             "amount": -receipt_data.total,
             "currency": currency,
         }
@@ -192,11 +192,11 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Create transaction
     transaction = Transaction(
         date=receipt_data.date,
-        payee=receipt_data.shop,
+        payee=receipt_data.payee,
         narration=f"Receipt #{receipt_data.receipt_id}",
         postings=postings,
-        tags=["receipt"],
-        metadata={"receipt_id": receipt_data.receipt_id},
+        tags=["receipt-raven"],
+        metadata={"receipt_id": str(receipt_data.receipt_id)},
     )
 
     return transaction

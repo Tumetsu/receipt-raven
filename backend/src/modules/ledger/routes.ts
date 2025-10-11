@@ -165,22 +165,6 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
         },
         required: ['receiptId'],
       },
-      body: {
-        type: 'object',
-        properties: {
-          sourceAccount: {
-            type: 'string',
-            description: 'Source account for the transaction',
-          },
-          currency: { type: 'string', description: 'Currency code (optional)' },
-          itemAccountMappings: {
-            type: 'object',
-            description: 'Map item names to expense accounts',
-            additionalProperties: { type: 'string' },
-          },
-        },
-        required: ['sourceAccount'],
-      },
       response: {
         200: {
           type: 'object',
@@ -188,6 +172,13 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
             success: { type: 'boolean' },
             transactionId: { type: 'string' },
           },
+        },
+        400: {
+          type: 'object',
+          properties: {
+            error: { type: 'string' },
+          },
+          required: ['error'],
         },
         404: {
           type: 'object',
@@ -209,7 +200,6 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
     handler: async (request, reply) => {
       try {
         const receiptId = parseInt(request.params.receiptId);
-        const { sourceAccount, currency, itemAccountMappings } = request.body;
 
         // Fetch receipt data from database
         const receipt =
@@ -220,28 +210,23 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
           });
         }
 
+        if (!receipt.expense_account) {
+          return reply.code(400).send({
+            error: 'Receipt is missing the expense account',
+          });
+        }
+
         const receiptItems =
           await fastify.receiptRepository.getReceiptItems(receiptId);
 
-        // Map items to include expense account mappings if provided
-        const items = receiptItems.map(item => ({
-          name: item.name,
-          category: item.category,
-          price: item.price,
-          expenseAccount: itemAccountMappings
-            ? itemAccountMappings[item.name]
-            : undefined,
-        }));
-
         // Submit to ledger service
         const result = await fastify.ledgerService.submitReceiptTransaction({
-          receiptId,
-          shop: receipt.shop,
+          receipt_id: receiptId,
+          payee: receipt.payee,
           date: receipt.receipt_date,
-          items,
+          expense_account: receipt.expense_account,
+          items: receiptItems,
           total: receipt.total_sum,
-          sourceAccount,
-          currency,
         });
 
         return result;

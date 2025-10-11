@@ -116,7 +116,7 @@ def valid_receipt_data():
     """Valid receipt transaction data"""
     return ReceiptTransactionData(
         receipt_id="RCP-001",
-        shop="Test Grocery Store",
+        payee="Test Grocery Store",
         date="2024-01-20",
         items=[
             ReceiptTransactionItem(
@@ -414,7 +414,7 @@ def test_create_receipt_transaction_default_account():
     """Test that default expense account is created if not specified"""
     receipt_data = ReceiptTransactionData(
         receipt_id="RCP-002",
-        shop="Test Shop",
+        payee="Test Shop",
         date="2024-01-20",
         items=[
             ReceiptTransactionItem(
@@ -540,7 +540,7 @@ def test_submit_receipt_transaction_invalid_account(test_ledger_path):
     """Test that receipt with invalid account is rejected"""
     receipt_data = ReceiptTransactionData(
         receipt_id="RCP-003",
-        shop="Test Shop",
+        payee="Test Shop",
         date="2024-01-20",
         items=[
             ReceiptTransactionItem(
