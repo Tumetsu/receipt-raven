@@ -6,9 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type Def2ItemsItem = {
-  id?: number;
-  name: string;
-  price: number;
-  category: string;
-};
+export interface Receipt {
+  id: number;
+  payeeName: string;
+  date: string;
+  totalSum: number;
+  status: string;
+  filepath: string;
+}

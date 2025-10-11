@@ -5,22 +5,13 @@ const receiptDtoSchema = {
   type: 'object',
   properties: {
     id: { type: 'number' },
-    jobId: { type: 'number' },
     payeeName: { type: 'string' },
     date: { type: 'string' },
     totalSum: { type: 'number' },
     status: { type: 'string' },
     filepath: { type: 'string' },
   },
-  required: [
-    'id',
-    'jobId',
-    'payeeName',
-    'date',
-    'totalSum',
-    'status',
-    'filepath',
-  ],
+  required: ['id', 'payeeName', 'date', 'totalSum', 'status', 'filepath'],
 };
 
 const receiptItemDtoSchema = {

@@ -16,6 +16,21 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
 
   // Swagger/OpenAPI documentation
   await fastify.register(swagger, {
+    refResolver: {
+      buildLocalReference(json, baseUri, fragment, i) {
+        // This mirrors the default behaviour
+        // see: https://github.com/fastify/fastify-swagger/blob/1b53e376b4b752481643cf5a5655c284684383c3/lib/mode/dynamic.js#L17
+        if (!json.title && json.$id) {
+          json.title = json.$id;
+        }
+        // Fallback if no $id is present
+        if (!json.$id) {
+          return `def-${i}`;
+        }
+
+        return `${json.$id}`;
+      },
+    },
     openapi: {
       openapi: '3.1.0',
       info: {

@@ -2,13 +2,12 @@ import { Grid, Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
-import { GetApiReceipts200Item } from '../../api/generated/model';
 import ReceiptPanel from './components/receiptPanel.tsx';
+import { Receipt } from '../../api/generated/model/receipt.ts';
 
 export function ReceiptListView(): ReactElement {
   const { isPending, isSuccess, data: result } = useGetApiReceipts();
-  const [selectedReceipt, setSelectedReceipt] =
-    useState<GetApiReceipts200Item | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
 
   return (
     <Grid container spacing={2}>

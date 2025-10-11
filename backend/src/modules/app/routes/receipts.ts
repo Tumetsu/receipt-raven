@@ -19,7 +19,6 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       return receipts.map(r => {
         return {
           id: r.id,
-          jobId: r.job_id,
           payeeName: r.shop,
           date: r.receipt_date,
           totalSum: r.total_sum,
@@ -37,13 +36,13 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       params: {
         type: 'object',
         properties: {
-          receiptId: { type: 'string' },
+          receiptId: { type: 'number' },
         },
         required: ['receiptId'],
       },
       body: { $ref: 'receiptSubmission' },
       response: {
-        200: { $ref: 'receipt' },
+        200: { success: 'boolean' },
         404: { error: 'string' },
       },
     },
@@ -81,11 +80,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       }
 
       return {
-        id: updatedReceipt.id,
-        payeeName: updatedReceipt.shop,
-        date: updatedReceipt.receipt_date,
-        totalSum: updatedReceipt.total_sum,
-        status: 'waiting',
+        success: true,
       };
     },
   });

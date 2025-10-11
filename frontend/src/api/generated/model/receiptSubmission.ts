@@ -5,13 +5,13 @@
  * API for processing and managing receipts
  * OpenAPI spec version: 1.0.0
  */
-import type { Def2ItemsItem } from './def2ItemsItem';
+import type { ReceiptSubmissionItemsItem } from './receiptSubmissionItemsItem';
 
-export interface Def2 {
+export interface ReceiptSubmission {
   account: string;
   payeeName: string;
   date: string;
   totalSum: number;
   /** @minItems 1 */
-  items: Def2ItemsItem[];
+  items: ReceiptSubmissionItemsItem[];
 }

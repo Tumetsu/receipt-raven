@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiLedgerCategories200 = {
-  categories: string[];
+export type ReceiptSubmissionItemsItem = {
+  id?: number;
+  name: string;
+  price: number;
+  category: string;
 };

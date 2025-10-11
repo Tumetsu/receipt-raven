@@ -6,12 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type GetApiReceipts200Item = {
+export interface ReceiptItem {
   id: number;
-  jobId: number;
-  payeeName: string;
-  date: string;
-  totalSum: number;
-  status: string;
-  filepath: string;
-};
+  receiptId: number;
+  name: string;
+  category: string;
+  price: number;
+}

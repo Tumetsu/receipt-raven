@@ -7,13 +7,10 @@
   },
   "components": {
     "schemas": {
-      "def-0": {
+      "receipt": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
-          },
-          "jobId": {
             "type": "number"
           },
           "payeeName": {
@@ -34,7 +31,6 @@
         },
         "required": [
           "id",
-          "jobId",
           "payeeName",
           "date",
           "totalSum",
@@ -43,7 +39,7 @@
         ],
         "title": "receipt"
       },
-      "def-1": {
+      "receiptItem": {
         "type": "object",
         "properties": {
           "id": {
@@ -71,7 +67,7 @@
         ],
         "title": "receiptItem"
       },
-      "def-2": {
+      "receiptSubmission": {
         "type": "object",
         "properties": {
           "account": {
@@ -464,7 +460,7 @@
                   "description": "List of receipts",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/def-0"
+                    "$ref": "#/components/schemas/receipt"
                   }
                 }
               }
@@ -483,7 +479,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/def-2"
+                "$ref": "#/components/schemas/receiptSubmission"
               }
             }
           }
@@ -491,7 +487,7 @@
         "parameters": [
           {
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "in": "path",
             "name": "receiptId",
@@ -504,7 +500,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/def-0"
+                  "success": "boolean"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "error": "string"
                 }
               }
             }
@@ -537,7 +543,7 @@
                   "description": "List of receipt items in a receipt",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/def-1"
+                    "$ref": "#/components/schemas/receiptItem"
                   }
                 }
               }

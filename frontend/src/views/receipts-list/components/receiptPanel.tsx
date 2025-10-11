@@ -9,11 +9,14 @@ import {
 } from '@mui/material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { GetApiReceipts200Item } from '../../../api/generated/model';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
 import { Img } from '../../../common/components/Img.tsx';
-import { useGetApiReceiptsReceiptIdItems } from '../../../api/generated/api.ts';
+import {
+  useGetApiReceiptsReceiptIdItems,
+  usePostApiReceiptsReceiptId,
+} from '../../../api/generated/api.ts';
+import { Receipt } from '../../../api/generated/model/receipt.ts';
 import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
@@ -37,7 +40,7 @@ const receiptFormSchema = z.object({
 });
 type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
-function ReceiptPanel({ receipt }: { receipt: GetApiReceipts200Item }) {
+function ReceiptPanel({ receipt }: { receipt: Receipt }) {
   const imgModal = useModal();
   const {
     isPending,
@@ -63,8 +66,30 @@ function ReceiptPanel({ receipt }: { receipt: GetApiReceipts200Item }) {
     },
   });
 
-  // TODO: handle form submit
-  const onSubmit: SubmitHandler<IReceiptInputs> = data => console.log(data);
+  const { mutate } = usePostApiReceiptsReceiptId();
+
+  const onSubmit: SubmitHandler<IReceiptInputs> = data => {
+    mutate(
+      {
+        receiptId: receipt.id,
+        data: {
+          account: data.account,
+          date: data.date,
+          payeeName: data.payee,
+          totalSum: data.totalSum,
+          items: data.items,
+        },
+      },
+      {
+        onSuccess: response => {
+          console.log('Receipt saved', response);
+        },
+        onError: error => {
+          console.error('Error saving receipt', error);
+        },
+      }
+    );
+  };
 
   const accounts = useAccounts();
   return (

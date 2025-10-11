@@ -1,10 +1,10 @@
 import { Card } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
-import { GetApiReceipts200Item } from '../../../api/generated/model';
+import { Receipt } from '../../../api/generated/model';
 
 export function ReceiptList(props: {
-  receipts: GetApiReceipts200Item[]; // TODO: Fix with some non-dto type shared between backend and frontend?
+  receipts: Receipt[];
   onRowClick: (id: number) => void;
 }): ReactElement {
   const rows = props.receipts.map(r => ({
