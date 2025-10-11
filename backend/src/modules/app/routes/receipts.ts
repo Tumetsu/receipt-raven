@@ -75,13 +75,6 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       // TODO: save to ledger
       // TODO: combine items to single expense categories?
 
-      // Return updated receipt
-      const updatedReceipt =
-        await fastify.receiptRepository.getReceiptById(receiptId);
-      if (!updatedReceipt) {
-        return reply.status(404).send({ error: 'Receipt not found' });
-      }
-
       return {
         success: true,
       };
