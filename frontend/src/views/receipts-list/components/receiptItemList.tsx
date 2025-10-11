@@ -24,9 +24,14 @@ export function ReceiptItemList<
   TFieldValues extends FieldValues,
   TFieldArrayName extends ArrayPath<TFieldValues>,
 >({ control, name }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
-  const expenseAccounts = useGetApiLedgerAccounts({
-    type: 'Expenses',
-  });
+  const expenseAccounts = useGetApiLedgerAccounts(
+    {
+      type: 'Expenses',
+    },
+    {
+      query: { queryKey: ['ledgerAccounts', 'Expenses'] },
+    }
+  );
 
   const { fields, append, remove } = useFieldArray({
     control,

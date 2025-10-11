@@ -6,7 +6,13 @@ import ReceiptPanel from './components/receiptPanel.tsx';
 import { Receipt } from '../../api/generated/model/receipt.ts';
 
 export function ReceiptListView(): ReactElement {
-  const { isPending, isSuccess, data: result } = useGetApiReceipts();
+  const {
+    isPending,
+    isSuccess,
+    data: result,
+  } = useGetApiReceipts({
+    query: { queryKey: ['receipts'] },
+  });
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
 
   return (

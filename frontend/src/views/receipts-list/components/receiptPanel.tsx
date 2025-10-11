@@ -22,6 +22,7 @@ import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
+import { useQueryClient } from '@tanstack/react-query';
 
 const receiptFormSchema = z.object({
   expenseAccount: z.string(),
@@ -42,21 +43,17 @@ type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
 function ReceiptPanel({ receipt }: { receipt: Receipt }) {
   const imgModal = useModal();
+  const queryClient = useQueryClient();
   const {
     isPending,
     isSuccess,
     data: result,
-  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
+  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10), {
+    query: { queryKey: ['receipt', receipt.id, 'receiptItems'] },
+  });
 
-  const { handleSubmit, control } = useForm<IReceiptInputs>({
+  const { handleSubmit, control, reset } = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
-    defaultValues: {
-      expenseAccount: receipt.expenseAccount,
-      totalSum: receipt.totalSum,
-      date: receipt.date,
-      payee: receipt.payee,
-      items: result?.data ?? [],
-    },
     values: {
       expenseAccount: receipt.expenseAccount ?? '',
       totalSum: receipt.totalSum,
@@ -66,7 +63,17 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
     },
   });
 
-  const { mutate } = usePostApiReceiptsReceiptId();
+  const { mutate, isPending: isSavePending } = usePostApiReceiptsReceiptId({
+    mutation: {
+      onSuccess: async () => {
+        // When request has completed, invalidate queries to refresh data
+        await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['receipt', receipt.id, 'receiptItems'],
+        });
+      },
+    },
+  });
 
   const onSubmit: SubmitHandler<IReceiptInputs> = data => {
     mutate(
@@ -81,8 +88,9 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
         },
       },
       {
-        onSuccess: response => {
-          console.log('Receipt saved', response);
+        onSuccess: async () => {
+          // After mutation AND query invalidation, reset the form with new data
+          reset();
         },
         onError: error => {
           console.error('Error saving receipt', error);
@@ -140,7 +148,12 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
                     required
                   />
                   <Stack spacing={2} direction="row" useFlexGap>
-                    <Button fullWidth variant="contained" type="submit">
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      type="submit"
+                      disabled={isSavePending}
+                    >
                       Approve
                     </Button>
                     <Button fullWidth variant="outlined">
