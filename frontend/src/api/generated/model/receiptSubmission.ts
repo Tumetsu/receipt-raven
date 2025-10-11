@@ -8,7 +8,7 @@
 import type { ReceiptSubmissionItemsItem } from './receiptSubmissionItemsItem';
 
 export interface ReceiptSubmission {
-  account: string;
+  expenseAccount: string;
   payee: string;
   date: string;
   totalSum: number;

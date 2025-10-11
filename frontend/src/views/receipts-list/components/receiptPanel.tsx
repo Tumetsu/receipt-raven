@@ -24,7 +24,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 
 const receiptFormSchema = z.object({
-  account: z.string(),
+  expenseAccount: z.string(),
   totalSum: z.coerce.number<number>(),
   date: z.string(),
   payee: z.string(),
@@ -51,14 +51,14 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
   const { handleSubmit, control } = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
     defaultValues: {
-      account: '',
+      expenseAccount: receipt.expenseAccount,
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payee,
       items: result?.data ?? [],
     },
     values: {
-      account: '',
+      expenseAccount: receipt.expenseAccount ?? '',
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payee,
@@ -73,7 +73,7 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
       {
         receiptId: receipt.id,
         data: {
-          account: data.account,
+          expenseAccount: data.expenseAccount,
           date: data.date,
           payee: data.payee,
           totalSum: data.totalSum,
@@ -102,10 +102,10 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
                 <Typography variant="h4">Receipt details</Typography>
                 {accounts.isSuccess && (
                   <ControlledComboBox
-                    name="account"
+                    name="expenseAccount"
                     control={control}
                     options={accounts.data}
-                    label="Account"
+                    label="Expense account"
                     required
                   />
                 )}

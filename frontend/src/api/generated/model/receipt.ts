@@ -9,6 +9,7 @@
 export interface Receipt {
   id: number;
   payee: string;
+  expenseAccount?: string;
   date: string;
   totalSum: number;
   status: string;

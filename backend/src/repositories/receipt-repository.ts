@@ -18,7 +18,7 @@ export interface IReceiptRepository {
 
   updateReceipt(
     receiptId: number,
-    data: { payee: string; receipt_date: string; total_sum: number }
+    data: Omit<Partial<Receipt>, 'created_at' | 'id' | 'job_id'>
   ): Promise<void>;
 
   getReceiptById(receiptId: number): Promise<Receipt | undefined>;
@@ -70,7 +70,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
 
   async updateReceipt(
     receiptId: number,
-    data: { payee: string; receipt_date: string; total_sum: number }
+    data: Omit<Partial<Receipt>, 'created_at' | 'id' | 'job_id'>
   ): Promise<void> {
     await this.db
       .updateTable('receipts')
