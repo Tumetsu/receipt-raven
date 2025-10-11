@@ -18,12 +18,17 @@ type ReceiptItemListProps<
 > = {
   control: Control<TFieldValues>;
   name: TFieldArrayName;
+  disabled: boolean;
 };
 
 export function ReceiptItemList<
   TFieldValues extends FieldValues,
   TFieldArrayName extends ArrayPath<TFieldValues>,
->({ control, name }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
+>({
+  control,
+  name,
+  disabled,
+}: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
   const expenseAccounts = useGetApiLedgerAccounts(
     {
       type: 'Expenses',
@@ -54,6 +59,7 @@ export function ReceiptItemList<
         <IconButton
           sx={{ position: 'absolute', right: 4, top: 1 }}
           onClick={onAddItem}
+          disabled={disabled}
         >
           <AddIcon />
         </IconButton>
@@ -67,6 +73,7 @@ export function ReceiptItemList<
           <IconButton
             sx={{ position: 'absolute', right: 4, top: 1 }}
             onClick={() => onRemoveItem(idx)}
+            disabled={disabled}
           >
             <ClearIcon />
           </IconButton>

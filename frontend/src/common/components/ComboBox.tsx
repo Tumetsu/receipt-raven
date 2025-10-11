@@ -8,6 +8,7 @@ export type ComboBoxProps = {
   value?: string | null;
   onChange?: (value: string | null) => void;
   required?: boolean;
+  disabled?: boolean;
   sx?: SxProps<Theme>;
 };
 
@@ -17,6 +18,7 @@ export function ComboBox({
   value,
   onChange,
   required,
+  disabled,
   sx,
 }: ComboBoxProps) {
   return (
@@ -26,7 +28,12 @@ export function ComboBox({
       value={value || null}
       onChange={(_, newValue) => onChange?.(newValue)}
       renderInput={params => (
-        <TextField {...params} label={label} required={required} />
+        <TextField
+          {...params}
+          label={label}
+          required={required}
+          disabled={disabled}
+        />
       )}
     />
   );
@@ -55,6 +62,7 @@ export function ControlledComboBox<T extends FieldValues>({
           value={field.value ?? null}
           onChange={field.onChange}
           required={required}
+          disabled={field.disabled}
           sx={{
             ...comboBoxProps.sx,
             '& .MuiInputBase-root': {

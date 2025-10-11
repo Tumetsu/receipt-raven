@@ -91,6 +91,13 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       const receiptId = parseInt(request.params.receiptId, 10);
       const { payee, date, totalSum, expenseAccount, items } = request.body;
 
+      const receiptToUpdate =
+        await fastify.receiptRepository.getReceiptById(receiptId);
+
+      if (receiptToUpdate?.status === ReceiptStatus.APPROVED) {
+        return reply.code(400).send({ error: 'Receipt is already approved' });
+      }
+
       await fastify.receiptRepository.updateReceipt(receiptId, {
         payee,
         expense_account: expenseAccount,

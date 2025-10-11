@@ -55,6 +55,7 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
 
   const { handleSubmit, control, reset } = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
+    disabled: receipt.status === 'approved', // TODO: Share enums with backend
     values: {
       expenseAccount: receipt.expenseAccount ?? '',
       totalSum: receipt.totalSum,
@@ -153,11 +154,15 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
                       fullWidth
                       variant="contained"
                       type="submit"
-                      disabled={isSavePending}
+                      disabled={isSavePending || receipt.status === 'approved'}
                     >
                       Approve
                     </Button>
-                    <Button fullWidth variant="outlined">
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      disabled={isSavePending || receipt.status === 'approved'}
+                    >
                       Delete
                     </Button>
                   </Stack>
@@ -188,7 +193,13 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
                   <CircularProgress />
                 </Box>
               )}
-              {isSuccess && <ReceiptItemList name="items" control={control} />}
+              {isSuccess && (
+                <ReceiptItemList
+                  name="items"
+                  control={control}
+                  disabled={receipt.status === 'approved'}
+                />
+              )}
             </Grid>
           </Grid>
         </Card>
