@@ -2,8 +2,8 @@ import { Grid, Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
-import ReceiptPanel from './components/receiptPanel.tsx';
 import { Receipt } from '../../api/generated/model/receipt.ts';
+import { ReceiptPanel } from './components/receiptPanel.tsx';
 
 export function ReceiptListView(): ReactElement {
   const {
@@ -49,6 +49,7 @@ export function ReceiptListView(): ReactElement {
           <ReceiptPanel
             receipt={selectedReceipt}
             onApprove={() => setSelectedReceipt(null)}
+            onClosePanel={() => setSelectedReceipt(null)}
           />
         )}
       </Grid>

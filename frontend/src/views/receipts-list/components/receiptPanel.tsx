@@ -4,9 +4,14 @@ import {
   Card,
   CircularProgress,
   Grid,
+  IconButton,
+  Modal,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 import { Control } from 'react-hook-form';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
@@ -123,9 +128,10 @@ function ReceiptActions({ isSavePending, isApproved }: ReceiptActionsProps) {
 interface ReceiptPanelProps {
   receipt: Receipt;
   onApprove: () => void;
+  onClosePanel: () => void;
 }
 
-function ReceiptPanel({ receipt, onApprove }: ReceiptPanelProps) {
+function ReceiptPanelContent({ receipt, onApprove }: ReceiptPanelProps) {
   const {
     formMethods,
     onSubmit,
@@ -193,4 +199,31 @@ function ReceiptPanel({ receipt, onApprove }: ReceiptPanelProps) {
   );
 }
 
-export default ReceiptPanel;
+export function ReceiptPanel(props: ReceiptPanelProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  if (isMobile) {
+    return (
+      <Modal
+        sx={{ overflow: 'scroll' }}
+        open={true} // Always open on mobile since parent component handles hiding and showing the panel
+        onClose={() => {}}
+        aria-labelledby="modal-receipt-panel"
+        aria-describedby="modal-receipt-panel"
+      >
+        <Box>
+          <IconButton
+            sx={{ position: 'absolute', right: 6, top: 6 }}
+            onClick={props.onClosePanel}
+          >
+            <ClearIcon />
+          </IconButton>
+          <ReceiptPanelContent {...props} />
+        </Box>
+      </Modal>
+    );
+  } else {
+    return <ReceiptPanelContent {...props} />;
+  }
+}
