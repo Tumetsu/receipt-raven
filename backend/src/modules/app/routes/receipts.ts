@@ -1,5 +1,4 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import { config } from '../../../config/index.js';
 import { ReceiptStatus } from '../../../database/schema';
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
@@ -107,30 +106,19 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
 
       await fastify.receiptRepository.setReceiptItems(receiptId, items);
 
-      // Submit receipt to ledger via HTTP request to the ledger module
-      const ledgerResponse = await fetch(
-        `http://localhost:${config.port}/api/ledger/submit-receipt/${receiptId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sourceAccount: expenseAccount,
-          }),
-        }
-      );
+      const result = await fastify.ledgerService.submitReceiptTransaction({
+        receipt_id: receiptId,
+        payee,
+        date,
+        expense_account: expenseAccount,
+        items,
+        total: totalSum,
+      });
 
-      const responseData = (await ledgerResponse.json()) as {
-        success: boolean;
-        message?: string;
-      };
-
-      if (!ledgerResponse.ok || !responseData.success) {
-        console.log(responseData.message);
+      if (!result.success) {
         return reply.code(400).send({
           error: 'Failed to submit receipt to ledger',
-          message: responseData.message,
+          message: result.message,
         });
       }
 

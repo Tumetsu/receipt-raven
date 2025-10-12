@@ -9,6 +9,7 @@ import swaggerUi from '@fastify/swagger-ui';
 import path from 'path';
 import { config } from '../config/index.js';
 import databasePlugin from './database.js';
+import { ledgerPlugin } from './ledger';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
   // Database (must be first so it's available to other plugins/modules)
@@ -88,4 +89,7 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
     root: path.resolve(config.storage.uploadsDir),
     prefix: '/uploads/',
   });
+
+  // Plug-in for ledger functionalities
+  await fastify.register(ledgerPlugin);
 }
