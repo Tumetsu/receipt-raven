@@ -2,6 +2,8 @@ import { Card } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
 import { Receipt } from '../../../api/generated/model';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export function ReceiptList(props: {
   receipts: Receipt[];
@@ -16,7 +18,20 @@ export function ReceiptList(props: {
   }));
 
   const columns: GridColDef[] = [
-    { field: 'status', headerName: 'Status', width: 130 },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 60,
+      renderCell: params => (
+        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+          {params.value === 'approved' ? (
+            <CheckCircleIcon color="success" />
+          ) : (
+            <RadioButtonUncheckedIcon color="disabled" />
+          )}
+        </div>
+      ),
+    },
     { field: 'date', headerName: 'Date', width: 130 },
     { field: 'payee', headerName: 'Payee', width: 130 },
     { field: 'cost', headerName: 'Cost', width: 90, type: 'number' },
