@@ -95,7 +95,7 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
   const frontendPath = path.resolve('./dist/public');
   try {
     // Only register if the frontend build exists
-    await import('fs/promises').then((fs) => fs.access(frontendPath));
+    await import('fs/promises').then(fs => fs.access(frontendPath));
     await fastify.register(staticFiles, {
       root: frontendPath,
       prefix: '/',
@@ -103,7 +103,9 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
     });
     fastify.log.info(`Serving frontend from ${frontendPath}`);
   } catch {
-    fastify.log.warn(`Frontend build not found at ${frontendPath}, skipping frontend static serving`);
+    fastify.log.warn(
+      `Frontend build not found at ${frontendPath}, skipping frontend static serving`
+    );
   }
 
   // Plug-in for ledger functionalities

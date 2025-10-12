@@ -68,9 +68,11 @@ const start = async () => {
       // This allows TanStack Router to handle the route on the client side
       try {
         return reply.sendFile('index.html', path.resolve('./dist/public'));
-      } catch (err) {
+      } catch (_err) {
         // If frontend build doesn't exist, return 404
-        reply.code(404).send({ error: 'Frontend not built. Run `npm run build:full` first.' });
+        reply.code(404).send({
+          error: 'Frontend not built. Run `npm run build:full` first.',
+        });
       }
     });
 
