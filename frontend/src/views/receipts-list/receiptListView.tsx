@@ -35,7 +35,12 @@ export function ReceiptListView(): ReactElement {
         )}
       </Grid>
       <Grid size={5}>
-        {selectedReceipt && <ReceiptPanel receipt={selectedReceipt} />}
+        {selectedReceipt && (
+          <ReceiptPanel
+            receipt={selectedReceipt}
+            onApprove={() => setSelectedReceipt(null)}
+          />
+        )}
       </Grid>
     </Grid>
   );

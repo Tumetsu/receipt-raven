@@ -23,6 +23,7 @@ import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 
 const receiptFormSchema = z.object({
   expenseAccount: z.string(),
@@ -42,8 +43,15 @@ const receiptFormSchema = z.object({
 });
 type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
-function ReceiptPanel({ receipt }: { receipt: Receipt }) {
+function ReceiptPanel({
+  receipt,
+  onApprove,
+}: {
+  receipt: Receipt;
+  onApprove: () => void;
+}) {
   const imgModal = useModal();
+  const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const {
     isPending,
@@ -53,6 +61,7 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
     query: { queryKey: ['receipt', receipt.id, 'receiptItems'] },
   });
 
+  console.log(receipt.status);
   const { handleSubmit, control, reset } = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
     disabled: receipt.status === 'approved', // TODO: Share enums with backend
@@ -93,9 +102,14 @@ function ReceiptPanel({ receipt }: { receipt: Receipt }) {
         onSuccess: async () => {
           // After mutation AND query invalidation, reset the form with new data
           reset();
+          enqueueSnackbar('Receipt approved', { variant: 'success' });
+          onApprove();
         },
         onError: error => {
-          console.log('Error saving receipt', error.response?.data);
+          enqueueSnackbar(
+            error.response?.data.message ?? 'Error saving receipt',
+            { variant: 'error' }
+          );
         },
       }
     );
