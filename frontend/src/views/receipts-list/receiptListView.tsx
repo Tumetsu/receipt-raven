@@ -22,7 +22,12 @@ export function ReceiptListView(): ReactElement {
           Receipts
         </Typography>
       </Grid>
-      <Grid size={7}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 7,
+        }}
+      >
         {isPending && <span>Loading</span>}
         {isSuccess && (
           <ReceiptList
@@ -34,7 +39,12 @@ export function ReceiptListView(): ReactElement {
           ></ReceiptList>
         )}
       </Grid>
-      <Grid size={5}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 5,
+        }}
+      >
         {selectedReceipt && (
           <ReceiptPanel
             receipt={selectedReceipt}
