@@ -1,4 +1,4 @@
-import orderBy from 'lodash/orderBy';
+import orderBy from 'lodash/orderBy.js';
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { ReceiptStatus } from '../../../database/schema.js';
 
