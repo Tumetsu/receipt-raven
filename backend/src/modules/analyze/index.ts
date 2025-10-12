@@ -27,7 +27,7 @@ export const analyzeModule: FastifyPluginAsync = async (fastify, _opts) => {
     intervalId = setInterval(async () => {
       try {
         await processReceiptJobFromQueue(
-          fastify.log,
+          fastify,
           receiptRepository,
           receiptJobQueueRepository
         );

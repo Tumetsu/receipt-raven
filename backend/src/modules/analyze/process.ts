@@ -1,12 +1,12 @@
 import { IReceiptJobQueueRepository } from '../../repositories/receipt-job-repository.js';
 import { readFile } from 'fs/promises';
 import { analyzeReceipt } from './services/receipt-extraction.js';
-import { FastifyBaseLogger } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { IReceiptRepository } from '../../repositories/receipt-repository.js';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
-  logger: FastifyBaseLogger,
+  fastify: FastifyInstance,
   receiptRepository: IReceiptRepository,
   receiptJobQueueRepository: IReceiptJobQueueRepository
 ): Promise<void> => {
@@ -19,23 +19,26 @@ export const processReceiptJobFromQueue = async (
     return;
   }
 
-  logger.info(`Analyzing receipt ${job.id}`);
+  fastify.log.info(`Analyzing receipt ${job.id}`);
 
   // Read the saved file as a buffer
   const imageBuffer = await readFile(job.filepath);
 
-  logger.info(`Sending ${job.id} to OpenAI`);
+  fastify.log.info(`Sending ${job.id} to OpenAI`);
   // Analyze the receipt using OpenAI
-  const analysisResult = await analyzeReceipt(imageBuffer);
+  const analysisResult = await analyzeReceipt(
+    imageBuffer,
+    fastify.ledgerService
+  );
 
-  logger.info(`Saving ${job.id} to receipt database`);
+  fastify.log.info(`Saving ${job.id} to receipt database`);
   // Save analysis results to database
   await receiptRepository.saveReceipt(
     job.id,
     analysisResult.result,
     analysisResult.model
   );
-  logger.info(`Saved analyzed results of ${job.id} to receipt database.`);
+  fastify.log.info(`Saved analyzed results of ${job.id} to receipt database.`);
   await receiptJobQueueRepository.markJobProcessed(job.id);
 
   isProcessing = false;

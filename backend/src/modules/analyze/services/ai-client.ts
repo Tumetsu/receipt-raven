@@ -95,23 +95,23 @@ export class MockAIClient implements AiClient {
     // Return a mock response
     return {
       content: JSON.stringify({
-        shop: 'K-Market',
-        date: '2025-04-09',
+        payee: 'K-Market',
+        date: new Date().toISOString().substring(0, 10),
         products: [
           {
             name: 'Banaani',
-            category: 'food',
+            expenseAccount: 'Expenses:Consumables:Food',
             price: 0.8,
           },
           {
             name: 'T-paita',
-            category: 'clothes',
+            expenseAccount: 'Expenses:Clothes',
             price: 14.99,
           },
         ],
         total: 15.79,
       }),
-      model: 'gpt-5',
+      model: 'mock',
       usage: {
         promptTokens: 150,
         completionTokens: 200,

@@ -1,29 +1,31 @@
 import { z } from 'zod';
 import { aiClient } from './ai-client.js';
 import { ReceiptAnalysisResponse } from '../../../types/shared.js';
+import { ILedgerService } from '../../../plugins/ledger/ledger-service';
 
 const ProductSchema = z.object({
   name: z.string(),
-  category: z.string(),
+  expenseAccount: z.string(),
   price: z.number(),
 });
 
 const ReceiptAnalysisSchema = z.object({
-  shop: z.string(),
+  payee: z.string(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   products: z.array(ProductSchema),
   total: z.number(),
 });
 
-const RECEIPT_PROMPT = `
+function getPrompt(expenseAccounts: string) {
+  return `
 Please read the details of the provided receipt and list the following properties in a structured way in a json format:
 {
-    "shop": "Name of the shop",
+    "payee": "Name of the shop, restaurant or service provider in the receipt",
     "date": "Date of the purchase in format YYYY-MM-DD",
     "products": [
     {
         "name": "product name",
-        "category": "product's type/category for example food, electronics, clothes etc.",
+        "expenseAccount": "expense account for the product, choose from the following list entry which you think most likely suits the item in question. Take in account also payee when deciding the account: ${expenseAccounts}",
         "price": "price of the product in euros for example 12.50",
     }],
     "total": "Total sum of the receipt in euros for example 12.50"
@@ -33,17 +35,17 @@ The response should be in json format containing nothing else. If you cannot fin
 
 Here is an example output:
 {
-    "shop": "K-Market",
+    "payee": "K-Market",
     "date": "2025-04-09",
     "products": [
         {
             "name": "Banaani",
-            "category": "food",
+            "expenseAccount": "Expenses:Consumables:Food",
             "price": 0.80,
         }
         {
             "name": "T-paita",
-            "category": "clothes",
+            "expenseAccount": "Expenses:Clothes",
             "price": 14.99,
         }
     ],
@@ -52,6 +54,7 @@ Here is an example output:
 
 RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
 `;
+}
 
 /**
  * Analyze a receipt image using OpenAI's Vision API
@@ -59,15 +62,21 @@ RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
  * @returns Validated receipt analysis result
  */
 export const analyzeReceipt = async (
-  imageBuffer: Buffer
+  imageBuffer: Buffer,
+  ledgerService: ILedgerService
 ): Promise<ReceiptAnalysisResponse> => {
   try {
+    // Fetch expense accounts for AI prompt
+    const expenseAccounts = await ledgerService.getAccounts('Expenses');
+    const accountsForPrompt = expenseAccounts.map(a => a.name).join(',');
+
     // Submit image to OpenAI
-    const aiResponse = await aiClient.submitImage(imageBuffer, RECEIPT_PROMPT);
+    const aiResponse = await aiClient.submitImage(
+      imageBuffer,
+      getPrompt(accountsForPrompt)
+    );
 
-    // Parse the JSON response
     const jsonResult = JSON.parse(aiResponse.content);
-
     console.log('OpenAI raw response from photo analysis:', jsonResult);
 
     // Validate the response against our schema

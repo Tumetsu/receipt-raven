@@ -52,7 +52,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .insertInto('receipts')
       .values({
         job_id: jobId,
-        payee: analysis.shop,
+        payee: analysis.payee,
         receipt_date: analysis.date,
         total_sum: analysis.total,
         parsed_by: parsedBy ?? 'unknown',
@@ -70,7 +70,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       analysis.products.map(p => ({
         receipt_id: Number(insertedId),
         name: p.name,
-        category: p.category,
+        category: p.expenseAccount,
         price: p.price,
         parsed_by: parsedBy ?? 'unknown',
       }));

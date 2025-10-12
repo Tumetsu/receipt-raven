@@ -1,15 +1,11 @@
-/**
- * Shared interfaces used by both frontend and backend
- */
-
 export interface Product {
   name: string;
-  category: string;
+  expenseAccount: string;
   price: number;
 }
 
 export interface ReceiptAnalysisResult {
-  shop: string;
+  payee: string;
   date: string;
   products: Product[];
   total: number;
