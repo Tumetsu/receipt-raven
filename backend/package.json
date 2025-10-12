@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "build:frontend": "cd ../frontend && npm install && npm run build",
+    "copy:frontend": "rm -rf ./dist/public && mkdir -p ./dist/public && cp -r ../frontend/dist/* ./dist/public/",
+    "build:full": "npm run build:frontend && npm run build && npm run copy:frontend",
     "start": "node dist/index.js",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",

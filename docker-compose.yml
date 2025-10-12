@@ -1,0 +1,82 @@
+services:
+  # Beancount Ledger Service
+  beancount-service:
+    build:
+      context: ./beancount-service
+      dockerfile: Dockerfile
+    container_name: receipt-raven-beancount
+    restart: unless-stopped
+    ports:
+      - "8100:8000"
+    volumes:
+      # Bind mount for ledger file - update the path to your ledger location
+      # This path is on your HOST machine
+      - /Users/tuomas.salmi/ledger_repository:/ledger
+      # Bind mount for development - code changes will trigger reload
+      - ./beancount-service:/app
+    environment:
+      - BEANCOUNT_LEDGER_PATH=/ledger/ledger.beancount
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:5173
+    networks:
+      - receipt-raven-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Receipt Raven Backend (with Frontend)
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: receipt-raven-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - backend/.env
+    environment:
+      # Server Configuration
+      - PORT=3001
+      - NODE_ENV=production
+
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USE_MOCK_OPENAI=${USE_MOCK_OPENAI:-false}
+
+      # Storage Configuration
+      - UPLOADS_DIR=/app/uploads
+
+      # Database Configuration
+      - DATABASE_PATH=/app/data/receipts.db
+
+      # Beancount Ledger Service Configuration
+      # Use the service name as the hostname for inter-container communication
+      - BEANCOUNT_SERVICE_URL=http://beancount-service:8000
+
+    volumes:
+      # Persistent data volumes
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+
+    networks:
+      - receipt-raven-network
+
+    depends_on:
+      beancount-service:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  receipt-raven-network:
+    driver: bridge

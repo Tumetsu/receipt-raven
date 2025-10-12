@@ -15,4 +15,11 @@ export default defineConfig({
       typescript: true,
     }),
   ],
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: false,
+  },
+  // Base path for production (served from root)
+  base: '/',
 });

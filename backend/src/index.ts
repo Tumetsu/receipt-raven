@@ -50,6 +50,30 @@ const start = async () => {
       },
     });
 
+    // SPA fallback handler for client-side routing
+    // This must be registered AFTER all API routes
+    fastify.setNotFoundHandler(async (request, reply) => {
+      // If request is for API routes, return 404 JSON
+      if (
+        request.url.startsWith('/api') ||
+        request.url.startsWith('/health') ||
+        request.url.startsWith('/docs') ||
+        request.url.startsWith('/uploads')
+      ) {
+        reply.code(404).send({ error: 'Not Found' });
+        return;
+      }
+
+      // Otherwise, serve index.html for SPA routing
+      // This allows TanStack Router to handle the route on the client side
+      try {
+        return reply.sendFile('index.html', path.resolve('./dist/public'));
+      } catch (err) {
+        // If frontend build doesn't exist, return 404
+        reply.code(404).send({ error: 'Frontend not built. Run `npm run build:full` first.' });
+      }
+    });
+
     // Start server
     await fastify.listen({ port: config.port, host: '0.0.0.0' });
     console.log(`Server listening on port ${config.port}`);

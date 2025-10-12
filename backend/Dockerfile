@@ -3,31 +3,45 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files for both backend and frontend
+COPY backend/package*.json ./backend/
+COPY frontend/package*.json ./frontend/
 
-# Install all dependencies (including dev dependencies for building)
+# Install backend dependencies
+WORKDIR /app/backend
 RUN npm ci
 
-# Copy source code and configuration
-COPY . .
+# Install frontend dependencies
+WORKDIR /app/frontend
+RUN npm ci
 
-# Build TypeScript to JavaScript
+# Copy source code for both applications
+WORKDIR /app
+COPY backend ./backend
+COPY frontend ./frontend
+
+# Build frontend first
+WORKDIR /app/frontend
 RUN npm run build
+
+# Build backend and copy frontend assets
+WORKDIR /app/backend
+RUN npm run build
+RUN mkdir -p dist/public && cp -r ../frontend/dist/* ./dist/public/
 
 # Production stage
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files from backend
+COPY backend/package*.json ./
 
 # Install only production dependencies
 RUN npm ci --only=production
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy built application from builder stage (includes frontend in dist/public)
+COPY --from=builder /app/backend/dist ./dist
 
 # Create directories for persistent data
 RUN mkdir -p /app/data /app/uploads && \

@@ -90,6 +90,22 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
     prefix: '/uploads/',
   });
 
+  // Static file serving for frontend (SPA)
+  // Register this separately to serve the frontend build
+  const frontendPath = path.resolve('./dist/public');
+  try {
+    // Only register if the frontend build exists
+    await import('fs/promises').then((fs) => fs.access(frontendPath));
+    await fastify.register(staticFiles, {
+      root: frontendPath,
+      prefix: '/',
+      decorateReply: false, // Don't override the reply decorator from uploads static
+    });
+    fastify.log.info(`Serving frontend from ${frontendPath}`);
+  } catch {
+    fastify.log.warn(`Frontend build not found at ${frontendPath}, skipping frontend static serving`);
+  }
+
   // Plug-in for ledger functionalities
   await fastify.register(ledgerPlugin);
 }
