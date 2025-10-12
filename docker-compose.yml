@@ -2,8 +2,8 @@ services:
   # Beancount Ledger Service
   beancount-service:
     build:
-      context: ./beancount-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: beancount-service/Dockerfile
     container_name: receipt-raven-beancount
     restart: unless-stopped
     ports:
@@ -11,7 +11,7 @@ services:
     volumes:
       # Bind mount for ledger file - update the path to your ledger location
       # This path is on your HOST machine
-      - /Users/tuomas.salmi/ledger_repository:/ledger
+      - /home/tuomas/Code/receipt-raven/test_ledger:/ledger
       # Bind mount for development - code changes will trigger reload
       - ./beancount-service:/app
     environment:
