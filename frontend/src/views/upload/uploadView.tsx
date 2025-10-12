@@ -5,9 +5,11 @@ import config from '../../config';
 import UploadImageArea from './components/uploadImageArea.tsx';
 import { FullscreenSpinner } from '../../common/components/fullscreenSpinner.tsx';
 import { useImageCapture } from './hooks/useImageCapture.ts';
+import { useSnackbar } from 'notistack';
 
 export function UploadView(): ReactElement {
   const { capturedImage, clearImage, ...imageCapture } = useImageCapture();
+  const { enqueueSnackbar } = useSnackbar();
 
   // Use manual tanstack-query mutation instead of Orval generated since seems like
   // multipart + Axios + generated hooks cause problems.
@@ -24,9 +26,15 @@ export function UploadView(): ReactElement {
         body: formData,
       });
     },
-    onSuccess: data => {
-      console.log(data);
+    onSuccess: () => {
+      enqueueSnackbar('Photo uploaded successfully', { variant: 'success' });
       clearImage();
+    },
+    onError: error => {
+      enqueueSnackbar(`Error saving photo: ${error.message}`, {
+        variant: 'error',
+        autoHideDuration: 10000,
+      });
     },
   });
 
