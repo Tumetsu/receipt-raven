@@ -1,6 +1,5 @@
 import { type ReactElement, StrictMode } from 'react';
 import { routeTree } from './routeTree.gen';
-import Container from '@mui/material/Container';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -26,9 +25,7 @@ function App(): ReactElement {
     <StrictMode>
       <SnackbarProvider maxSnack={3}>
         <QueryClientProvider client={queryClient}>
-          <Container>
-            <RouterProvider router={router} />
-          </Container>
+          <RouterProvider router={router} />
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </SnackbarProvider>
