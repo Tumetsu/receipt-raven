@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { ReceiptStatus } from '../../../database/schema.js';
 
@@ -17,17 +18,21 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
     handler: async (_request, _reply) => {
       const receipts = await fastify.receiptRepository.getReceipts();
 
-      return receipts.map(r => {
-        return {
-          id: r.id,
-          payee: r.payee,
-          expenseAccount: r.expense_account,
-          date: r.receipt_date,
-          totalSum: r.total_sum,
-          status: r.status,
-          filepath: r.filepath,
-        };
-      });
+      return orderBy(
+        receipts.map(r => {
+          return {
+            id: r.id,
+            payee: r.payee,
+            expenseAccount: r.expense_account,
+            date: r.receipt_date,
+            totalSum: r.total_sum,
+            status: r.status,
+            filepath: r.filepath,
+          };
+        }),
+        'date',
+        'desc'
+      );
     },
   });
 
