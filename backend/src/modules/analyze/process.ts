@@ -21,25 +21,33 @@ export const processReceiptJobFromQueue = async (
 
   fastify.log.info(`Analyzing receipt ${job.id}`);
 
-  // Read the saved file as a buffer
-  const imageBuffer = await readFile(job.filepath);
+  try {
+    // Read the saved file as a buffer
+    const imageBuffer = await readFile(job.filepath);
 
-  fastify.log.info(`Sending ${job.id} to OpenAI`);
-  // Analyze the receipt using OpenAI
-  const analysisResult = await analyzeReceipt(
-    imageBuffer,
-    fastify.ledgerService
-  );
+    fastify.log.info(`Sending ${job.id} to OpenAI`);
+    // Analyze the receipt using OpenAI
+    const analysisResult = await analyzeReceipt(
+      imageBuffer,
+      fastify.ledgerService
+    );
 
-  fastify.log.info(`Saving ${job.id} to receipt database`);
-  // Save analysis results to database
-  await receiptRepository.saveReceipt(
-    job.id,
-    analysisResult.result,
-    analysisResult.model
-  );
-  fastify.log.info(`Saved analyzed results of ${job.id} to receipt database.`);
-  await receiptJobQueueRepository.markJobProcessed(job.id);
+    fastify.log.info(`Saving ${job.id} to receipt database`);
+    // Save analysis results to database
+    await receiptRepository.saveReceipt(
+      job.id,
+      analysisResult.result,
+      analysisResult.model
+    );
+    fastify.log.info(
+      `Saved analyzed results of ${job.id} to receipt database.`
+    );
+    await receiptJobQueueRepository.markJobProcessed(job.id);
+  } catch (err) {
+    fastify.log.error(`Photo analysis failed for ${job.id}: ${err}`);
+    await receiptJobQueueRepository.increaseJobRetryCount(job.id);
+    isProcessing = false;
+  }
 
   isProcessing = false;
 };
