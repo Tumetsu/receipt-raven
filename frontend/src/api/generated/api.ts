@@ -32,10 +32,6 @@ import type {
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
   GetHealth200,
-  PostApiLedgerSubmitReceiptReceiptId200,
-  PostApiLedgerSubmitReceiptReceiptId400,
-  PostApiLedgerSubmitReceiptReceiptId404,
-  PostApiLedgerSubmitReceiptReceiptId500,
   PostApiReceiptsReceiptId200,
   PostApiReceiptsReceiptId400,
   PostApiReceiptsReceiptId404,
@@ -590,102 +586,6 @@ export function useGetApiLedgerPayees<
 
   return query;
 }
-
-/**
- * Submit a receipt to the ledger as a transaction
- */
-export const postApiLedgerSubmitReceiptReceiptId = (
-  receiptId: string,
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<PostApiLedgerSubmitReceiptReceiptId200>> => {
-  return axios.default.post(
-    `http://localhost:3001/api/ledger/submit-receipt/${receiptId}`,
-    undefined,
-    options
-  );
-};
-
-export const getPostApiLedgerSubmitReceiptReceiptIdMutationOptions = <
-  TError = AxiosError<
-    | PostApiLedgerSubmitReceiptReceiptId400
-    | PostApiLedgerSubmitReceiptReceiptId404
-    | PostApiLedgerSubmitReceiptReceiptId500
-  >,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>,
-    TError,
-    { receiptId: string },
-    TContext
-  >;
-  axios?: AxiosRequestConfig;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>,
-  TError,
-  { receiptId: string },
-  TContext
-> => {
-  const mutationKey = ['postApiLedgerSubmitReceiptReceiptId'];
-  const { mutation: mutationOptions, axios: axiosOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, axios: undefined };
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>,
-    { receiptId: string }
-  > = props => {
-    const { receiptId } = props ?? {};
-
-    return postApiLedgerSubmitReceiptReceiptId(receiptId, axiosOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
-};
-
-export type PostApiLedgerSubmitReceiptReceiptIdMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>
->;
-
-export type PostApiLedgerSubmitReceiptReceiptIdMutationError = AxiosError<
-  | PostApiLedgerSubmitReceiptReceiptId400
-  | PostApiLedgerSubmitReceiptReceiptId404
-  | PostApiLedgerSubmitReceiptReceiptId500
->;
-
-export const usePostApiLedgerSubmitReceiptReceiptId = <
-  TError = AxiosError<
-    | PostApiLedgerSubmitReceiptReceiptId400
-    | PostApiLedgerSubmitReceiptReceiptId404
-    | PostApiLedgerSubmitReceiptReceiptId500
-  >,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>,
-      TError,
-      { receiptId: string },
-      TContext
-    >;
-    axios?: AxiosRequestConfig;
-  },
-  queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof postApiLedgerSubmitReceiptReceiptId>>,
-  TError,
-  { receiptId: string },
-  TContext
-> => {
-  const mutationOptions =
-    getPostApiLedgerSubmitReceiptReceiptIdMutationOptions(options);
-
-  return useMutation(mutationOptions, queryClient);
-};
 
 /**
  * Get receipts
