@@ -3,13 +3,13 @@ import {
   Category,
   Payee,
   ReceiptTransactionData,
-} from '../../modules/ledger/types';
-import { ILedgerService } from './ledger-service';
+} from '../../modules/ledger/types.js';
+import { ILedgerService } from './ledger-service.js';
 import {
   AccountsResponseSchema,
   CategoriesResponseSchema,
   PayeesResponseSchema,
-} from '../../modules/ledger/schemas';
+} from '../../modules/ledger/schemas/index.js';
 
 /**
  * Beancount adapter implementation

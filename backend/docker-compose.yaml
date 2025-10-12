@@ -1,0 +1,47 @@
+services:
+  receipt-raven-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: receipt-raven-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      # Server Configuration
+      - PORT=3001
+      - NODE_ENV=production
+
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USE_MOCK_OPENAI=${USE_MOCK_OPENAI:-false}
+
+      # Storage Configuration
+      - UPLOADS_DIR=/app/uploads
+
+      # Database Configuration
+      - DATABASE_PATH=/app/data/receipts.db
+
+      # Beancount Ledger Service Configuration (optional)
+      - BEANCOUNT_SERVICE_URL=${BEANCOUNT_SERVICE_URL:-http://localhost:8000}
+
+    volumes:
+      # Persistent data volumes
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+
+    networks:
+      - receipt-raven-network
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  receipt-raven-network:
+    driver: bridge

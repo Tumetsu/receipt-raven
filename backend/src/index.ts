@@ -3,10 +3,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { config } from './config/index.js';
 import { registerPlugins } from './plugins/index.js';
-import { uploadModule } from './modules/upload';
-import { analyzeModule } from './modules/analyze';
-import { ledgerModule } from './modules/ledger';
-import { appModule } from './modules/app';
+import { uploadModule } from './modules/upload/index.js';
+import { analyzeModule } from './modules/analyze/index.js';
+import { ledgerModule } from './modules/ledger/index.js';
+import { appModule } from './modules/app/index.js';
 
 const fastify = Fastify({
   logger: true,

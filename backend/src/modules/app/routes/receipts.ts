@@ -1,5 +1,5 @@
 import { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import { ReceiptStatus } from '../../../database/schema';
+import { ReceiptStatus } from '../../../database/schema.js';
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
   fastify.get('/receipts', {

@@ -1,8 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
-import { SQLiteReceiptRepository } from '../../repositories/receipt-repository';
-import receiptRoutes from './routes/receipts';
-import { addSchemas } from './schemas/receipts';
+import { SQLiteReceiptRepository } from '../../repositories/receipt-repository.js';
+import receiptRoutes from './routes/receipts.js';
+import { addSchemas } from './schemas/receipts.js';
 
 /**
  * Frontend app module plugin - handles frontend UI endpoints

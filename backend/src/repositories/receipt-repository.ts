@@ -1,7 +1,7 @@
-import { ReceiptAnalysisResult } from '../types/shared';
+import { ReceiptAnalysisResult } from '../types/shared.js';
 import { InsertObject, Kysely, Selectable } from 'kysely';
-import { Database, ReceiptStatus } from '../database/schema';
-import { ReceiptJob } from './receipt-job-repository';
+import { Database, ReceiptStatus } from '../database/schema.js';
+import { ReceiptJob } from './receipt-job-repository.js';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;

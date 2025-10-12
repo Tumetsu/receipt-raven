@@ -1,8 +1,8 @@
 import { Kysely } from 'kysely';
 import { Database } from '../database/schema.js';
-import { IReceiptRepository } from '../repositories/receipt-repository';
+import { IReceiptRepository } from '../repositories/receipt-repository.js';
 import { IReceiptJobQueueRepository } from '../repositories/receipt-job-repository.js';
-import { ILedgerService } from '../plugins/ledger/ledger-service';
+import { ILedgerService } from '../plugins/ledger/ledger-service.js';
 
 /**
  * Extend Fastify types to include our custom decorators

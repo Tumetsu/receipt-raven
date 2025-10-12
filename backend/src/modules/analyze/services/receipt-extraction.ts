@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { aiClient } from './ai-client';
+import { aiClient } from './ai-client.js';
 import { ReceiptAnalysisResponse } from '../../../types/shared.js';
 
 const ProductSchema = z.object({

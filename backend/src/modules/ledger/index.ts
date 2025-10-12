@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import ledgerRoutes from './routes.js';
-import { SQLiteReceiptRepository } from '../../repositories/receipt-repository';
+import { SQLiteReceiptRepository } from '../../repositories/receipt-repository.js';
 /**
  * Ledger module plugin - handles ledger integration and master data
  */

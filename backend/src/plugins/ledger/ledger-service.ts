@@ -3,7 +3,7 @@ import {
   Category,
   Payee,
   ReceiptTransactionData,
-} from '../../modules/ledger/types';
+} from '../../modules/ledger/types.js';
 
 /**
  * Abstract interface for ledger operations
