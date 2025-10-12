@@ -116,13 +116,6 @@ function ReceiptActions({ isSavePending, isApproved }: ReceiptActionsProps) {
       >
         Approve
       </Button>
-      <Button
-        fullWidth
-        variant="outlined"
-        disabled={isSavePending || isApproved}
-      >
-        Delete
-      </Button>
     </Stack>
   );
 }
