@@ -1,0 +1,23 @@
+{
+  "name": "receipt-raven",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Tumetsu/receipt-raven#readme",
+  "bugs": {
+    "url": "https://github.com/Tumetsu/receipt-raven/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tumetsu/receipt-raven.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "format:frontend": "cd frontend && npm run format",
+    "format:backend": "cd backend && npm run format",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "format": "npm run format:frontend && npm run format:backend"
+  }
+}
