@@ -9,7 +9,17 @@ import { ledgerModule } from './modules/ledger/index.js';
 import { appModule } from './modules/app/index.js';
 
 const fastify = Fastify({
-  logger: true,
+  logger: {
+    level: config.nodeEnv === 'production' ? 'info' : 'debug',
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+        colorize: false, // Disable colors for Docker logs
+      },
+    },
+  },
 });
 
 const start = async () => {
