@@ -3,6 +3,8 @@ import { readFile } from 'fs/promises';
 import { analyzeReceipt } from './services/receipt-extraction.js';
 import { FastifyInstance } from 'fastify';
 import { IReceiptRepository } from '../../repositories/receipt-repository.js';
+import path from 'path';
+import { config } from '../../config/index.js';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
@@ -23,7 +25,9 @@ export const processReceiptJobFromQueue = async (
 
   try {
     // Read the saved file as a buffer
-    const imageBuffer = await readFile(job.filepath);
+    const imageBuffer = await readFile(
+      path.join(config.storage.uploadsDir, job.filepath)
+    );
 
     fastify.log.info(`Sending ${job.id} to OpenAI`);
     // Analyze the receipt using OpenAI

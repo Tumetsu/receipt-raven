@@ -40,8 +40,9 @@ const analyzeRoutes: FastifyPluginAsync = async fastify => {
       const filepath = path.join(config.storage.uploadsDir, filename);
 
       await pipeline(data.file, createWriteStream(filepath));
+      fastify.log.info(`File uploaded successfully: ${filepath}`);
       await fastify.uploadReceiptJobQueueRepository.saveReceiptToBeProcessed(
-        filepath
+        filename
       );
 
       return {
