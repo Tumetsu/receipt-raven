@@ -47,8 +47,10 @@ export function UploadView(): ReactElement {
         <Box sx={{ textAlign: 'center', marginTop: '2rem' }}>
           <Button
             variant="contained"
+            size="large"
             disabled={submitImageMutation.isPending}
             onClick={() => submitImageMutation.mutate(capturedImage)}
+            sx={{ marginBottom: 8 }}
           >
             Submit
           </Button>
