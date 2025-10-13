@@ -21,9 +21,6 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query';
 
-import * as axios from 'axios';
-import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-
 import type {
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
@@ -43,21 +40,21 @@ import type {
   ReceiptSubmission,
 } from './model';
 
+import { apiClient } from '../axiosInstance';
+
 /**
  * Upload a receipt image for processing
  */
-export const postApiUpload = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<PostApiUpload200>> => {
-  return axios.default.post(
-    `http://localhost:3001/api/upload`,
-    undefined,
-    options
-  );
+export const postApiUpload = (signal?: AbortSignal) => {
+  return apiClient<PostApiUpload200>({
+    url: `/api/upload`,
+    method: 'POST',
+    signal,
+  });
 };
 
 export const getPostApiUploadMutationOptions = <
-  TError = AxiosError<PostApiUpload400>,
+  TError = PostApiUpload400,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -66,7 +63,6 @@ export const getPostApiUploadMutationOptions = <
     void,
     TContext
   >;
-  axios?: AxiosRequestConfig;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postApiUpload>>,
   TError,
@@ -74,19 +70,19 @@ export const getPostApiUploadMutationOptions = <
   TContext
 > => {
   const mutationKey = ['postApiUpload'];
-  const { mutation: mutationOptions, axios: axiosOptions } = options
+  const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, axios: undefined };
+    : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postApiUpload>>,
     void
   > = () => {
-    return postApiUpload(axiosOptions);
+    return postApiUpload();
   };
 
   return { mutationFn, ...mutationOptions };
@@ -96,12 +92,9 @@ export type PostApiUploadMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiUpload>>
 >;
 
-export type PostApiUploadMutationError = AxiosError<PostApiUpload400>;
+export type PostApiUploadMutationError = PostApiUpload400;
 
-export const usePostApiUpload = <
-  TError = AxiosError<PostApiUpload400>,
-  TContext = unknown,
->(
+export const usePostApiUpload = <TError = PostApiUpload400, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postApiUpload>>,
@@ -109,7 +102,6 @@ export const usePostApiUpload = <
       void,
       TContext
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseMutationResult<
@@ -128,26 +120,25 @@ export const usePostApiUpload = <
  */
 export const getApiLedgerAccounts = (
   params?: GetApiLedgerAccountsParams,
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<string[]>> => {
-  return axios.default.get(`http://localhost:3001/api/ledger/accounts`, {
-    ...options,
-    params: { ...params, ...options?.params },
+  signal?: AbortSignal
+) => {
+  return apiClient<string[]>({
+    url: `/api/ledger/accounts`,
+    method: 'GET',
+    params,
+    signal,
   });
 };
 
 export const getGetApiLedgerAccountsQueryKey = (
   params?: GetApiLedgerAccountsParams
 ) => {
-  return [
-    `http://localhost:3001/api/ledger/accounts`,
-    ...(params ? [params] : []),
-  ] as const;
+  return [`/api/ledger/accounts`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetApiLedgerAccountsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiLedgerAccounts>>,
-  TError = AxiosError<GetApiLedgerAccounts500>,
+  TError = GetApiLedgerAccounts500,
 >(
   params?: GetApiLedgerAccountsParams,
   options?: {
@@ -158,17 +149,16 @@ export const getGetApiLedgerAccountsQueryOptions = <
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   }
 ) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey =
     queryOptions?.queryKey ?? getGetApiLedgerAccountsQueryKey(params);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getApiLedgerAccounts>>
-  > = ({ signal }) => getApiLedgerAccounts(params, { signal, ...axiosOptions });
+  > = ({ signal }) => getApiLedgerAccounts(params, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiLedgerAccounts>>,
@@ -180,12 +170,11 @@ export const getGetApiLedgerAccountsQueryOptions = <
 export type GetApiLedgerAccountsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiLedgerAccounts>>
 >;
-export type GetApiLedgerAccountsQueryError =
-  AxiosError<GetApiLedgerAccounts500>;
+export type GetApiLedgerAccountsQueryError = GetApiLedgerAccounts500;
 
 export function useGetApiLedgerAccounts<
   TData = Awaited<ReturnType<typeof getApiLedgerAccounts>>,
-  TError = AxiosError<GetApiLedgerAccounts500>,
+  TError = GetApiLedgerAccounts500,
 >(
   params: undefined | GetApiLedgerAccountsParams,
   options: {
@@ -204,7 +193,6 @@ export function useGetApiLedgerAccounts<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -212,7 +200,7 @@ export function useGetApiLedgerAccounts<
 };
 export function useGetApiLedgerAccounts<
   TData = Awaited<ReturnType<typeof getApiLedgerAccounts>>,
-  TError = AxiosError<GetApiLedgerAccounts500>,
+  TError = GetApiLedgerAccounts500,
 >(
   params?: GetApiLedgerAccountsParams,
   options?: {
@@ -231,7 +219,6 @@ export function useGetApiLedgerAccounts<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -239,7 +226,7 @@ export function useGetApiLedgerAccounts<
 };
 export function useGetApiLedgerAccounts<
   TData = Awaited<ReturnType<typeof getApiLedgerAccounts>>,
-  TError = AxiosError<GetApiLedgerAccounts500>,
+  TError = GetApiLedgerAccounts500,
 >(
   params?: GetApiLedgerAccountsParams,
   options?: {
@@ -250,7 +237,6 @@ export function useGetApiLedgerAccounts<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -259,7 +245,7 @@ export function useGetApiLedgerAccounts<
 
 export function useGetApiLedgerAccounts<
   TData = Awaited<ReturnType<typeof getApiLedgerAccounts>>,
-  TError = AxiosError<GetApiLedgerAccounts500>,
+  TError = GetApiLedgerAccounts500,
 >(
   params?: GetApiLedgerAccountsParams,
   options?: {
@@ -270,7 +256,6 @@ export function useGetApiLedgerAccounts<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -291,22 +276,21 @@ export function useGetApiLedgerAccounts<
 /**
  * Get expense categories from the ledger
  */
-export const getApiLedgerCategories = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiLedgerCategories200Item[]>> => {
-  return axios.default.get(
-    `http://localhost:3001/api/ledger/categories`,
-    options
-  );
+export const getApiLedgerCategories = (signal?: AbortSignal) => {
+  return apiClient<GetApiLedgerCategories200Item[]>({
+    url: `/api/ledger/categories`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetApiLedgerCategoriesQueryKey = () => {
-  return [`http://localhost:3001/api/ledger/categories`] as const;
+  return [`/api/ledger/categories`] as const;
 };
 
 export const getGetApiLedgerCategoriesQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiLedgerCategories>>,
-  TError = AxiosError<GetApiLedgerCategories500>,
+  TError = GetApiLedgerCategories500,
 >(options?: {
   query?: Partial<
     UseQueryOptions<
@@ -315,16 +299,15 @@ export const getGetApiLedgerCategoriesQueryOptions = <
       TData
     >
   >;
-  axios?: AxiosRequestConfig;
 }) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey =
     queryOptions?.queryKey ?? getGetApiLedgerCategoriesQueryKey();
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getApiLedgerCategories>>
-  > = ({ signal }) => getApiLedgerCategories({ signal, ...axiosOptions });
+  > = ({ signal }) => getApiLedgerCategories(signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiLedgerCategories>>,
@@ -336,12 +319,11 @@ export const getGetApiLedgerCategoriesQueryOptions = <
 export type GetApiLedgerCategoriesQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiLedgerCategories>>
 >;
-export type GetApiLedgerCategoriesQueryError =
-  AxiosError<GetApiLedgerCategories500>;
+export type GetApiLedgerCategoriesQueryError = GetApiLedgerCategories500;
 
 export function useGetApiLedgerCategories<
   TData = Awaited<ReturnType<typeof getApiLedgerCategories>>,
-  TError = AxiosError<GetApiLedgerCategories500>,
+  TError = GetApiLedgerCategories500,
 >(
   options: {
     query: Partial<
@@ -359,7 +341,6 @@ export function useGetApiLedgerCategories<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -367,7 +348,7 @@ export function useGetApiLedgerCategories<
 };
 export function useGetApiLedgerCategories<
   TData = Awaited<ReturnType<typeof getApiLedgerCategories>>,
-  TError = AxiosError<GetApiLedgerCategories500>,
+  TError = GetApiLedgerCategories500,
 >(
   options?: {
     query?: Partial<
@@ -385,7 +366,6 @@ export function useGetApiLedgerCategories<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -393,7 +373,7 @@ export function useGetApiLedgerCategories<
 };
 export function useGetApiLedgerCategories<
   TData = Awaited<ReturnType<typeof getApiLedgerCategories>>,
-  TError = AxiosError<GetApiLedgerCategories500>,
+  TError = GetApiLedgerCategories500,
 >(
   options?: {
     query?: Partial<
@@ -403,7 +383,6 @@ export function useGetApiLedgerCategories<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -412,7 +391,7 @@ export function useGetApiLedgerCategories<
 
 export function useGetApiLedgerCategories<
   TData = Awaited<ReturnType<typeof getApiLedgerCategories>>,
-  TError = AxiosError<GetApiLedgerCategories500>,
+  TError = GetApiLedgerCategories500,
 >(
   options?: {
     query?: Partial<
@@ -422,7 +401,6 @@ export function useGetApiLedgerCategories<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -443,19 +421,21 @@ export function useGetApiLedgerCategories<
 /**
  * Get list of payees (shops, vendors) from the ledger
  */
-export const getApiLedgerPayees = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetApiLedgerPayees200>> => {
-  return axios.default.get(`http://localhost:3001/api/ledger/payees`, options);
+export const getApiLedgerPayees = (signal?: AbortSignal) => {
+  return apiClient<GetApiLedgerPayees200>({
+    url: `/api/ledger/payees`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetApiLedgerPayeesQueryKey = () => {
-  return [`http://localhost:3001/api/ledger/payees`] as const;
+  return [`/api/ledger/payees`] as const;
 };
 
 export const getGetApiLedgerPayeesQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiLedgerPayees>>,
-  TError = AxiosError<GetApiLedgerPayees500>,
+  TError = GetApiLedgerPayees500,
 >(options?: {
   query?: Partial<
     UseQueryOptions<
@@ -464,15 +444,14 @@ export const getGetApiLedgerPayeesQueryOptions = <
       TData
     >
   >;
-  axios?: AxiosRequestConfig;
 }) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetApiLedgerPayeesQueryKey();
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getApiLedgerPayees>>
-  > = ({ signal }) => getApiLedgerPayees({ signal, ...axiosOptions });
+  > = ({ signal }) => getApiLedgerPayees(signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiLedgerPayees>>,
@@ -484,11 +463,11 @@ export const getGetApiLedgerPayeesQueryOptions = <
 export type GetApiLedgerPayeesQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiLedgerPayees>>
 >;
-export type GetApiLedgerPayeesQueryError = AxiosError<GetApiLedgerPayees500>;
+export type GetApiLedgerPayeesQueryError = GetApiLedgerPayees500;
 
 export function useGetApiLedgerPayees<
   TData = Awaited<ReturnType<typeof getApiLedgerPayees>>,
-  TError = AxiosError<GetApiLedgerPayees500>,
+  TError = GetApiLedgerPayees500,
 >(
   options: {
     query: Partial<
@@ -506,7 +485,6 @@ export function useGetApiLedgerPayees<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -514,7 +492,7 @@ export function useGetApiLedgerPayees<
 };
 export function useGetApiLedgerPayees<
   TData = Awaited<ReturnType<typeof getApiLedgerPayees>>,
-  TError = AxiosError<GetApiLedgerPayees500>,
+  TError = GetApiLedgerPayees500,
 >(
   options?: {
     query?: Partial<
@@ -532,7 +510,6 @@ export function useGetApiLedgerPayees<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -540,7 +517,7 @@ export function useGetApiLedgerPayees<
 };
 export function useGetApiLedgerPayees<
   TData = Awaited<ReturnType<typeof getApiLedgerPayees>>,
-  TError = AxiosError<GetApiLedgerPayees500>,
+  TError = GetApiLedgerPayees500,
 >(
   options?: {
     query?: Partial<
@@ -550,7 +527,6 @@ export function useGetApiLedgerPayees<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -559,7 +535,7 @@ export function useGetApiLedgerPayees<
 
 export function useGetApiLedgerPayees<
   TData = Awaited<ReturnType<typeof getApiLedgerPayees>>,
-  TError = AxiosError<GetApiLedgerPayees500>,
+  TError = GetApiLedgerPayees500,
 >(
   options?: {
     query?: Partial<
@@ -569,7 +545,6 @@ export function useGetApiLedgerPayees<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -590,32 +565,29 @@ export function useGetApiLedgerPayees<
 /**
  * Get receipts
  */
-export const getApiReceipts = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<Receipt[]>> => {
-  return axios.default.get(`http://localhost:3001/api/receipts`, options);
+export const getApiReceipts = (signal?: AbortSignal) => {
+  return apiClient<Receipt[]>({ url: `/api/receipts`, method: 'GET', signal });
 };
 
 export const getGetApiReceiptsQueryKey = () => {
-  return [`http://localhost:3001/api/receipts`] as const;
+  return [`/api/receipts`] as const;
 };
 
 export const getGetApiReceiptsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
   >;
-  axios?: AxiosRequestConfig;
 }) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetApiReceiptsQueryKey();
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiReceipts>>> = ({
     signal,
-  }) => getApiReceipts({ signal, ...axiosOptions });
+  }) => getApiReceipts(signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiReceipts>>,
@@ -627,11 +599,11 @@ export const getGetApiReceiptsQueryOptions = <
 export type GetApiReceiptsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiReceipts>>
 >;
-export type GetApiReceiptsQueryError = AxiosError<unknown>;
+export type GetApiReceiptsQueryError = unknown;
 
 export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options: {
     query: Partial<
@@ -645,7 +617,6 @@ export function useGetApiReceipts<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -653,7 +624,7 @@ export function useGetApiReceipts<
 };
 export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
@@ -667,7 +638,6 @@ export function useGetApiReceipts<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -675,13 +645,12 @@ export function useGetApiReceipts<
 };
 export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -690,13 +659,12 @@ export function useGetApiReceipts<
 
 export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -720,21 +688,22 @@ export function useGetApiReceipts<
 export const postApiReceiptsReceiptId = (
   receiptId: number,
   receiptSubmission: ReceiptSubmission,
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<PostApiReceiptsReceiptId200>> => {
-  return axios.default.post(
-    `http://localhost:3001/api/receipts/${receiptId}`,
-    receiptSubmission,
-    options
-  );
+  signal?: AbortSignal
+) => {
+  return apiClient<PostApiReceiptsReceiptId200>({
+    url: `/api/receipts/${receiptId}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: receiptSubmission,
+    signal,
+  });
 };
 
 export const getPostApiReceiptsReceiptIdMutationOptions = <
-  TError = AxiosError<
+  TError =
     | PostApiReceiptsReceiptId400
     | PostApiReceiptsReceiptId404
-    | PostApiReceiptsReceiptId500
-  >,
+    | PostApiReceiptsReceiptId500,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -743,7 +712,6 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
     { receiptId: number; data: ReceiptSubmission },
     TContext
   >;
-  axios?: AxiosRequestConfig;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
   TError,
@@ -751,13 +719,13 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
   TContext
 > => {
   const mutationKey = ['postApiReceiptsReceiptId'];
-  const { mutation: mutationOptions, axios: axiosOptions } = options
+  const { mutation: mutationOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, axios: undefined };
+    : { mutation: { mutationKey } };
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
@@ -765,7 +733,7 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
   > = props => {
     const { receiptId, data } = props ?? {};
 
-    return postApiReceiptsReceiptId(receiptId, data, axiosOptions);
+    return postApiReceiptsReceiptId(receiptId, data);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -775,18 +743,16 @@ export type PostApiReceiptsReceiptIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiReceiptsReceiptId>>
 >;
 export type PostApiReceiptsReceiptIdMutationBody = ReceiptSubmission;
-export type PostApiReceiptsReceiptIdMutationError = AxiosError<
+export type PostApiReceiptsReceiptIdMutationError =
   | PostApiReceiptsReceiptId400
   | PostApiReceiptsReceiptId404
-  | PostApiReceiptsReceiptId500
->;
+  | PostApiReceiptsReceiptId500;
 
 export const usePostApiReceiptsReceiptId = <
-  TError = AxiosError<
+  TError =
     | PostApiReceiptsReceiptId400
     | PostApiReceiptsReceiptId404
-    | PostApiReceiptsReceiptId500
-  >,
+    | PostApiReceiptsReceiptId500,
   TContext = unknown,
 >(
   options?: {
@@ -796,7 +762,6 @@ export const usePostApiReceiptsReceiptId = <
       { receiptId: number; data: ReceiptSubmission },
       TContext
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseMutationResult<
@@ -815,21 +780,22 @@ export const usePostApiReceiptsReceiptId = <
  */
 export const getApiReceiptsReceiptIdItems = (
   receiptId: string,
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<ReceiptItem[]>> => {
-  return axios.default.get(
-    `http://localhost:3001/api/receipts/${receiptId}/items`,
-    options
-  );
+  signal?: AbortSignal
+) => {
+  return apiClient<ReceiptItem[]>({
+    url: `/api/receipts/${receiptId}/items`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetApiReceiptsReceiptIdItemsQueryKey = (receiptId?: string) => {
-  return [`http://localhost:3001/api/receipts/${receiptId}/items`] as const;
+  return [`/api/receipts/${receiptId}/items`] as const;
 };
 
 export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   receiptId: string,
   options?: {
@@ -840,10 +806,9 @@ export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   }
 ) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey =
     queryOptions?.queryKey ??
@@ -851,8 +816,7 @@ export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
-  > = ({ signal }) =>
-    getApiReceiptsReceiptIdItems(receiptId, { signal, ...axiosOptions });
+  > = ({ signal }) => getApiReceiptsReceiptIdItems(receiptId, signal);
 
   return {
     queryKey,
@@ -869,11 +833,11 @@ export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
 export type GetApiReceiptsReceiptIdItemsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>
 >;
-export type GetApiReceiptsReceiptIdItemsQueryError = AxiosError<unknown>;
+export type GetApiReceiptsReceiptIdItemsQueryError = unknown;
 
 export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   receiptId: string,
   options: {
@@ -892,7 +856,6 @@ export function useGetApiReceiptsReceiptIdItems<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -900,7 +863,7 @@ export function useGetApiReceiptsReceiptIdItems<
 };
 export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   receiptId: string,
   options?: {
@@ -919,7 +882,6 @@ export function useGetApiReceiptsReceiptIdItems<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -927,7 +889,7 @@ export function useGetApiReceiptsReceiptIdItems<
 };
 export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   receiptId: string,
   options?: {
@@ -938,7 +900,6 @@ export function useGetApiReceiptsReceiptIdItems<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -947,7 +908,7 @@ export function useGetApiReceiptsReceiptIdItems<
 
 export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   receiptId: string,
   options?: {
@@ -958,7 +919,6 @@ export function useGetApiReceiptsReceiptIdItems<
         TData
       >
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -982,32 +942,29 @@ export function useGetApiReceiptsReceiptIdItems<
 /**
  * Health check endpoint
  */
-export const getHealth = (
-  options?: AxiosRequestConfig
-): Promise<AxiosResponse<GetHealth200>> => {
-  return axios.default.get(`http://localhost:3001/health`, options);
+export const getHealth = (signal?: AbortSignal) => {
+  return apiClient<GetHealth200>({ url: `/health`, method: 'GET', signal });
 };
 
 export const getGetHealthQueryKey = () => {
-  return [`http://localhost:3001/health`] as const;
+  return [`/health`] as const;
 };
 
 export const getGetHealthQueryOptions = <
   TData = Awaited<ReturnType<typeof getHealth>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
   >;
-  axios?: AxiosRequestConfig;
 }) => {
-  const { query: queryOptions, axios: axiosOptions } = options ?? {};
+  const { query: queryOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetHealthQueryKey();
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getHealth>>> = ({
     signal,
-  }) => getHealth({ signal, ...axiosOptions });
+  }) => getHealth(signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getHealth>>,
@@ -1019,11 +976,11 @@ export const getGetHealthQueryOptions = <
 export type GetHealthQueryResult = NonNullable<
   Awaited<ReturnType<typeof getHealth>>
 >;
-export type GetHealthQueryError = AxiosError<unknown>;
+export type GetHealthQueryError = unknown;
 
 export function useGetHealth<
   TData = Awaited<ReturnType<typeof getHealth>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options: {
     query: Partial<
@@ -1037,7 +994,6 @@ export function useGetHealth<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & {
@@ -1045,7 +1001,7 @@ export function useGetHealth<
 };
 export function useGetHealth<
   TData = Awaited<ReturnType<typeof getHealth>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
@@ -1059,7 +1015,6 @@ export function useGetHealth<
         >,
         'initialData'
       >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -1067,13 +1022,12 @@ export function useGetHealth<
 };
 export function useGetHealth<
   TData = Awaited<ReturnType<typeof getHealth>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {
@@ -1082,13 +1036,12 @@ export function useGetHealth<
 
 export function useGetHealth<
   TData = Awaited<ReturnType<typeof getHealth>>,
-  TError = AxiosError<unknown>,
+  TError = unknown,
 >(
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
     >;
-    axios?: AxiosRequestConfig;
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & {

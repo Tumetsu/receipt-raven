@@ -8,6 +8,11 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import App from './App.tsx';
 import { theme } from './common/theme.ts';
+import { AXIOS_INSTANCE } from './api/axiosInstance';
+import config from './config';
+
+// Configure axios baseURL from environment variables
+AXIOS_INSTANCE.defaults.baseURL = config.api.baseUrl;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

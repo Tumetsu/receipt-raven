@@ -48,7 +48,7 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payee,
-      items: itemsResult?.data ?? [],
+      items: itemsResult ?? [],
     },
   });
 
@@ -82,10 +82,9 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
           onApprove();
         },
         onError: error => {
-          enqueueSnackbar(
-            error.response?.data.message ?? 'Error saving receipt',
-            { variant: 'error' }
-          );
+          enqueueSnackbar(error.message ?? 'Error saving receipt', {
+            variant: 'error',
+          });
         },
       }
     );

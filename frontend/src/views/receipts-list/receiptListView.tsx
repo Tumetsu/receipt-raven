@@ -31,9 +31,9 @@ export function ReceiptListView(): ReactElement {
         {isPending && <span>Loading</span>}
         {isSuccess && (
           <ReceiptList
-            receipts={result.data}
+            receipts={result}
             onRowClick={id => {
-              const receipt = result.data.find(r => r.id === id) || null;
+              const receipt = result.find(r => r.id === id) || null;
               setSelectedReceipt(receipt);
             }}
           ></ReceiptList>

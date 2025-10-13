@@ -22,7 +22,7 @@ export function useAccounts() {
   // Combine data safely with useMemo
   const combinedData = useMemo((): string[] => {
     if (!assetQuery.data || !liabilityQuery.data) return [];
-    return [...assetQuery.data.data, ...liabilityQuery.data.data];
+    return [...assetQuery.data, ...liabilityQuery.data];
   }, [assetQuery.data, liabilityQuery.data]);
 
   return {

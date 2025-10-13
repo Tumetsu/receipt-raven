@@ -101,7 +101,7 @@ export function ReceiptItemList<
                     `${name}.${idx}.category` as unknown as Path<TFieldValues>
                   }
                   control={control}
-                  options={expenseAccounts.data.data}
+                  options={expenseAccounts.data}
                   label="Expense category"
                   required
                 />
