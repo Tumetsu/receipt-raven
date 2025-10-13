@@ -4,7 +4,7 @@ import checker from 'vite-plugin-checker';
 import tanstackRouter from '@tanstack/router-plugin/vite';
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -15,11 +15,14 @@ export default defineConfig({
       typescript: true,
     }),
   ],
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: false,
-  },
-  // Base path for production (served from root)
-  base: '/',
-});
+  // Only apply build settings when building for production (Docker)
+  // For local dev (vite serve), these are omitted for better live reload
+  ...(command === 'build' && {
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      sourcemap: false,
+    },
+    base: '/',
+  }),
+}));

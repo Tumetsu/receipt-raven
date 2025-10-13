@@ -6,8 +6,8 @@ WORKDIR /app
 COPY beancount-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy only the beancount-service application code
+COPY beancount-service/ .
 
 # Expose port
 EXPOSE 8000
