@@ -1,16 +1,12 @@
 import Fastify from 'fastify';
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { config } from '../config/index.js';
-import { registerPlugins } from '../plugins/index.js';
-import { uploadModule } from '../modules/upload/index.js';
-import { analyzeModule } from '../modules/analyze/index.js';
-import { ledgerModule } from '../modules/ledger/index.js';
-import { appModule } from '../modules/app/index.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { config } from '../config';
+import { registerPlugins } from '../plugins';
+import { uploadModule } from '../modules/upload';
+import { analyzeModule } from '../modules/analyze';
+import { ledgerModule } from '../modules/ledger';
+import { appModule } from '../modules/app';
 
 async function exportOpenAPI() {
   const fastify = Fastify({
