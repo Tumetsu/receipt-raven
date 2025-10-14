@@ -4,6 +4,7 @@ import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
 import { Receipt } from '../../api/generated/model/receipt.ts';
 import { ReceiptPanel } from './components/receiptPanel.tsx';
+import { ContentArea } from '../../common/components/ContentArea.tsx';
 
 const PageContainer = styled(Box)({
   display: 'flex',
@@ -19,13 +20,6 @@ const MainContent = styled(Box)({
   overflow: 'hidden',
   position: 'relative',
 });
-
-const ContentArea = styled(Box)(({ theme }) => ({
-  flex: 1,
-  overflow: 'auto',
-  padding: theme.spacing(2, 3),
-  backgroundColor: '#f9fafb',
-}));
 
 export function ReceiptListView(): ReactElement {
   const {

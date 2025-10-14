@@ -1,4 +1,4 @@
-import { Box, Button, Container } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import config from '../../config';
@@ -6,6 +6,7 @@ import UploadImageArea from './components/uploadImageArea.tsx';
 import { FullscreenSpinner } from '../../common/components/fullscreenSpinner.tsx';
 import { useImageCapture } from './hooks/useImageCapture.ts';
 import { useSnackbar } from 'notistack';
+import { ContentArea } from '../../common/components/ContentArea.tsx';
 
 export function UploadView(): ReactElement {
   const { capturedImage, clearImage, ...imageCapture } = useImageCapture();
@@ -39,7 +40,7 @@ export function UploadView(): ReactElement {
   });
 
   return (
-    <Container>
+    <ContentArea sx={{ height: '100vh' }}>
       <FullscreenSpinner open={submitImageMutation.isPending} />
       <UploadImageArea capturedImage={capturedImage} {...imageCapture} />
 
@@ -60,6 +61,6 @@ export function UploadView(): ReactElement {
           Take a picture of a receipt
         </Box>
       )}
-    </Container>
+    </ContentArea>
   );
 }
