@@ -1,7 +1,7 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { QueryClient } from '@tanstack/react-query';
-import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 import TopBar from '../common/components/TopBar.tsx';
 
 interface MyRouterContext {
@@ -9,13 +9,13 @@ interface MyRouterContext {
 }
 
 const RootLayout = () => (
-  <>
+  <Box>
     <TopBar />
-    <Container>
+    <Box>
       <Outlet />
       <TanStackRouterDevtools />
-    </Container>
-  </>
+    </Box>
+  </Box>
 );
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

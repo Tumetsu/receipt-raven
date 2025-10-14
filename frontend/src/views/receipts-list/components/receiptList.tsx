@@ -1,12 +1,24 @@
-import { Card } from '@mui/material';
+import { Card, styled } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
 import { Receipt } from '../../../api/generated/model';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+
+const TableCard = styled(Card)({
+  height: '100%',
+  width: '100%',
+  backgroundColor: '#ffffff',
+  borderRadius: '8px',
+  border: '1px solid #e5e7eb',
+  overflow: 'hidden',
+  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+});
 
 export function ReceiptList(props: {
   receipts: Receipt[];
+  selectedReceiptId?: number;
   onRowClick: (id: number) => void;
 }): ReactElement {
   const rows = props.receipts.map(r => ({
@@ -21,21 +33,47 @@ export function ReceiptList(props: {
     {
       field: 'status',
       headerName: 'Status',
-      width: 60,
+      width: 80,
       renderCell: params => (
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           {params.value === 'approved' ? (
-            <CheckCircleIcon color="success" />
+            <CheckCircleIcon sx={{ color: '#10b981' }} />
           ) : (
-            <RadioButtonUncheckedIcon color="disabled" />
+            <RadioButtonUncheckedIcon sx={{ color: '#d1d5db' }} />
           )}
         </div>
       ),
     },
-    { field: 'date', headerName: 'Date', width: 130 },
-    { field: 'payee', headerName: 'Payee', width: 130 },
-    { field: 'cost', headerName: 'Cost', width: 90, type: 'number' },
+    { field: 'date', headerName: 'Date', flex: 1, minWidth: 130 },
+    { field: 'payee', headerName: 'Payee', flex: 2, minWidth: 200 },
+    {
+      field: 'cost',
+      headerName: 'Amount',
+      flex: 1,
+      minWidth: 100,
+      type: 'number',
+      valueFormatter: value => `${Number(value).toFixed(2)}€`,
+    },
+    {
+      field: 'actions',
+      headerName: '',
+      width: 50,
+      sortable: false,
+      renderCell: () => (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <ChevronRightIcon sx={{ color: '#9ca3af' }} />
+        </div>
+      ),
+    },
   ];
+
   const paginationModel = { page: 0, pageSize: 50 };
 
   const handleClick = (params: GridRowParams) => {
@@ -45,15 +83,39 @@ export function ReceiptList(props: {
   };
 
   return (
-    <Card sx={{ height: '90vh', width: '100%' }}>
+    <TableCard>
       <DataGrid
         rows={rows}
         onRowClick={handleClick}
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
-        sx={{ border: 0 }}
+        pageSizeOptions={[25, 50, 100]}
+        getRowClassName={params =>
+          params.id === props.selectedReceiptId ? 'selected-row' : ''
+        }
+        sx={{
+          border: 0,
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#f9fafb',
+            borderBottom: '1px solid #e5e7eb',
+          },
+          '& .MuiDataGrid-row': {
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: '#eff6ff',
+            },
+            '&.selected-row': {
+              backgroundColor: '#eff6ff',
+              '&:hover': {
+                backgroundColor: '#dbeafe',
+              },
+            },
+          },
+          '& .MuiDataGrid-cell': {
+            borderBottom: '1px solid #f3f4f6',
+          },
+        }}
       />
-    </Card>
+    </TableCard>
   );
 }

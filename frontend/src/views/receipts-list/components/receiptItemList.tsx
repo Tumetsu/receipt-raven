@@ -57,7 +57,7 @@ export function ReceiptItemList<
           Products
         </Typography>
         <IconButton
-          sx={{ position: 'absolute', right: 4, top: 1 }}
+          sx={{ position: 'absolute', right: 4, top: 0 }}
           onClick={onAddItem}
           disabled={disabled}
         >
