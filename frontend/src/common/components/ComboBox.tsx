@@ -31,6 +31,7 @@ export function ComboBox({
         <TextField
           {...params}
           label={label}
+          sx={{ backgroundColor: 'white' }}
           required={required}
           disabled={disabled}
         />

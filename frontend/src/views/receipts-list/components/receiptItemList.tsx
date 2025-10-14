@@ -1,4 +1,5 @@
-import { Typography, IconButton, Card, Grid, Stack, Box } from '@mui/material';
+import { Typography, IconButton, Box, styled } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { useGetApiLedgerAccounts } from '../../../api/generated/api';
@@ -11,6 +12,23 @@ import {
   useFieldArray,
 } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
+
+const ProductCard = styled(Box)(({ theme }) => ({
+  border: '1px solid #e5e7eb',
+  borderRadius: theme.spacing(1),
+  padding: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+  position: 'relative',
+  backgroundColor: grey[50],
+}));
+
+const ProductHeader = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: theme.spacing(2),
+  gap: theme.spacing(2),
+}));
 
 type ReceiptItemListProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -53,7 +71,7 @@ export function ReceiptItemList<
   return (
     <>
       <Box sx={{ position: 'relative' }}>
-        <Typography variant="h4" sx={{ marginBottom: 2 }}>
+        <Typography variant="h6" sx={{ marginBottom: 2, fontWeight: 500 }}>
           Products
         </Typography>
         <IconButton
@@ -65,50 +83,48 @@ export function ReceiptItemList<
         </IconButton>
       </Box>
       {fields.map((field, idx) => (
-        <Card
-          variant="outlined"
-          key={field.id}
-          sx={{ position: 'relative', marginBottom: 2, padding: 2 }}
-        >
+        <ProductCard key={field.id}>
           <IconButton
-            sx={{ position: 'absolute', right: 4, top: 1 }}
+            sx={{ position: 'absolute', right: 4, top: 4 }}
             onClick={() => onRemoveItem(idx)}
             disabled={disabled}
+            size="small"
           >
-            <ClearIcon />
+            <ClearIcon fontSize="small" />
           </IconButton>
-          <Grid container gap={2}>
-            <Grid size={11}>
-              <Stack direction="row" useFlexGap gap={2}>
-                <ControlledTextField
-                  name={`${name}.${idx}.name` as unknown as Path<TFieldValues>}
-                  label="Product"
-                  control={control}
-                  required
-                />
-                <ControlledTextField
-                  name={`${name}.${idx}.price` as unknown as Path<TFieldValues>}
-                  label="Price"
-                  control={control}
-                  required
-                />
-              </Stack>
-            </Grid>
-            <Grid size={11}>
-              {expenseAccounts.isSuccess && (
-                <ControlledComboBox
-                  name={
-                    `${name}.${idx}.category` as unknown as Path<TFieldValues>
-                  }
-                  control={control}
-                  options={expenseAccounts.data}
-                  label="Expense category"
-                  required
-                />
-              )}
-            </Grid>
-          </Grid>
-        </Card>
+          <Box sx={{ paddingRight: 4 }}>
+            <ProductHeader>
+              <ControlledTextField
+                name={`${name}.${idx}.name` as unknown as Path<TFieldValues>}
+                label="Product"
+                control={control}
+                required
+                disabled={disabled}
+                sx={{ flex: 1 }}
+              />
+              <ControlledTextField
+                name={`${name}.${idx}.price` as unknown as Path<TFieldValues>}
+                label="Price"
+                control={control}
+                required
+                disabled={disabled}
+                sx={{ width: '100px' }}
+              />
+            </ProductHeader>
+            {expenseAccounts.isSuccess && (
+              <ControlledComboBox
+                name={
+                  `${name}.${idx}.category` as unknown as Path<TFieldValues>
+                }
+                control={control}
+                options={expenseAccounts.data}
+                label="Expense category"
+                required
+                disabled={disabled}
+              />
+            )}
+          </Box>
+        </ProductCard>
       ))}
     </>
   );
