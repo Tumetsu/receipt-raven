@@ -9,22 +9,33 @@ import {
 } from '../../../api/generated/api.ts';
 import { Receipt } from '../../../api/generated/model';
 
-const receiptFormSchema = z.object({
-  expenseAccount: z.string(),
-  totalSum: z.coerce.number<number>(),
-  date: z.string(),
-  payee: z.string(),
-  items: z
-    .array(
-      z.object({
-        id: z.number().optional(),
-        name: z.string().min(1),
-        price: z.coerce.number<number>(),
-        category: z.string(),
-      })
-    )
-    .min(1),
-});
+const receiptFormSchema = z
+  .object({
+    expenseAccount: z.string(),
+    totalSum: z.coerce.number<number>(),
+    date: z.string(),
+    payee: z.string(),
+    items: z
+      .array(
+        z.object({
+          id: z.number().optional(),
+          name: z.string().min(1),
+          price: z.coerce.number<number>(),
+          category: z.string(),
+        })
+      )
+      .min(1),
+  })
+  .refine(
+    data => {
+      const itemsSum = data.items.reduce((sum, item) => sum + item.price, 0);
+      return Math.abs(itemsSum - data.totalSum) < 0.01; // Allow for floating point precision
+    },
+    {
+      message: 'Sum of items must equal total sum',
+      path: ['items'],
+    }
+  );
 
 export type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 

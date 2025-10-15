@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import { Control } from 'react-hook-form';
+import { Control, useWatch } from 'react-hook-form';
 import { useState } from 'react';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
@@ -33,7 +33,7 @@ const SlidingPanel = styled(Box, {
   right: 0,
   top: 0,
   zIndex: 10,
-  height: '100vh',
+  height: '100dvh',
   width: `${PANEL_WIDTH}px`,
   backgroundColor: '#ffffff',
   borderLeft: '1px solid #e5e7eb',
@@ -172,19 +172,70 @@ function ReceiptImage({ filepath }: ReceiptImageProps) {
   );
 }
 
+interface SumComparisonProps {
+  control: Control<IReceiptInputs>;
+}
+
+function SumComparison({ control }: SumComparisonProps) {
+  const items = useWatch({ control, name: 'items' });
+  const totalSum = useWatch({ control, name: 'totalSum' });
+
+  const itemsSum = Array.isArray(items)
+    ? items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
+    : 0;
+  const totalSumNumber = Number(totalSum) || 0;
+  const isMatch = Math.abs(itemsSum - totalSumNumber) < 0.01;
+
+  return (
+    <Stack spacing={1} sx={{ mb: 2 }}>
+      {!isMatch && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="body2" color="text.secondary">
+            Expected total:
+          </Typography>
+          <Typography variant="body1" fontWeight={500}>
+            {totalSumNumber.toFixed(2)}
+          </Typography>
+        </Stack>
+      )}
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="body2" color="text.secondary">
+          Items sum:
+        </Typography>
+        <Typography
+          variant="body1"
+          fontWeight={500}
+          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+        >
+          {itemsSum.toFixed(2)}
+        </Typography>
+      </Stack>
+    </Stack>
+  );
+}
+
 interface ReceiptActionsProps {
   isSavePending: boolean;
   isApproved: boolean;
+  isInvalid: boolean;
 }
 
-function ReceiptActions({ isSavePending, isApproved }: ReceiptActionsProps) {
+function ReceiptActions({
+  isSavePending,
+  isApproved,
+  isInvalid,
+}: ReceiptActionsProps) {
   return (
     <Stack spacing={2} direction="row" useFlexGap>
       <Button
         fullWidth
         variant="contained"
         type="submit"
-        disabled={isSavePending || isApproved}
+        disabled={isSavePending || isApproved || isInvalid}
       >
         Approve
       </Button>
@@ -258,7 +309,12 @@ function ReceiptPanelContent({
       </PanelContent>
 
       <PanelFooter>
-        <ReceiptActions isSavePending={isSavePending} isApproved={isApproved} />
+        <SumComparison control={control} />
+        <ReceiptActions
+          isSavePending={isSavePending}
+          isApproved={isApproved}
+          isInvalid={!formMethods.formState.isValid}
+        />
       </PanelFooter>
     </form>
   );
