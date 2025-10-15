@@ -26,6 +26,7 @@ export function ComboBox({
       options={options}
       sx={sx}
       value={value || null}
+      disabled={disabled}
       onChange={(_, newValue) => onChange?.(newValue)}
       renderInput={params => (
         <TextField
