@@ -41,7 +41,9 @@ const SlidingPanel = styled(Box, {
     '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   display: 'flex',
   flexDirection: 'column',
-  animation: isClosing ? 'slideOut 300ms ease-out' : 'slideIn 300ms ease-out',
+  animation: isClosing
+    ? 'slideOut 300ms ease-out forwards'
+    : 'slideIn 300ms ease-out',
   '@keyframes slideIn': {
     from: {
       transform: 'translateX(100%)',
