@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Control, useWatch } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
 import { Img } from '../../../common/components/Img.tsx';
@@ -322,6 +322,19 @@ function ReceiptPanelContent({
 
 export function ReceiptPanel(props: ReceiptPanelProps) {
   const [isClosing, setIsClosing] = useState(false);
+
+  // Prevent body scroll when panel is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, []);
 
   const handleClose = () => {
     setIsClosing(true);
