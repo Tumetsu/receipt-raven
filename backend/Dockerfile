@@ -43,6 +43,16 @@ RUN npm ci --only=production
 # Copy built application from builder stage (includes frontend in dist/public)
 COPY --from=builder /app/backend/dist ./dist
 
+# Copy .config directory for kysely migrations
+COPY --from=builder /app/backend/.config ./.config
+
+# Copy migrations folder
+COPY --from=builder /app/backend/migrations ./migrations
+
+# Copy and set up entrypoint script
+COPY backend/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 # Create directories for persistent data
 RUN mkdir -p /app/data /app/uploads && \
     chown -R node:node /app
@@ -57,5 +67,5 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# Start the application (runs migrations first via entrypoint)
+CMD ["./entrypoint.sh"]
