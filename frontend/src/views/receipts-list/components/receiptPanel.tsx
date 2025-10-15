@@ -200,7 +200,7 @@ function SumComparison({ control }: SumComparisonProps) {
             Expected total:
           </Typography>
           <Typography variant="body1" fontWeight={500}>
-            {totalSumNumber.toFixed(2)}
+            {totalSumNumber.toFixed(2)} €
           </Typography>
         </Stack>
       )}
@@ -213,7 +213,7 @@ function SumComparison({ control }: SumComparisonProps) {
           fontWeight={500}
           sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
         >
-          {itemsSum.toFixed(2)}
+          {itemsSum.toFixed(2)} €
         </Typography>
       </Stack>
     </Stack>
