@@ -1,20 +1,10 @@
-import { Card, styled } from '@mui/material';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
 import { Receipt } from '../../../api/generated/model';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
-const TableCard = styled(Card)({
-  height: '100%',
-  width: '100%',
-  backgroundColor: '#ffffff',
-  borderRadius: '8px',
-  border: '1px solid #e5e7eb',
-  overflow: 'hidden',
-  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-});
+import { TableCard } from '../../../common/components/Layout.tsx';
 
 export function ReceiptList(props: {
   receipts: Receipt[];

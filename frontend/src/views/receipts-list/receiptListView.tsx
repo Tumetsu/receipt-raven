@@ -1,18 +1,11 @@
-import { Box, styled, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
 import { Receipt } from '../../api/generated/model/receipt.ts';
 import { ReceiptPanel } from './components/receiptPanel.tsx';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
-
-const PageContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-  backgroundColor: '#ffffff',
-  overflow: 'hidden',
-});
+import { PageContainer } from '../../common/components/Layout.tsx';
 
 export function ReceiptListView(): ReactElement {
   const {
