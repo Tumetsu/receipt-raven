@@ -2,14 +2,12 @@ import {
   Box,
   Button,
   CircularProgress,
-  IconButton,
   Stack,
   styled,
   Typography,
 } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
 import { Control, useWatch } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
 import { Img } from '../../../common/components/Img.tsx';
@@ -19,66 +17,11 @@ import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 import { useReceiptForm, IReceiptInputs } from './useReceiptForm.ts';
-
-const PANEL_WIDTH = 480;
-
-interface SlidingPanelProps {
-  isClosing?: boolean;
-}
-
-const SlidingPanel = styled(Box, {
-  shouldForwardProp: prop => prop !== 'isClosing',
-})<SlidingPanelProps>(({ theme, isClosing }) => ({
-  position: 'fixed',
-  right: 0,
-  top: 0,
-  zIndex: 10,
-  height: '100dvh',
-  width: `${PANEL_WIDTH}px`,
-  backgroundColor: '#ffffff',
-  borderLeft: '1px solid #e5e7eb',
-  boxShadow:
-    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-  display: 'flex',
-  flexDirection: 'column',
-  animation: isClosing
-    ? 'slideOut 300ms ease-out forwards'
-    : 'slideIn 300ms ease-out',
-  '@keyframes slideIn': {
-    from: {
-      transform: 'translateX(100%)',
-    },
-    to: {
-      transform: 'translateX(0)',
-    },
-  },
-  '@keyframes slideOut': {
-    from: {
-      transform: 'translateX(0)',
-    },
-    to: {
-      transform: 'translateX(100%)',
-    },
-  },
-  [theme.breakpoints.down('md')]: {
-    width: '100vw',
-    borderLeft: 'none',
-  },
-}));
-
-const PanelHeader = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 3),
-  borderBottom: '1px solid #e5e7eb',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}));
-
-const PanelContent = styled(Box)(({ theme }) => ({
-  flex: 1,
-  overflow: 'auto',
-  padding: theme.spacing(3),
-}));
+import {
+  Panel,
+  PanelContent,
+  PanelRef,
+} from '../../../common/components/Panel.tsx';
 
 const PanelFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
@@ -254,8 +197,7 @@ interface ReceiptPanelProps {
 function ReceiptPanelContent({
   receipt,
   onApprove,
-  onClosePanel,
-}: ReceiptPanelProps) {
+}: Omit<ReceiptPanelProps, 'onClosePanel'>) {
   const {
     formMethods,
     onSubmit,
@@ -272,15 +214,6 @@ function ReceiptPanelContent({
       onSubmit={handleSubmit(onSubmit)}
       style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
-      <PanelHeader>
-        <Typography variant="h6" fontWeight={600}>
-          Receipt Details
-        </Typography>
-        <IconButton onClick={onClosePanel} size="small">
-          <ClearIcon />
-        </IconButton>
-      </PanelHeader>
-
       <PanelContent>
         <Stack spacing={3}>
           {/* Receipt Image */}
@@ -323,42 +256,15 @@ function ReceiptPanelContent({
 }
 
 export function ReceiptPanel(props: ReceiptPanelProps) {
-  const [isClosing, setIsClosing] = useState(false);
-
-  // Prevent body scroll when panel is open
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    };
-  }, []);
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      props.onClosePanel();
-    }, 300); // Match animation duration
-  };
+  const panelRef = useRef<PanelRef>(null);
 
   const handleApprove = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      props.onApprove();
-    }, 300); // Match animation duration
+    panelRef.current?.close(props.onApprove);
   };
 
   return (
-    <SlidingPanel isClosing={isClosing}>
-      <ReceiptPanelContent
-        {...props}
-        onClosePanel={handleClose}
-        onApprove={handleApprove}
-      />
-    </SlidingPanel>
+    <Panel ref={panelRef} title="Receipt Details" onClose={props.onClosePanel}>
+      <ReceiptPanelContent receipt={props.receipt} onApprove={handleApprove} />
+    </Panel>
   );
 }
