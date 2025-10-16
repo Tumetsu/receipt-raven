@@ -776,6 +776,83 @@ export const usePostApiReceiptsReceiptId = <
 };
 
 /**
+ * Delete receipt
+ */
+export const deleteApiReceiptsReceiptId = (receiptId: string) => {
+  return apiClient<unknown>({
+    url: `/api/receipts/${receiptId}`,
+    method: 'DELETE',
+  });
+};
+
+export const getDeleteApiReceiptsReceiptIdMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
+    TError,
+    { receiptId: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
+  TError,
+  { receiptId: string },
+  TContext
+> => {
+  const mutationKey = ['deleteApiReceiptsReceiptId'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
+    { receiptId: string }
+  > = props => {
+    const { receiptId } = props ?? {};
+
+    return deleteApiReceiptsReceiptId(receiptId);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteApiReceiptsReceiptIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>
+>;
+
+export type DeleteApiReceiptsReceiptIdMutationError = unknown;
+
+export const useDeleteApiReceiptsReceiptId = <
+  TError = unknown,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
+      TError,
+      { receiptId: string },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
+  TError,
+  { receiptId: string },
+  TContext
+> => {
+  const mutationOptions = getDeleteApiReceiptsReceiptIdMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
+
+/**
  * Get receipt items
  */
 export const getApiReceiptsReceiptIdItems = (

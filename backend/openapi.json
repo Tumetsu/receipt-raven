@@ -463,6 +463,34 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "receipts"
+        ],
+        "description": "Delete receipt",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "receiptId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of receipt items in a receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List of receipt items in a receipt"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/receipts/{receiptId}/items": {

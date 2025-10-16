@@ -2,12 +2,14 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Stack,
   styled,
   Typography,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Control, useWatch } from 'react-hook-form';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useModal } from '../hooks/useModal';
 import { ReceiptImageModal } from './receiptImageModal.tsx';
 import { Img } from '../../../common/components/Img.tsx';
@@ -22,6 +24,9 @@ import {
   PanelContent,
   PanelRef,
 } from '../../../common/components/Panel.tsx';
+import { DeleteDialog } from '../../../common/components/DeleteDialog.tsx';
+import { useDeleteApiReceiptsReceiptId } from '../../../api/generated/api.ts';
+import { useQueryClient } from '@tanstack/react-query';
 
 const PanelFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
@@ -257,14 +262,62 @@ function ReceiptPanelContent({
 
 export function ReceiptPanel(props: ReceiptPanelProps) {
   const panelRef = useRef<PanelRef>(null);
+  const deleteMutation = useDeleteApiReceiptsReceiptId();
+  const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleApprove = () => {
     panelRef.current?.close(props.onApprove);
   };
 
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    setIsDeleteDialogOpen(false);
+    deleteMutation.mutate(
+      { receiptId: props.receipt.id.toString(10) },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+          panelRef.current?.close(props.onClosePanel);
+        },
+      }
+    );
+  };
+
   return (
-    <Panel ref={panelRef} title="Receipt Details" onClose={props.onClosePanel}>
-      <ReceiptPanelContent receipt={props.receipt} onApprove={handleApprove} />
-    </Panel>
+    <>
+      <Panel
+        ref={panelRef}
+        title="Receipt Details"
+        onClose={props.onClosePanel}
+        renderHeaderActions={
+          props.receipt.status !== 'approved' && (
+            <IconButton onClick={handleDeleteClick} size="small">
+              <DeleteIcon />
+            </IconButton>
+          )
+        }
+      >
+        <ReceiptPanelContent
+          receipt={props.receipt}
+          onApprove={handleApprove}
+        />
+      </Panel>
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        title="Delete Receipt"
+        message="Are you sure you want to delete this receipt? This action cannot be undone."
+        onCancel={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+      />
+    </>
   );
 }

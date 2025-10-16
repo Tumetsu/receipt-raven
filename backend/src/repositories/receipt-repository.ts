@@ -26,6 +26,8 @@ export interface IReceiptRepository {
 
   getReceiptItems(receiptId: number): Promise<ReceiptItem[]>;
 
+  deleteReceiptById(receiptId: number): Promise<void>;
+
   setReceiptItems(
     receiptId: number,
     items: Array<{
@@ -87,6 +89,10 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .set(data)
       .where('id', '=', receiptId)
       .execute();
+  }
+
+  async deleteReceiptById(receiptId: number): Promise<void> {
+    await this.db.deleteFrom('receipts').where('id', '=', receiptId).execute();
   }
 
   async getReceiptById(receiptId: number): Promise<Receipt | undefined> {

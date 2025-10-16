@@ -173,6 +173,31 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       });
     },
   });
+
+  fastify.delete('/receipts/:receiptId', {
+    schema: {
+      tags: ['receipts'],
+      description: 'Delete receipt',
+      request: {
+        params: {
+          receiptId: 'number',
+        },
+      },
+      response: {
+        200: {
+          description: 'List of receipt items in a receipt',
+        },
+      },
+    },
+    handler: async (
+      request: FastifyRequest<{ Params: { receiptId: string } }>,
+      _reply
+    ) => {
+      await fastify.receiptRepository.deleteReceiptById(
+        parseInt(request.params.receiptId, 10)
+      );
+    },
+  });
 };
 
 export default receiptRoutes;

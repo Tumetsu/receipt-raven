@@ -60,6 +60,13 @@ const PanelHeader = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  gap: theme.spacing(1),
+}));
+
+const HeaderActions = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
 }));
 
 export const PanelContent = styled(Box)(({ theme }) => ({
@@ -72,6 +79,7 @@ interface PanelProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  renderHeaderActions?: ReactNode;
 }
 
 export interface PanelRef {
@@ -79,7 +87,7 @@ export interface PanelRef {
 }
 
 export const Panel = forwardRef<PanelRef, PanelProps>(
-  ({ title, onClose, children }, ref) => {
+  ({ title, onClose, children, renderHeaderActions }, ref) => {
     const [isClosing, setIsClosing] = useState(false);
 
     // Prevent body scroll when panel is open
@@ -116,9 +124,12 @@ export const Panel = forwardRef<PanelRef, PanelProps>(
           <Typography variant="h6" fontWeight={600}>
             {title}
           </Typography>
-          <IconButton onClick={() => triggerClose()} size="small">
-            <ClearIcon />
-          </IconButton>
+          <HeaderActions>
+            {renderHeaderActions}
+            <IconButton onClick={() => triggerClose()} size="small">
+              <ClearIcon />
+            </IconButton>
+          </HeaderActions>
         </PanelHeader>
         {children}
       </SlidingPanel>
