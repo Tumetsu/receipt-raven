@@ -14,13 +14,6 @@ const PageContainer = styled(Box)({
   overflow: 'hidden',
 });
 
-const MainContent = styled(Box)({
-  flex: 1,
-  display: 'flex',
-  overflow: 'hidden',
-  position: 'relative',
-});
-
 export function ReceiptListView(): ReactElement {
   const {
     isPending,
@@ -33,21 +26,19 @@ export function ReceiptListView(): ReactElement {
 
   return (
     <PageContainer>
-      <MainContent>
-        <ContentArea>
-          {isPending && <Typography>Loading...</Typography>}
-          {isSuccess && (
-            <ReceiptList
-              receipts={result}
-              selectedReceiptId={selectedReceipt?.id}
-              onRowClick={id => {
-                const receipt = result.find(r => r.id === id) || null;
-                setSelectedReceipt(receipt);
-              }}
-            />
-          )}
-        </ContentArea>
-      </MainContent>
+      <ContentArea>
+        {isPending && <Typography>Loading...</Typography>}
+        {isSuccess && (
+          <ReceiptList
+            receipts={result}
+            selectedReceiptId={selectedReceipt?.id}
+            onRowClick={id => {
+              const receipt = result.find(r => r.id === id) || null;
+              setSelectedReceipt(receipt);
+            }}
+          />
+        )}
+      </ContentArea>
 
       {selectedReceipt && (
         <ReceiptPanel
