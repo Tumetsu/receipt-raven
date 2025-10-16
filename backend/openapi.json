@@ -120,6 +120,38 @@
           "items"
         ],
         "title": "receiptSubmission"
+      },
+      "job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "retryCount": {
+            "type": "number"
+          },
+          "processedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "retryCount",
+          "processedAt",
+          "createdAt",
+          "status"
+        ],
+        "title": "job"
       }
     }
   },
@@ -519,6 +551,30 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/receiptItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "description": "Get jobs",
+        "responses": {
+          "200": {
+            "description": "List of jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "List of jobs",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/job"
                   }
                 }
               }

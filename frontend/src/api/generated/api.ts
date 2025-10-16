@@ -29,6 +29,7 @@ import type {
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
   GetHealth200,
+  Job,
   PostApiReceiptsReceiptId200,
   PostApiReceiptsReceiptId400,
   PostApiReceiptsReceiptId404,
@@ -1005,6 +1006,126 @@ export function useGetApiReceiptsReceiptIdItems<
     receiptId,
     options
   );
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+/**
+ * Get jobs
+ */
+export const getApiJobs = (signal?: AbortSignal) => {
+  return apiClient<Job[]>({ url: `/api/jobs`, method: 'GET', signal });
+};
+
+export const getGetApiJobsQueryKey = () => {
+  return [`/api/jobs`] as const;
+};
+
+export const getGetApiJobsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiJobs>>,
+  TError = unknown,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiJobsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiJobs>>> = ({
+    signal,
+  }) => getApiJobs(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiJobs>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type GetApiJobsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getApiJobs>>
+>;
+export type GetApiJobsQueryError = unknown;
+
+export function useGetApiJobs<
+  TData = Awaited<ReturnType<typeof getApiJobs>>,
+  TError = unknown,
+>(
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiJobs>>,
+          TError,
+          Awaited<ReturnType<typeof getApiJobs>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiJobs<
+  TData = Awaited<ReturnType<typeof getApiJobs>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiJobs>>,
+          TError,
+          Awaited<ReturnType<typeof getApiJobs>>
+        >,
+        'initialData'
+      >;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiJobs<
+  TData = Awaited<ReturnType<typeof getApiJobs>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetApiJobs<
+  TData = Awaited<ReturnType<typeof getApiJobs>>,
+  TError = unknown,
+>(
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+    >;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
+  const queryOptions = getGetApiJobsQueryOptions(options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

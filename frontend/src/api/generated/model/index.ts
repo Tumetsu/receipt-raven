@@ -14,6 +14,7 @@ export * from './getApiLedgerPayees200';
 export * from './getApiLedgerPayees500';
 export * from './getHealth200';
 export * from './getHealth200Status';
+export * from './job';
 export * from './postApiLedgerSubmitReceiptReceiptId200';
 export * from './postApiLedgerSubmitReceiptReceiptId400';
 export * from './postApiLedgerSubmitReceiptReceiptId404';

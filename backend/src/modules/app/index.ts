@@ -2,7 +2,9 @@ import { FastifyPluginAsync } from 'fastify';
 import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
 import { SQLiteReceiptRepository } from '../../repositories/receipt-repository.js';
 import receiptRoutes from './routes/receipts.js';
-import { addSchemas } from './schemas/receipts.js';
+import { addSchemas as addReceiptSchemas } from './schemas/receipts.js';
+import { addSchemas as addJobSchemas } from './schemas/jobs.js';
+import jobRoutes from './routes/job';
 
 /**
  * Frontend app module plugin - handles frontend UI endpoints
@@ -19,10 +21,12 @@ export const appModule: FastifyPluginAsync = async (fastify, _opts) => {
   fastify.decorate('receiptJobQueueRepository', receiptJobQueueRepository);
 
   // Schemas
-  addSchemas(fastify);
+  addReceiptSchemas(fastify);
+  addJobSchemas(fastify);
 
   // Register routes with /api prefix
   await fastify.register(receiptRoutes, { prefix: '/api/' });
+  await fastify.register(jobRoutes, { prefix: '/api/' });
 
   fastify.log.info('App module registered');
 };

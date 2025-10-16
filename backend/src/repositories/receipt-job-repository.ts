@@ -16,6 +16,8 @@ export interface IReceiptJobQueueRepository {
 
   getUnprocessedJob(): Promise<ReceiptJob | undefined>;
 
+  getJobs(): Promise<ReceiptJob[]>;
+
   markJobProcessed(jobId: number): Promise<void>;
 
   increaseJobRetryCount(jobId: number): Promise<void>;
@@ -45,6 +47,10 @@ export class SQLiteReceiptJoqbQueueRepository
       .where('status', '=', ReceiptJobStatus.WAITING)
       .orderBy('created_at', 'asc')
       .executeTakeFirst();
+  }
+
+  async getJobs(): Promise<ReceiptJob[]> {
+    return this.db.selectFrom('receipt_jobs').selectAll().execute();
   }
 
   async increaseJobRetryCount(jobId: number): Promise<void> {

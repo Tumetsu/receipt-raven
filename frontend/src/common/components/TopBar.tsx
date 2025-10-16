@@ -23,6 +23,14 @@ export default function TopBar() {
               Receipts
             </Button>
           </Link>
+          <Link to="/jobs" style={{ textDecoration: 'none' }}>
+            <Button
+              key={'Jobs'}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Jobs
+            </Button>
+          </Link>
           <Link to="/upload" style={{ textDecoration: 'none' }}>
             <Button
               key={'Upload'}
