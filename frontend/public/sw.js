@@ -1,14 +1,18 @@
 // Service Worker for handling Web Share Target
 const CACHE_NAME = 'share-target-cache-v1';
 
-self.addEventListener('install', (event) => {
-  console.log('Service Worker installed');
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  console.log('🔧 Service Worker installing...');
+  event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker activated');
-  event.waitUntil(clients.claim());
+self.addEventListener('activate', event => {
+  console.log('✅ Service Worker activated');
+  event.waitUntil(
+    clients.claim().then(() => {
+      console.log('✅ Service Worker now controls all pages');
+    })
+  );
 });
 
 // Handle share target POST requests
