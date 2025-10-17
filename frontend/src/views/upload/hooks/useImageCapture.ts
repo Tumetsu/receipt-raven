@@ -22,6 +22,7 @@ export function useImageCapture() {
 
   return {
     capturedImage,
+    setCapturedImage,
     fileInputRef,
     handleCameraClick,
     handleFileChange,

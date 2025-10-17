@@ -14,6 +14,18 @@ import config from './config';
 // Configure axios baseURL from environment variables
 AXIOS_INSTANCE.defaults.baseURL = config.api.baseUrl;
 
+// Register service worker for Web Share Target
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then(registration => {
+      console.log('Service Worker registered:', registration);
+    })
+    .catch(error => {
+      console.error('Service Worker registration failed:', error);
+    });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
