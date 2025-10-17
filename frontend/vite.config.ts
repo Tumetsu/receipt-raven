@@ -25,4 +25,8 @@ export default defineConfig(({ command }) => ({
     },
     base: '/',
   }),
+  server: {
+    host: '0.0.0.0',
+    allowedHosts: ['keisaripingviini.home.arpa'],
+  },
 }));
