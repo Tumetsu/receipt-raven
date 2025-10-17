@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import config from '../../config';
 import UploadImageArea from './components/uploadImageArea.tsx';
 import { useImageCapture } from './hooks/useImageCapture.ts';
+import { useSharedImage } from './hooks/useSharedImage.ts';
 import { useSnackbar } from 'notistack';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -12,6 +13,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 export function UploadView(): ReactElement {
   const { capturedImage, clearImage, setCapturedImage, ...imageCapture } =
     useImageCapture();
+  const sharedImage = useSharedImage();
   const { enqueueSnackbar } = useSnackbar();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -55,40 +57,12 @@ export function UploadView(): ReactElement {
 
   // Handle shared images from iOS Share Target
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('shared') === 'true') {
-      // Remove the query parameter from URL
-      window.history.replaceState({}, '', '/upload');
-
-      // Retrieve shared image from cache
-      caches
-        .open('share-target-cache-v1')
-        .then(cache => {
-          cache.match('/shared-image').then(response => {
-            if (response) {
-              response.blob().then(blob => {
-                // Convert blob to data URL
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                  const dataUrl = reader.result as string;
-                  setCapturedImage(dataUrl);
-                  setShowSuccess(true);
-                  setTimeout(() => setShowSuccess(false), 2000);
-                };
-                reader.readAsDataURL(blob);
-
-                // Clean up cache after reading
-                cache.delete('/shared-image');
-              });
-            }
-          });
-        })
-        .catch(error => {
-          console.error('Error retrieving shared image:', error);
-          enqueueSnackbar('Failed to load shared image', { variant: 'error' });
-        });
+    if (sharedImage) {
+      setCapturedImage(sharedImage);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
     }
-  }, [setCapturedImage, enqueueSnackbar]);
+  }, [sharedImage, setCapturedImage]);
 
   return (
     <ContentArea
