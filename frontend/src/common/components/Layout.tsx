@@ -4,14 +4,13 @@ export const PageContainer = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   height: '100vh',
-  backgroundColor: '#ffffff',
+  backgroundColor: '#f9fafb',
   overflow: 'hidden',
 });
 
 export const TableCard = styled(Card)({
   height: '100%',
   width: '100%',
-  backgroundColor: '#ffffff',
   borderRadius: '8px',
   border: '1px solid #e5e7eb',
   overflow: 'hidden',
