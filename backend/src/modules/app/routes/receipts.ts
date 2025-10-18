@@ -27,7 +27,8 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
             date: r.receipt_date,
             totalSum: r.total_sum,
             status: r.status,
-            filepath: `uploads/${r.filepath}`,
+            filename: `${r.filepath}`,
+            fileUrl: `uploads/${r.filepath}`,
           };
         }),
         'date',

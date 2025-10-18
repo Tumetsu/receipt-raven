@@ -183,7 +183,7 @@ function ReceiptPanelContent({
         <Stack spacing={3}>
           {/* Receipt Image */}
           <Box>
-            <ReceiptImage url={receipt.filepath} />
+            <ReceiptImage url={receipt.fileUrl} />
           </Box>
 
           {/* Receipt Information */}

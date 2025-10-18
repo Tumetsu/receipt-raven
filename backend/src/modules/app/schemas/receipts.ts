@@ -10,9 +10,18 @@ const receiptDtoSchema = {
     date: { type: 'string' },
     totalSum: { type: 'number' },
     status: { type: 'string' },
-    filepath: { type: 'string' },
+    filename: { type: 'string' },
+    fileUrl: { type: 'string' },
   },
-  required: ['id', 'payee', 'date', 'totalSum', 'status', 'filepath'],
+  required: [
+    'id',
+    'payee',
+    'date',
+    'totalSum',
+    'status',
+    'filename',
+    'fileUrl',
+  ],
 };
 
 const receiptItemDtoSchema = {

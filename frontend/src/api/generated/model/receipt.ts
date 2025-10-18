@@ -13,5 +13,6 @@ export interface Receipt {
   date: string;
   totalSum: number;
   status: string;
-  filepath: string;
+  filename: string;
+  fileUrl: string;
 }

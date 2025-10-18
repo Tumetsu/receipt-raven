@@ -28,7 +28,10 @@
           "status": {
             "type": "string"
           },
-          "filepath": {
+          "filename": {
+            "type": "string"
+          },
+          "fileUrl": {
             "type": "string"
           }
         },
@@ -38,7 +41,8 @@
           "date",
           "totalSum",
           "status",
-          "filepath"
+          "filename",
+          "fileUrl"
         ],
         "title": "receipt"
       },
