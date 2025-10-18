@@ -14,6 +14,7 @@ from models import (
     Transaction,
     ReceiptTransactionData,
     TransactionSubmitResponse,
+    MonthlyExpensesResponse,
 )
 from services.accounts import get_accounts
 from services.payees import get_payees
@@ -21,6 +22,7 @@ from services.transactions import (
     submit_transaction,
     submit_receipt_transaction,
 )
+from services.monthly_expenses import get_current_month_expenses
 
 # Load environment variables
 load_dotenv()
@@ -96,6 +98,27 @@ async def get_payees_endpoint():
         return PayeesResponse(payees=payees)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch payees: {e}")
+
+
+@app.get("/monthly-expenses", response_model=MonthlyExpensesResponse)
+async def get_monthly_expenses_endpoint():
+    """
+    Get total expenses for the current month
+
+    Returns:
+        Total expenses by currency for the ongoing month
+    """
+    try:
+        from datetime import datetime
+        now = datetime.now()
+        expenses = get_current_month_expenses(BEANCOUNT_LEDGER_PATH)
+        return MonthlyExpensesResponse(
+            expenses_by_currency=expenses,
+            year=now.year,
+            month=now.month
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch monthly expenses: {e}")
 
 
 @app.post("/transactions", response_model=TransactionSubmitResponse)

@@ -89,3 +89,11 @@ class PayeesResponse(BaseModel):
     """Response containing list of payees"""
 
     payees: List[Payee]
+
+
+class MonthlyExpensesResponse(BaseModel):
+    """Response containing monthly expenses by currency"""
+
+    expenses_by_currency: Dict[str, float]
+    year: int
+    month: int
