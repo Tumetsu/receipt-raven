@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DateTime } from 'luxon';
 import { aiClient } from './ai-client.js';
 import { ReceiptAnalysisResponse } from '../../../types/shared.js';
 import { ILedgerService } from '../../../plugins/ledger/ledger-service';
@@ -11,7 +12,10 @@ const ProductSchema = z.object({
 
 const ReceiptAnalysisSchema = z.object({
   payee: z.string(),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .catch(DateTime.now().toFormat('yyyy-MM-dd')),
   products: z.array(ProductSchema),
   total: z.number(),
 });
