@@ -5,6 +5,7 @@ import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
 import { Job } from '../../api/generated/model';
 import { JobList } from './components/JobList.tsx';
+import { JobPanel } from './components/JobsPanel.tsx';
 
 export function JobsListView(): ReactElement {
   const {
@@ -31,8 +32,9 @@ export function JobsListView(): ReactElement {
         )}
       </ContentArea>
 
-      {/*TODO*/}
-      {selectedJob && <></>}
+      {selectedJob && (
+        <JobPanel job={selectedJob} onClosePanel={() => setSelectedJob(null)} />
+      )}
     </PageContainer>
   );
 }

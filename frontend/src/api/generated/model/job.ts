@@ -9,6 +9,7 @@
 export interface Job {
   id: number;
   filename: string;
+  fileUrl: string;
   retryCount: number;
   processedAt: string;
   createdAt: string;

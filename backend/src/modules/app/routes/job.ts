@@ -22,6 +22,7 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
           return {
             id: r.id,
             filename: r.filepath,
+            fileUrl: `uploads/${r.filepath}`,
             retryCount: r.retry_count,
             processedAt: r.processed_at,
             createdAt: r.created_at,

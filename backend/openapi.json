@@ -130,6 +130,9 @@
           "filename": {
             "type": "string"
           },
+          "fileUrl": {
+            "type": "string"
+          },
           "retryCount": {
             "type": "number"
           },
@@ -146,6 +149,7 @@
         "required": [
           "id",
           "filename",
+          "fileUrl",
           "retryCount",
           "processedAt",
           "createdAt",

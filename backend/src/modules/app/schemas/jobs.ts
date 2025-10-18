@@ -6,6 +6,7 @@ const jobDtoSchema = {
   properties: {
     id: { type: 'number' },
     filename: { type: 'string' },
+    fileUrl: { type: 'string' },
     retryCount: { type: 'number' },
     processedAt: { type: 'string' },
     createdAt: { type: 'string' },
@@ -14,6 +15,7 @@ const jobDtoSchema = {
   required: [
     'id',
     'filename',
+    'fileUrl',
     'retryCount',
     'processedAt',
     'createdAt',
