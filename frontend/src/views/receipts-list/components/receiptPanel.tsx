@@ -28,7 +28,10 @@ import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptIm
 
 const PanelFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
+  paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
   borderTop: '1px solid #e5e7eb',
+  flexShrink: 0,
+  backgroundColor: '#ffffff',
 }));
 
 interface ReceiptHeaderProps {
@@ -177,7 +180,12 @@ function ReceiptPanelContent({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+      }}
     >
       <PanelContent>
         <Stack spacing={3}>
