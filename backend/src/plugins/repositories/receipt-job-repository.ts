@@ -1,6 +1,6 @@
 import { Kysely, Selectable } from 'kysely';
-import { Database, ReceiptJobStatus } from '../database/schema.js';
-import { config } from '../config/index.js';
+import { Database, ReceiptJobStatus } from '../../database/schema';
+import { config } from '../../config';
 
 export type ReceiptJob = Selectable<Database['receipt_jobs']>;
 

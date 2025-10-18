@@ -1,8 +1,8 @@
-import { IReceiptJobQueueRepository } from '../../repositories/receipt-job-repository.js';
+import { IReceiptJobQueueRepository } from '../../plugins/repositories/receipt-job-repository.js';
 import { readFile } from 'fs/promises';
 import { analyzeReceipt } from './services/receipt-extraction.js';
 import { FastifyInstance } from 'fastify';
-import { IReceiptRepository } from '../../repositories/receipt-repository.js';
+import { IReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
 import path from 'path';
 import { config } from '../../config/index.js';
 

@@ -1,7 +1,7 @@
 import { Kysely } from 'kysely';
 import { Database } from '../database/schema.js';
-import { IReceiptRepository } from '../repositories/receipt-repository.js';
-import { IReceiptJobQueueRepository } from '../repositories/receipt-job-repository.js';
+import { IReceiptRepository } from '../plugins/repositories/receipt-repository.js';
+import { IReceiptJobQueueRepository } from '../plugins/repositories/receipt-job-repository.js';
 import { ILedgerService } from '../plugins/ledger/ledger-service.js';
 
 /**

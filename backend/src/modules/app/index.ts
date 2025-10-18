@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
-import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
-import { SQLiteReceiptRepository } from '../../repositories/receipt-repository.js';
+import { SQLiteReceiptJoqbQueueRepository } from '../../plugins/repositories/receipt-job-repository.js';
+import { SQLiteReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
 import receiptRoutes from './routes/receipts.js';
 import jobRoutes from './routes/job';
 
