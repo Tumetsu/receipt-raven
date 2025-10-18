@@ -1,70 +1,42 @@
-import { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 
-const receiptDtoSchema = {
-  $id: 'receipt',
-  type: 'object',
-  properties: {
-    id: { type: 'number' },
-    payee: { type: 'string' },
-    sourceAccount: { type: 'string' },
-    date: { type: 'string' },
-    totalSum: { type: 'number' },
-    status: { type: 'string' },
-    filename: { type: 'string' },
-    fileUrl: { type: 'string' },
-  },
-  required: [
-    'id',
-    'payee',
-    'date',
-    'totalSum',
-    'status',
-    'filename',
-    'fileUrl',
-  ],
-};
+export const receiptSchema = z.object({
+  id: z.number(),
+  payee: z.string(),
+  sourceAccount: z.string().nullish(),
+  date: z.string(),
+  totalSum: z.number(),
+  status: z.string(),
+  filename: z.string(),
+  fileUrl: z.string(),
+});
 
-const receiptItemDtoSchema = {
-  $id: 'receiptItem',
-  type: 'object',
-  properties: {
-    id: { type: 'number' },
-    receiptId: { type: 'number' },
-    name: { type: 'string' },
-    expenseAccount: { type: 'string' },
-    price: { type: 'number' },
-  },
-  required: ['id', 'receiptId', 'name', 'price', 'expenseAccount'],
-};
+export const receiptItemSchema = z.object({
+  id: z.number(),
+  receiptId: z.number(),
+  name: z.string(),
+  expenseAccount: z.string(),
+  price: z.number(),
+});
 
-const receiptSubmissionDtoSchema = {
-  $id: 'receiptSubmission',
-  type: 'object',
-  properties: {
-    sourceAccount: { type: 'string' },
-    payee: { type: 'string' },
-    date: { type: 'string' },
-    totalSum: { type: 'number' },
-    items: {
-      type: 'array',
-      minItems: 1,
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'number' }, // Missing from new items created on frontend
-          name: { type: 'string' },
-          price: { type: 'number' },
-          expenseAccount: { type: 'string' },
-        },
-        required: ['name', 'price', 'expenseAccount'],
-      },
-    },
-  },
-  required: ['sourceAccount', 'payee', 'date', 'totalSum', 'items'],
-};
+export const receiptSubmissionSchema = z.object({
+  sourceAccount: z.string(),
+  payee: z.string(),
+  date: z.string(),
+  totalSum: z.number(),
+  items: z
+    .array(
+      z.object({
+        id: z.number().optional(), // Missing from new items created on frontend
+        name: z.string(),
+        price: z.number(),
+        expenseAccount: z.string(),
+      })
+    )
+    .min(1), // minItems: 1
+});
 
-export function addSchemas(fastify: FastifyInstance): void {
-  fastify.addSchema(receiptDtoSchema);
-  fastify.addSchema(receiptItemDtoSchema);
-  fastify.addSchema(receiptSubmissionDtoSchema);
-}
+// Export inferred TypeScript types
+export type Receipt = z.infer<typeof receiptSchema>;
+export type ReceiptItem = z.infer<typeof receiptItemSchema>;
+export type ReceiptSubmission = z.infer<typeof receiptSubmissionSchema>;

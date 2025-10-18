@@ -1,18 +1,35 @@
 import orderBy from 'lodash/orderBy.js';
-import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
+import { z } from 'zod';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { ReceiptStatus } from '../../../database/schema.js';
+import {
+  receiptSchema,
+  receiptItemSchema,
+  receiptSubmissionSchema,
+} from '../schemas/receipts.js';
+
+// Reusable schemas
+const receiptIdParamSchema = z.object({
+  receiptId: z.coerce.number(),
+});
+
+const errorResponseSchema = z.object({
+  error: z.string(),
+  message: z.string().optional(),
+});
+
+const successResponseSchema = z.object({
+  success: z.boolean(),
+});
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
-  fastify.get('/receipts', {
+  fastify.withTypeProvider<ZodTypeProvider>().get('/receipts', {
     schema: {
       tags: ['receipts'],
       description: 'Get receipts',
       response: {
-        200: {
-          description: 'List of receipts',
-          type: 'array',
-          items: { $ref: 'receipt' },
-        },
+        200: z.array(receiptSchema),
       },
     },
     handler: async (_request, _reply) => {
@@ -37,63 +54,21 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
     },
   });
 
-  fastify.post('/receipts/:receiptId', {
+  fastify.withTypeProvider<ZodTypeProvider>().post('/receipts/:receiptId', {
     schema: {
       tags: ['receipts'],
       description: 'Save receipt and its items to the ledger',
-      params: {
-        type: 'object',
-        properties: {
-          receiptId: { type: 'number' },
-        },
-        required: ['receiptId'],
-      },
-      body: { $ref: 'receiptSubmission' },
+      params: receiptIdParamSchema,
+      body: receiptSubmissionSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            success: { type: 'boolean' },
-          },
-          required: ['success'],
-        },
-        400: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-        },
-        404: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-        },
+        200: successResponseSchema,
+        400: errorResponseSchema,
+        404: errorResponseSchema,
+        500: errorResponseSchema,
       },
     },
-    handler: async (
-      request: FastifyRequest<{
-        Params: { receiptId: string };
-        Body: {
-          sourceAccount: string;
-          payee: string;
-          date: string;
-          totalSum: number;
-          items: Array<{ name: string; price: number; expenseAccount: string }>;
-        };
-      }>,
-      reply
-    ) => {
-      const receiptId = parseInt(request.params.receiptId, 10);
+    handler: async (request, reply) => {
+      const receiptId = request.params.receiptId;
       const { payee, date, totalSum, sourceAccount, items } = request.body;
 
       const receiptToUpdate =
@@ -139,64 +114,43 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
     },
   });
 
-  fastify.get('/receipts/:receiptId/items', {
-    schema: {
-      tags: ['receipts'],
-      description: 'Get receipt items',
-      request: {
-        params: {
-          receiptId: 'number',
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .get('/receipts/:receiptId/items', {
+      schema: {
+        tags: ['receipts'],
+        description: 'Get receipt items',
+        params: receiptIdParamSchema,
+        response: {
+          200: z.array(receiptItemSchema),
         },
       },
-      response: {
-        200: {
-          description: 'List of receipt items in a receipt',
-          type: 'array',
-          items: { $ref: 'receiptItem' },
-        },
+      handler: async (request, _reply) => {
+        const receiptItems = await fastify.receiptRepository.getReceiptItems(
+          request.params.receiptId
+        );
+
+        return receiptItems.map(r => {
+          return {
+            id: r.id,
+            receiptId: r.receipt_id,
+            name: r.name,
+            price: r.price,
+            expenseAccount: r.expense_account,
+          };
+        });
       },
-    },
-    handler: async (
-      request: FastifyRequest<{ Params: { receiptId: string } }>,
-      _reply
-    ) => {
-      const receiptItems = await fastify.receiptRepository.getReceiptItems(
-        parseInt(request.params.receiptId, 10)
-      );
+    });
 
-      return receiptItems.map(r => {
-        return {
-          id: r.id,
-          receiptId: r.receipt_id,
-          name: r.name,
-          price: r.price,
-          expenseAccount: r.expense_account,
-        };
-      });
-    },
-  });
-
-  fastify.delete('/receipts/:receiptId', {
+  fastify.withTypeProvider<ZodTypeProvider>().delete('/receipts/:receiptId', {
     schema: {
       tags: ['receipts'],
       description: 'Delete receipt',
-      request: {
-        params: {
-          receiptId: 'number',
-        },
-      },
-      response: {
-        200: {
-          description: 'List of receipt items in a receipt',
-        },
-      },
+      params: receiptIdParamSchema,
     },
-    handler: async (
-      request: FastifyRequest<{ Params: { receiptId: string } }>,
-      _reply
-    ) => {
+    handler: async (request, _reply) => {
       await fastify.receiptRepository.deleteReceiptById(
-        parseInt(request.params.receiptId, 10)
+        request.params.receiptId
       );
     },
   });

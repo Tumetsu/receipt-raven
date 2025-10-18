@@ -31,7 +31,7 @@ export const TransactionSchema = z.object({
   postings: z.array(TransactionPostingSchema),
   tags: z.array(z.string()).optional(),
   links: z.array(z.string()).optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 });
 
 export const ReceiptTransactionItemSchema = z.object({

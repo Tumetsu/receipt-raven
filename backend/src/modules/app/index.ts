@@ -2,8 +2,6 @@ import { FastifyPluginAsync } from 'fastify';
 import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
 import { SQLiteReceiptRepository } from '../../repositories/receipt-repository.js';
 import receiptRoutes from './routes/receipts.js';
-import { addSchemas as addReceiptSchemas } from './schemas/receipts.js';
-import { addSchemas as addJobSchemas } from './schemas/jobs.js';
 import jobRoutes from './routes/job';
 
 /**
@@ -19,10 +17,6 @@ export const appModule: FastifyPluginAsync = async (fastify, _opts) => {
   // Store repositories in fastify instance for access in other parts of the module
   fastify.decorate('receiptRepository', receiptRepository);
   fastify.decorate('receiptJobQueueRepository', receiptJobQueueRepository);
-
-  // Schemas
-  addReceiptSchemas(fastify);
-  addJobSchemas(fastify);
 
   // Register routes with /api prefix
   await fastify.register(receiptRoutes, { prefix: '/api/' });
