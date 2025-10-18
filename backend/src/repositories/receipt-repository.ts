@@ -2,6 +2,7 @@ import { ReceiptAnalysisResult } from '../types/shared.js';
 import { InsertObject, Kysely, Selectable } from 'kysely';
 import { Database, ReceiptStatus } from '../database/schema.js';
 import { ReceiptJob } from './receipt-job-repository.js';
+import { config } from '../config';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;
@@ -59,7 +60,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
         total_sum: analysis.total,
         parsed_by: parsedBy ?? 'unknown',
         status: ReceiptStatus.UNAPPROVED,
-        expense_account: null, // TODO: set this based on AI analysis
+        expense_account: config.analyze.defaultSourceAccount,
       })
       .executeTakeFirstOrThrow();
 

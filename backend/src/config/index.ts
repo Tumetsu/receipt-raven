@@ -7,6 +7,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   analyze: {
     maxRetryCountForJob: 3,
+    defaultSourceAccount: process.env.DEFAULT_SOURCE_ACCOUNT || null,
   },
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
