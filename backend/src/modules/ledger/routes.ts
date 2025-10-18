@@ -1,4 +1,11 @@
 import { FastifyPluginAsync } from 'fastify';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
+import {
+  accountsQuerystringSchema,
+  accountsApiResponseSchema,
+  payeesApiResponseSchema,
+  errorResponseSchema,
+} from './schemas';
 
 const ledgerRoutes: FastifyPluginAsync = async fastify => {
   /**
@@ -7,36 +14,14 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
    * Query params:
    *  - type: optional filter by account type (e.g., "Expenses")
    */
-  fastify.get<{
-    Querystring: { type?: string };
-  }>('/ledger/accounts', {
+  fastify.withTypeProvider<ZodTypeProvider>().get('/ledger/accounts', {
     schema: {
       tags: ['ledger'],
       description: 'Get all accounts from the ledger',
-      querystring: {
-        type: 'object',
-        properties: {
-          type: {
-            type: 'string',
-            description: 'Filter by account type (e.g., "Expenses")',
-          },
-        },
-      },
+      querystring: accountsQuerystringSchema,
       response: {
-        200: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-          required: ['error', 'message'],
-        },
+        200: accountsApiResponseSchema,
+        500: errorResponseSchema,
       },
     },
     handler: async (request, reply) => {
@@ -58,35 +43,19 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
    * GET /api/ledger/payees
    * Get list of payees (shops, vendors) from the ledger
    */
-  fastify.get('/ledger/payees', {
+  fastify.withTypeProvider<ZodTypeProvider>().get('/ledger/payees', {
     schema: {
       tags: ['ledger'],
       description: 'Get list of payees (shops, vendors) from the ledger',
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            payees: {
-              type: 'array',
-              items: { type: 'string' },
-            },
-          },
-          required: ['payees'],
-        },
-        500: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-          required: ['error', 'message'],
-        },
+        200: payeesApiResponseSchema,
+        500: errorResponseSchema,
       },
     },
     handler: async (request, reply) => {
       try {
         const payees = await fastify.ledgerService.getPayees();
-        return { payees };
+        return { payees: payees.map(p => p.name) };
       } catch (error) {
         fastify.log.error({ error }, 'Failed to fetch payees from ledger');
         return reply.code(500).send({
