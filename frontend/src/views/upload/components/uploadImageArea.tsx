@@ -1,7 +1,15 @@
 import { ChangeEvent, ReactElement, RefObject } from 'react';
-import { Box, styled, IconButton, Chip, Typography } from '@mui/material';
+import {
+  Box,
+  styled,
+  IconButton,
+  Chip,
+  Typography,
+  Button,
+} from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 
 const StyledUploadArea = styled(Box, {
   shouldForwardProp: prop => prop !== 'hasImage',
@@ -68,29 +76,37 @@ const SuccessBadge = styled(Chip)({
 // Meant to be used with useImageCapture hook
 function UploadImageArea(props: {
   capturedImage: string | null;
-  fileInputRef: RefObject<HTMLInputElement>;
+  cameraInputRef: RefObject<HTMLInputElement>;
+  galleryInputRef: RefObject<HTMLInputElement>;
   handleCameraClick: () => void;
+  handleGalleryClick: () => void;
   handleFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   showSuccess?: boolean;
 }): ReactElement {
   const {
     capturedImage,
-    fileInputRef,
+    cameraInputRef,
+    galleryInputRef,
     handleFileChange,
     handleCameraClick,
+    handleGalleryClick,
     showSuccess = false,
   } = props;
 
   return (
-    <StyledUploadArea
-      hasImage={!!capturedImage}
-      onClick={!capturedImage ? handleCameraClick : undefined}
-    >
+    <StyledUploadArea hasImage={!!capturedImage}>
       <input
         type="file"
         accept="image/*"
         capture="environment"
-        ref={fileInputRef}
+        ref={cameraInputRef}
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <input
+        type="file"
+        accept="image/*"
+        ref={galleryInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
@@ -106,8 +122,8 @@ function UploadImageArea(props: {
           )}
         </Box>
       ) : (
-        <Box sx={{ textAlign: 'center' }}>
-          <CameraButton>
+        <Box sx={{ textAlign: 'center', width: '100%', px: 2 }}>
+          <CameraButton onClick={handleCameraClick}>
             <CameraAltIcon sx={{ fontSize: '40px' }} />
           </CameraButton>
           <Typography
@@ -119,11 +135,28 @@ function UploadImageArea(props: {
               color: '#2d3748',
             }}
           >
-            Tap to take photo
+            Take a photo
           </Typography>
-          <Typography sx={{ fontSize: '12px', color: '#718096' }}>
+          <Typography sx={{ fontSize: '12px', color: '#718096', mb: 2 }}>
             Ensure receipt is flat and well-lit
           </Typography>
+
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={handleGalleryClick}
+            startIcon={<PhotoLibraryIcon />}
+            sx={{
+              mt: 1,
+              fontWeight: 600,
+              borderWidth: 2,
+              '&:hover': {
+                borderWidth: 2,
+              },
+            }}
+          >
+            Select from Gallery
+          </Button>
         </Box>
       )}
     </StyledUploadArea>

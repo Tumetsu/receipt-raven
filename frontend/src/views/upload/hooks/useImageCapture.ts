@@ -2,10 +2,15 @@ import { useState, useRef, ChangeEvent } from 'react';
 
 export function useImageCapture() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleCameraClick = () => {
-    fileInputRef.current?.click();
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryClick = () => {
+    galleryInputRef.current?.click();
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -23,8 +28,10 @@ export function useImageCapture() {
   return {
     capturedImage,
     setCapturedImage,
-    fileInputRef,
+    cameraInputRef,
+    galleryInputRef,
     handleCameraClick,
+    handleGalleryClick,
     handleFileChange,
     clearImage,
   };
