@@ -1,13 +1,11 @@
 import {
   Account,
-  Category,
   Payee,
   ReceiptTransactionData,
 } from '../../modules/ledger/types.js';
 import { ILedgerService } from './ledger-service.js';
 import {
   AccountsResponseSchema,
-  CategoriesResponseSchema,
   PayeesResponseSchema,
 } from '../../modules/ledger/schemas/index.js';
 
@@ -38,21 +36,6 @@ export class BeancountAdapter implements ILedgerService {
     const data = await response.json();
     const validated = AccountsResponseSchema.parse(data);
     return validated.accounts;
-  }
-
-  async getCategories(): Promise<Category[]> {
-    const url = new URL('/categories', this.baseUrl);
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch categories: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    const validated = CategoriesResponseSchema.parse(data);
-    return validated.categories;
   }
 
   async getPayees(): Promise<Payee[]> {

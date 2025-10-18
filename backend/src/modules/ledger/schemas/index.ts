@@ -13,11 +13,6 @@ export const AccountSchema = z.object({
   displayName: z.string().optional(),
 });
 
-export const CategorySchema = z.object({
-  name: z.string(),
-  account_mapping: z.string(),
-});
-
 export const PayeeSchema = z.object({
   name: z.string(),
 });
@@ -41,7 +36,6 @@ export const TransactionSchema = z.object({
 
 export const ReceiptTransactionItemSchema = z.object({
   name: z.string(),
-  category: z.string(),
   price: z.number(),
   expenseAccount: z.string().optional(),
 });
@@ -59,10 +53,6 @@ export const ReceiptTransactionDataSchema = z.object({
 // Response schemas from Python service
 export const AccountsResponseSchema = z.object({
   accounts: z.array(AccountSchema),
-});
-
-export const CategoriesResponseSchema = z.object({
-  categories: z.array(CategorySchema),
 });
 
 export const PayeesResponseSchema = z.object({

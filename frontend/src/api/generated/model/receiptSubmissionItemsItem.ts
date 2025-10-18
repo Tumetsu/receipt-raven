@@ -10,5 +10,5 @@ export type ReceiptSubmissionItemsItem = {
   id?: number;
   name: string;
   price: number;
-  category: string;
+  expenseAccount: string;
 };

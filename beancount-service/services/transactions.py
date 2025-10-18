@@ -165,15 +165,9 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Create postings for each item
     for item in receipt_data.items:
         # Determine expense account
-        if item.expense_account:
-            expense_account = item.expense_account
-        else:
-            # Default to a generic expense account with the category
-            expense_account = f"{item.category}"
-
         postings.append(
             {
-                "account": expense_account,
+                "account": item.expense_account,
                 "amount": item.price,
                 "currency": currency,
                 "comment": item.name,

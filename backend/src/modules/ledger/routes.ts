@@ -55,51 +55,6 @@ const ledgerRoutes: FastifyPluginAsync = async fastify => {
   });
 
   /**
-   * GET /api/ledger/categories
-   * Get expense categories from the ledger
-   */
-  fastify.get('/ledger/categories', {
-    schema: {
-      tags: ['ledger'],
-      description: 'Get expense categories from the ledger',
-      response: {
-        200: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              account_mapping: { type: 'string' },
-            },
-            required: ['name', 'account_mapping'],
-          },
-        },
-        500: {
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' },
-          },
-          required: ['error', 'message'],
-        },
-      },
-    },
-    handler: async (request, reply) => {
-      try {
-        const categories = await fastify.ledgerService.getCategories();
-        console.log(categories);
-        return { categories };
-      } catch (error) {
-        fastify.log.error({ error }, 'Failed to fetch categories from ledger');
-        return reply.code(500).send({
-          error: 'Failed to fetch categories',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        });
-      }
-    },
-  });
-
-  /**
    * GET /api/ledger/payees
    * Get list of payees (shops, vendors) from the ledger
    */

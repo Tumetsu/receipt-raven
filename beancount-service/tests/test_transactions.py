@@ -121,13 +121,11 @@ def valid_receipt_data():
         items=[
             ReceiptTransactionItem(
                 name="Apples",
-                category="Groceries",
                 price=5.00,
                 expense_account="Expenses:Groceries",
             ),
             ReceiptTransactionItem(
                 name="Bread",
-                category="Groceries",
                 price=3.50,
                 expense_account="Expenses:Groceries",
             ),
@@ -517,7 +515,6 @@ def test_submit_receipt_transaction_invalid_account(test_ledger_path):
         items=[
             ReceiptTransactionItem(
                 name="Item",
-                category="InvalidCategory",
                 price=10.00,
                 expense_account="Expenses:InvalidCategory",
             ),

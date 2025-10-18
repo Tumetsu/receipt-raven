@@ -21,7 +21,7 @@ const receiptFormSchema = z
           id: z.number().optional(),
           name: z.string().min(1),
           price: z.coerce.number<number>(),
-          category: z.string(),
+          expenseAccount: z.string(),
         })
       )
       .min(1),

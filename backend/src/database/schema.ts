@@ -35,7 +35,7 @@ export interface ReceiptItemsTable {
   id: Generated<number>;
   receipt_id: number;
   name: string;
-  category: string;
+  expense_account: string;
   price: number;
   parsed_by: string;
   created_at: ColumnType<Date, string | undefined, never>;

@@ -12,7 +12,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "type-check": "tsc --noEmit",
-    "api-client:generate": "npm run api-client:export-from-backend && orval --config ./orval.config.ts && npm run api-client:format",
+    "api-client:generate": "rm -rf src/api/generated && npm run api-client:export-from-backend && orval --config ./orval.config.ts && npm run api-client:format",
     "api-client:export-from-backend": "cd ../backend && npm run openapi:export && cd ../frontend",
     "api-client:format": "prettier --write \"src/api/generated/**/*.ts\""
   },

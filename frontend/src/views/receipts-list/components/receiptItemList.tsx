@@ -55,7 +55,7 @@ export function ReceiptItemList<
   });
 
   const onAddItem = () => {
-    append({ name: '', price: '', category: '' } as never);
+    append({ name: '', price: '', expenseAccount: '' } as never);
   };
 
   const onRemoveItem = (idx: number) => {
@@ -107,11 +107,11 @@ export function ReceiptItemList<
             {expenseAccounts.isSuccess && (
               <ControlledComboBox
                 name={
-                  `${name}.${idx}.category` as unknown as Path<TFieldValues>
+                  `${name}.${idx}.expenseAccount` as unknown as Path<TFieldValues>
                 }
                 control={control}
                 options={expenseAccounts.data}
-                label="Expense category"
+                label="Expense account"
                 required
                 disabled={disabled}
               />

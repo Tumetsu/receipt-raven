@@ -23,14 +23,6 @@ export enum AccountType {
 }
 
 /**
- * Category for expense classification
- */
-export interface Category {
-  name: string; // Category name
-  accountMapping?: string; // Optional associated expense account
-}
-
-/**
  * Payee (e.g., shop, vendor)
  */
 export interface Payee {
@@ -77,6 +69,6 @@ export interface ReceiptTransactionData {
  */
 export interface ReceiptTransactionItem {
   name: string; // Item name
-  category: string; // Item category
+  expense_account: string; // Item expense account
   price: number; // Item price
 }

@@ -1,6 +1,5 @@
 import {
   Account,
-  Category,
   Payee,
   ReceiptTransactionData,
 } from '../../modules/ledger/types.js';
@@ -16,13 +15,6 @@ export interface ILedgerService {
    * @returns Array of accounts
    */
   getAccounts(type?: string): Promise<Account[]>;
-
-  /**
-   * Get expense categories from the ledger
-   * These can be derived from expense account names or commodities
-   * @returns Array of categories
-   */
-  getCategories(): Promise<Category[]>;
 
   /**
    * Get list of payees (shops, vendors) from the ledger

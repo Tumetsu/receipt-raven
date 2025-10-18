@@ -24,13 +24,6 @@ class Account(BaseModel):
     display_name: Optional[str] = None
 
 
-class Category(BaseModel):
-    """Category model"""
-
-    name: str
-    account_mapping: str
-
-
 class Payee(BaseModel):
     """Payee model"""
 
@@ -62,7 +55,6 @@ class ReceiptTransactionItem(BaseModel):
     """Receipt transaction item"""
 
     name: str
-    category: str
     price: float
     expense_account: Optional[str] = None
 
@@ -91,12 +83,6 @@ class AccountsResponse(BaseModel):
     """Response containing list of accounts"""
 
     accounts: List[Account]
-
-
-class CategoriesResponse(BaseModel):
-    """Response containing list of categories"""
-
-    categories: List[Category]
 
 
 class PayeesResponse(BaseModel):

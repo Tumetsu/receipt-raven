@@ -10,6 +10,6 @@ export interface ReceiptItem {
   id: number;
   receiptId: number;
   name: string;
-  category: string;
+  expenseAccount: string;
   price: number;
 }

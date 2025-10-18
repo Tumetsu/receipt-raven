@@ -31,10 +31,10 @@ const receiptItemDtoSchema = {
     id: { type: 'number' },
     receiptId: { type: 'number' },
     name: { type: 'string' },
-    category: { type: 'string' },
+    expenseAccount: { type: 'string' },
     price: { type: 'number' },
   },
-  required: ['id', 'receiptId', 'name', 'price', 'category'],
+  required: ['id', 'receiptId', 'name', 'price', 'expenseAccount'],
 };
 
 const receiptSubmissionDtoSchema = {
@@ -54,9 +54,9 @@ const receiptSubmissionDtoSchema = {
           id: { type: 'number' }, // Missing from new items created on frontend
           name: { type: 'string' },
           price: { type: 'number' },
-          category: { type: 'string' },
+          expenseAccount: { type: 'string' },
         },
-        required: ['name', 'price', 'category'],
+        required: ['name', 'price', 'expenseAccount'],
       },
     },
   },

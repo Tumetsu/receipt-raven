@@ -88,7 +88,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
           payee: string;
           date: string;
           totalSum: number;
-          items: Array<{ name: string; price: number; category: string }>;
+          items: Array<{ name: string; price: number; expenseAccount: string }>;
         };
       }>,
       reply
@@ -117,7 +117,8 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         payee,
         date,
         source_account: sourceAccount,
-        items,
+        // TODO: Fix this by introducing proper domain driven design types instead of adhoc or db types
+        items: items.map(i => ({ ...i, expense_account: i.expenseAccount })),
         total: totalSum,
       });
 
@@ -169,7 +170,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
           receiptId: r.receipt_id,
           name: r.name,
           price: r.price,
-          category: r.category,
+          expenseAccount: r.expense_account,
         };
       });
     },

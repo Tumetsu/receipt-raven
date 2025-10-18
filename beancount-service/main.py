@@ -10,14 +10,12 @@ from dotenv import load_dotenv
 
 from models import (
     AccountsResponse,
-    CategoriesResponse,
     PayeesResponse,
     Transaction,
     ReceiptTransactionData,
     TransactionSubmitResponse,
 )
 from services.accounts import get_accounts
-from services.categories import get_categories
 from services.payees import get_payees
 from services.transactions import (
     submit_transaction,
@@ -83,23 +81,6 @@ async def get_accounts_endpoint(
         return AccountsResponse(accounts=accounts)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch accounts: {e}")
-
-
-@app.get("/categories", response_model=CategoriesResponse)
-async def get_categories_endpoint():
-    """
-    Get expense categories from the ledger
-
-    Returns:
-        List of categories
-    """
-    try:
-        categories = get_categories(BEANCOUNT_LEDGER_PATH)
-        return CategoriesResponse(categories=categories)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch categories: {e}"
-        )
 
 
 @app.get("/payees", response_model=PayeesResponse)

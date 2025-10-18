@@ -34,7 +34,7 @@ export interface IReceiptRepository {
     items: Array<{
       id?: number;
       name: string;
-      category: string;
+      expenseAccount: string;
       price: number;
     }>
   ): Promise<void>;
@@ -73,7 +73,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       analysis.products.map(p => ({
         receipt_id: Number(insertedId),
         name: p.name,
-        category: p.expenseAccount,
+        expense_account: p.expenseAccount,
         price: p.price,
         parsed_by: parsedBy ?? 'unknown',
       }));
@@ -126,7 +126,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
     items: Array<{
       id?: number;
       name: string;
-      category: string;
+      expenseAccount: string;
       price: number;
     }>
   ): Promise<void> {
@@ -168,7 +168,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
             .updateTable('receipt_items')
             .set({
               name: item.name,
-              category: item.category,
+              expense_account: item.expenseAccount,
               price: item.price,
             })
             .where('id', '=', item.id)
@@ -180,7 +180,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
             .values({
               receipt_id: receiptId,
               name: item.name,
-              category: item.category,
+              expense_account: item.expenseAccount,
               price: item.price,
               parsed_by: 'user', // Items edited by user
             })
