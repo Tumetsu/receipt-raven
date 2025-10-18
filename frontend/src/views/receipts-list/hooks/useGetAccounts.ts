@@ -8,10 +8,16 @@ export function useAccounts() {
       {
         queryKey: ['ledgerAccounts', 'Assets'],
         queryFn: () => getApiLedgerAccounts({ type: 'Assets' }),
+        staleTime: 1000 * 60 * 60,
+        gcTime: 1000 * 60 * 60,
+        refetchOnMount: false,
       },
       {
         queryKey: ['ledgerAccounts', 'Liabilities'],
         queryFn: () => getApiLedgerAccounts({ type: 'Liabilities' }),
+        staleTime: 1000 * 60 * 60,
+        gcTime: 1000 * 60 * 60,
+        refetchOnMount: false,
       },
     ],
   });

@@ -2,7 +2,6 @@ import { Typography, IconButton, Box, styled } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
-import { useGetApiLedgerAccounts } from '../../../api/generated/api';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import {
   ArrayPath,
@@ -12,6 +11,7 @@ import {
   useFieldArray,
 } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
+import { useExpenseAccounts } from '../hooks/useExpenseAccounts.ts';
 
 const ProductCard = styled(Box)(({ theme }) => ({
   border: '1px solid #e5e7eb',
@@ -47,14 +47,7 @@ export function ReceiptItemList<
   name,
   disabled,
 }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
-  const expenseAccounts = useGetApiLedgerAccounts(
-    {
-      type: 'Expenses',
-    },
-    {
-      query: { queryKey: ['ledgerAccounts', 'Expenses'] },
-    }
-  );
+  const expenseAccounts = useExpenseAccounts();
 
   const { fields, append, remove } = useFieldArray({
     control,

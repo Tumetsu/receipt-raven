@@ -6,6 +6,8 @@ import { Receipt } from '../../api/generated/model/receipt.ts';
 import { ReceiptPanel } from './components/receiptPanel.tsx';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
+import { useAccounts } from './hooks/useGetAccounts.ts';
+import { useExpenseAccounts } from './hooks/useExpenseAccounts.ts';
 
 export function ReceiptListView(): ReactElement {
   const {
@@ -16,6 +18,10 @@ export function ReceiptListView(): ReactElement {
     query: { queryKey: ['receipts'] },
   });
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+
+  // Preload expense accounts to cache for when opening the receipt panel
+  useExpenseAccounts();
+  useAccounts();
 
   return (
     <PageContainer>
