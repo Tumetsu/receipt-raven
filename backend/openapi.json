@@ -6,165 +6,7 @@
     "version": "1.0.0"
   },
   "components": {
-    "schemas": {
-      "receipt": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "payee": {
-            "type": "string"
-          },
-          "sourceAccount": {
-            "type": "string"
-          },
-          "date": {
-            "type": "string"
-          },
-          "totalSum": {
-            "type": "number"
-          },
-          "status": {
-            "type": "string"
-          },
-          "filename": {
-            "type": "string"
-          },
-          "fileUrl": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "payee",
-          "date",
-          "totalSum",
-          "status",
-          "filename",
-          "fileUrl"
-        ],
-        "title": "receipt"
-      },
-      "receiptItem": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "receiptId": {
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "expenseAccount": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "receiptId",
-          "name",
-          "price",
-          "expenseAccount"
-        ],
-        "title": "receiptItem"
-      },
-      "receiptSubmission": {
-        "type": "object",
-        "properties": {
-          "sourceAccount": {
-            "type": "string"
-          },
-          "payee": {
-            "type": "string"
-          },
-          "date": {
-            "type": "string"
-          },
-          "totalSum": {
-            "type": "number"
-          },
-          "items": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "price": {
-                  "type": "number"
-                },
-                "expenseAccount": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "name",
-                "price",
-                "expenseAccount"
-              ]
-            }
-          }
-        },
-        "required": [
-          "sourceAccount",
-          "payee",
-          "date",
-          "totalSum",
-          "items"
-        ],
-        "title": "receiptSubmission"
-      },
-      "job": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number"
-          },
-          "filename": {
-            "type": "string"
-          },
-          "fileUrl": {
-            "type": "string"
-          },
-          "retryCount": {
-            "type": "number"
-          },
-          "processedAt": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "analysisError": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "filename",
-          "fileUrl",
-          "retryCount",
-          "processedAt",
-          "createdAt",
-          "status"
-        ],
-        "title": "job"
-      }
-    }
+    "schemas": {}
   },
   "paths": {
     "/api/upload": {
@@ -175,41 +17,48 @@
         "description": "Upload a receipt image for processing",
         "responses": {
           "200": {
-            "description": "Default Response",
+            "description": "Successful upload response",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Successful upload response",
                   "type": "object",
                   "properties": {
                     "success": {
+                      "description": "Whether the upload was successful",
                       "type": "boolean"
                     },
                     "filename": {
+                      "description": "Name of the uploaded file",
                       "type": "string"
                     }
                   },
                   "required": [
                     "success",
                     "filename"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Default Response",
+            "description": "Error response for failed upload",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Error response for failed upload",
                   "type": "object",
                   "properties": {
                     "error": {
+                      "description": "Error message describing what went wrong",
                       "type": "string"
                     }
                   },
                   "required": [
                     "error"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -230,8 +79,7 @@
             },
             "in": "query",
             "name": "type",
-            "required": false,
-            "description": "Filter by account type (e.g., \"Expenses\")"
+            "required": false
           }
         ],
         "responses": {
@@ -265,7 +113,8 @@
                   "required": [
                     "error",
                     "message"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -296,7 +145,8 @@
                   },
                   "required": [
                     "payees"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -318,7 +168,8 @@
                   "required": [
                     "error",
                     "message"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -334,14 +185,65 @@
         "description": "Get receipts",
         "responses": {
           "200": {
-            "description": "List of receipts",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "List of receipts",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/receipt"
+                    "description": "A receipt with all its details",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Unique identifier for the receipt",
+                        "type": "number"
+                      },
+                      "payee": {
+                        "description": "Name of the shop or vendor",
+                        "type": "string"
+                      },
+                      "sourceAccount": {
+                        "description": "Source account for the payment (optional)",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "date": {
+                        "description": "Date of the receipt (ISO 8601 format)",
+                        "type": "string"
+                      },
+                      "totalSum": {
+                        "description": "Total amount of the receipt",
+                        "type": "number"
+                      },
+                      "status": {
+                        "description": "Status of the receipt (pending, approved, rejected, or error)",
+                        "type": "string"
+                      },
+                      "filename": {
+                        "description": "Filename of the receipt image",
+                        "type": "string"
+                      },
+                      "fileUrl": {
+                        "description": "URL to access the receipt image",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "payee",
+                      "date",
+                      "totalSum",
+                      "status",
+                      "filename",
+                      "fileUrl"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -360,10 +262,69 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/receiptSubmission"
+                "description": "Data required to submit a receipt to the ledger",
+                "type": "object",
+                "properties": {
+                  "sourceAccount": {
+                    "description": "Source account for the payment",
+                    "type": "string"
+                  },
+                  "payee": {
+                    "description": "Name of the shop or vendor",
+                    "type": "string"
+                  },
+                  "date": {
+                    "description": "Date of the receipt (ISO 8601 format)",
+                    "type": "string"
+                  },
+                  "totalSum": {
+                    "description": "Total amount of the receipt",
+                    "type": "number"
+                  },
+                  "items": {
+                    "description": "List of items in the receipt (at least 1 required)",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "description": "ID of existing item (omit for new items)",
+                          "type": "number"
+                        },
+                        "name": {
+                          "description": "Name of the purchased item",
+                          "type": "string"
+                        },
+                        "price": {
+                          "description": "Price of the item",
+                          "type": "number"
+                        },
+                        "expenseAccount": {
+                          "description": "Ledger expense account for this item",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "price",
+                        "expenseAccount"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "sourceAccount",
+                  "payee",
+                  "date",
+                  "totalSum",
+                  "items"
+                ]
               }
             }
-          }
+          },
+          "required": true,
+          "description": "Data required to submit a receipt to the ledger"
         },
         "parameters": [
           {
@@ -372,78 +333,103 @@
             },
             "in": "path",
             "name": "receiptId",
-            "required": true
+            "required": true,
+            "description": "ID of the receipt"
           }
         ],
         "responses": {
           "200": {
-            "description": "Default Response",
+            "description": "Success response",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Success response",
                   "type": "object",
                   "properties": {
                     "success": {
+                      "description": "Whether the operation was successful",
                       "type": "boolean"
                     }
                   },
                   "required": [
                     "success"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Default Response",
+            "description": "Error response",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Error response",
                   "type": "object",
                   "properties": {
                     "error": {
+                      "description": "Error type or title",
                       "type": "string"
                     },
                     "message": {
+                      "description": "Detailed error message",
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Default Response",
+            "description": "Error response",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Error response",
                   "type": "object",
                   "properties": {
                     "error": {
+                      "description": "Error type or title",
                       "type": "string"
                     },
                     "message": {
+                      "description": "Detailed error message",
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "500": {
-            "description": "Default Response",
+            "description": "Error response",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Error response",
                   "type": "object",
                   "properties": {
                     "error": {
+                      "description": "Error type or title",
                       "type": "string"
                     },
                     "message": {
+                      "description": "Detailed error message",
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -458,23 +444,17 @@
         "parameters": [
           {
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "in": "path",
             "name": "receiptId",
-            "required": true
+            "required": true,
+            "description": "ID of the receipt"
           }
         ],
         "responses": {
           "200": {
-            "description": "List of receipt items in a receipt",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "List of receipt items in a receipt"
-                }
-              }
-            }
+            "description": "Default Response"
           }
         }
       }
@@ -488,23 +468,54 @@
         "parameters": [
           {
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "in": "path",
             "name": "receiptId",
-            "required": true
+            "required": true,
+            "description": "ID of the receipt"
           }
         ],
         "responses": {
           "200": {
-            "description": "List of receipt items in a receipt",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "List of receipt items in a receipt",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/receiptItem"
+                    "description": "A single item within a receipt",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Unique identifier for the receipt item",
+                        "type": "number"
+                      },
+                      "receiptId": {
+                        "description": "ID of the receipt this item belongs to",
+                        "type": "number"
+                      },
+                      "name": {
+                        "description": "Name of the purchased item",
+                        "type": "string"
+                      },
+                      "expenseAccount": {
+                        "description": "Ledger expense account for this item",
+                        "type": "string"
+                      },
+                      "price": {
+                        "description": "Price of the item",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "receiptId",
+                      "name",
+                      "expenseAccount",
+                      "price"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -521,14 +532,57 @@
         "description": "Get jobs",
         "responses": {
           "200": {
-            "description": "List of jobs",
+            "description": "Default Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "List of jobs",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/job"
+                    "description": "A job representing an uploaded receipt to be processed",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Unique identifier for the job",
+                        "type": "number"
+                      },
+                      "filename": {
+                        "description": "Filename of the uploaded receipt image",
+                        "type": "string"
+                      },
+                      "fileUrl": {
+                        "description": "URL to access the receipt image",
+                        "type": "string"
+                      },
+                      "retryCount": {
+                        "description": "Number of times the job has been retried",
+                        "type": "number"
+                      },
+                      "processedAt": {
+                        "description": "Timestamp when the job was processed (ISO 8601 format)",
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "description": "Timestamp when the job was created (ISO 8601 format)",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "Status of the job (pending, processing, completed, or failed)",
+                        "type": "string"
+                      },
+                      "analysisError": {
+                        "description": "Error message if the analysis failed",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "filename",
+                      "fileUrl",
+                      "retryCount",
+                      "createdAt",
+                      "status"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               }
@@ -560,7 +614,8 @@
                   },
                   "required": [
                     "status"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             }

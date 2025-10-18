@@ -6,32 +6,27 @@ import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+  ZodTypeProvider,
+} from 'fastify-type-provider-zod';
 import path from 'path';
 import { config } from '../config/index.js';
 import databasePlugin from './database.js';
 import { ledgerPlugin } from './ledger/index.js';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
+  // Set up Zod validators and serializers
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
+
   // Database (must be first so it's available to other plugins/modules)
   await fastify.register(databasePlugin);
 
   // Swagger/OpenAPI documentation
-  await fastify.register(swagger, {
-    refResolver: {
-      buildLocalReference(json, baseUri, fragment, i) {
-        // This mirrors the default behaviour
-        // see: https://github.com/fastify/fastify-swagger/blob/1b53e376b4b752481643cf5a5655c284684383c3/lib/mode/dynamic.js#L17
-        if (!json.title && json.$id) {
-          json.title = json.$id;
-        }
-        // Fallback if no $id is present
-        if (!json.$id) {
-          return `def-${i}`;
-        }
-
-        return `${json.$id}`;
-      },
-    },
+  await fastify.withTypeProvider<ZodTypeProvider>().register(swagger, {
     openapi: {
       openapi: '3.1.0',
       info: {
@@ -51,6 +46,7 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
         { name: 'ledger', description: 'Ledger integration endpoints' },
       ],
     },
+    transform: jsonSchemaTransform,
   });
 
   await fastify.register(swaggerUi, {

@@ -10,18 +10,24 @@ import {
 } from '../schemas/receipts.js';
 
 // Reusable schemas
-const receiptIdParamSchema = z.object({
-  receiptId: z.coerce.number(),
-});
+const receiptIdParamSchema = z
+  .object({
+    receiptId: z.coerce.number().describe('ID of the receipt'),
+  })
+  .describe('Receipt ID parameter');
 
-const errorResponseSchema = z.object({
-  error: z.string(),
-  message: z.string().optional(),
-});
+const errorResponseSchema = z
+  .object({
+    error: z.string().describe('Error type or title'),
+    message: z.string().optional().describe('Detailed error message'),
+  })
+  .describe('Error response');
 
-const successResponseSchema = z.object({
-  success: z.boolean(),
-});
+const successResponseSchema = z
+  .object({
+    success: z.boolean().describe('Whether the operation was successful'),
+  })
+  .describe('Success response');
 
 const receiptRoutes: FastifyPluginAsync = async fastify => {
   fastify.withTypeProvider<ZodTypeProvider>().get('/receipts', {

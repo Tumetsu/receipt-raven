@@ -28,7 +28,7 @@ export interface ReceiptsTable {
   parsed_by: string;
   source_account: string | null;
   status: ReceiptStatus;
-  created_at: ColumnType<Date, string | undefined, never>;
+  created_at: ColumnType<string, string | undefined, never>;
 }
 
 export interface ReceiptItemsTable {
@@ -38,7 +38,7 @@ export interface ReceiptItemsTable {
   expense_account: string;
   price: number;
   parsed_by: string;
-  created_at: ColumnType<Date, string | undefined, never>;
+  created_at: ColumnType<string, string | undefined, never>;
 }
 
 export interface ReceiptJobsTable {
@@ -47,7 +47,7 @@ export interface ReceiptJobsTable {
   retry_count: ColumnType<number, undefined, number>;
   analysis_error: string | null;
   filepath: string;
-  created_at: ColumnType<Date, string | undefined, never>;
-  updated_at: ColumnType<Date, string | undefined, string>;
-  processed_at: ColumnType<Date | undefined, string | undefined, string>;
+  created_at: ColumnType<string, string | undefined, never>;
+  updated_at: ColumnType<string, string | undefined, string>;
+  processed_at: ColumnType<string | undefined, string | undefined, string>;
 }

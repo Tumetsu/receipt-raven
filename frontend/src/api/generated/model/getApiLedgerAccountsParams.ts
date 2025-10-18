@@ -7,8 +7,5 @@
  */
 
 export type GetApiLedgerAccountsParams = {
-  /**
-   * Filter by account type (e.g., "Expenses")
-   */
   type?: string;
 };

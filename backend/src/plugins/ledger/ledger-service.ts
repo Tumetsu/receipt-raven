@@ -1,8 +1,4 @@
-import {
-  Account,
-  Payee,
-  ReceiptTransactionData,
-} from './types';
+import { Account, Payee, ReceiptTransactionData } from './types';
 
 /**
  * Abstract interface for ledger operations

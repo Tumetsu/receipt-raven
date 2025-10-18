@@ -6,7 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * Successful upload response
+ */
 export type PostApiUpload200 = {
+  /** Whether the upload was successful */
   success: boolean;
+  /** Name of the uploaded file */
   filename: string;
 };

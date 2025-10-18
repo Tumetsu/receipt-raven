@@ -10,7 +10,6 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Control, useWatch } from 'react-hook-form';
 import { useRef, useState } from 'react';
-import { Receipt } from '../../../api/generated/model/receipt.ts';
 import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
@@ -25,6 +24,7 @@ import { DeleteDialog } from '../../../common/components/DeleteDialog.tsx';
 import { useDeleteApiReceiptsReceiptId } from '../../../api/generated/api.ts';
 import { useQueryClient } from '@tanstack/react-query';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
+import { GetApiReceipts200Item } from '../../../api/generated/model';
 
 const PanelFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
@@ -157,7 +157,7 @@ function ReceiptActions({
 }
 
 interface ReceiptPanelProps {
-  receipt: Receipt;
+  receipt: GetApiReceipts200Item;
   onApprove: () => void;
   onClosePanel: () => void;
 }
@@ -249,7 +249,7 @@ export function ReceiptPanel(props: ReceiptPanelProps) {
   const handleDeleteConfirm = () => {
     setIsDeleteDialogOpen(false);
     deleteMutation.mutate(
-      { receiptId: props.receipt.id.toString(10) },
+      { receiptId: props.receipt.id },
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries({ queryKey: ['receipts'] });

@@ -5,11 +5,11 @@ import {
   PanelContent,
   PanelRef,
 } from '../../../common/components/Panel.tsx';
-import { Job } from '../../../api/generated/model';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
+import { GetApiJobs200Item } from '../../../api/generated/model';
 
 interface JobPanelProps {
-  job: Job;
+  job: GetApiJobs200Item;
   onClosePanel: () => void;
 }
 

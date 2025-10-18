@@ -16,6 +16,7 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
     handler: async (_request, _reply) => {
       const jobs = await fastify.receiptJobQueueRepository.getJobs();
 
+      console.log(jobs);
       return orderBy(
         jobs.map(r => {
           return {
@@ -23,8 +24,8 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
             filename: r.filepath,
             fileUrl: `uploads/${r.filepath}`,
             retryCount: r.retry_count,
-            processedAt: r.processed_at?.toISOString(),
-            createdAt: r.created_at.toISOString(),
+            processedAt: r.processed_at ?? undefined,
+            createdAt: r.created_at ?? undefined,
             status: r.status,
             analysisError: r.analysis_error ?? undefined,
           };

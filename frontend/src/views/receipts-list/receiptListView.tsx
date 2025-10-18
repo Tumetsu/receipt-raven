@@ -2,12 +2,12 @@ import { Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
-import { Receipt } from '../../api/generated/model/receipt.ts';
 import { ReceiptPanel } from './components/receiptPanel.tsx';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
 import { useAccounts } from './hooks/useGetAccounts.ts';
 import { useExpenseAccounts } from './hooks/useExpenseAccounts.ts';
+import { GetApiReceipts200Item } from '../../api/generated/model';
 
 export function ReceiptListView(): ReactElement {
   const {
@@ -17,7 +17,8 @@ export function ReceiptListView(): ReactElement {
   } = useGetApiReceipts({
     query: { queryKey: ['receipts'] },
   });
-  const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [selectedReceipt, setSelectedReceipt] =
+    useState<GetApiReceipts200Item | null>(null);
 
   // Preload expense accounts to cache for when opening the receipt panel
   useExpenseAccounts();

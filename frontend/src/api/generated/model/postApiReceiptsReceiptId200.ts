@@ -6,6 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * Success response
+ */
 export type PostApiReceiptsReceiptId200 = {
+  /** Whether the operation was successful */
   success: boolean;
 };

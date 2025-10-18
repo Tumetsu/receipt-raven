@@ -1,13 +1,13 @@
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
-import { Receipt } from '../../../api/generated/model';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { TableCard } from '../../../common/components/Layout.tsx';
+import { GetApiReceipts200Item } from '../../../api/generated/model';
 
 export function ReceiptList(props: {
-  receipts: Receipt[];
+  receipts: GetApiReceipts200Item[];
   selectedReceiptId?: number;
   onRowClick: (id: number) => void;
 }): ReactElement {

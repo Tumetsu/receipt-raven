@@ -6,10 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface ReceiptItem {
-  id: number;
-  receiptId: number;
-  name: string;
-  expenseAccount: string;
-  price: number;
-}
+/**
+ * Source account for the payment (optional)
+ */
+export type GetApiReceipts200ItemSourceAccount = string | null;

@@ -5,12 +5,12 @@ import {
   GridRowParams,
 } from '@mui/x-data-grid';
 import { ReactElement } from 'react';
-import { Job } from '../../../api/generated/model';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { TableCard } from '../../../common/components/Layout.tsx';
+import { GetApiJobs200Item } from '../../../api/generated/model';
 
 // TODO: This should be shared with the backend
 type JobStatus = 'waiting' | 'processed' | 'failed';
@@ -30,7 +30,7 @@ type JobRow = {
 };
 
 export function JobList(props: {
-  jobs: Job[];
+  jobs: GetApiJobs200Item[];
   onRowClick: (id: number) => void;
 }): ReactElement {
   const rows: JobRow[] = props.jobs.map(j => ({

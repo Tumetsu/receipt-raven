@@ -3,9 +3,9 @@ import { ReactElement, useState } from 'react';
 import { useGetApiJobs } from '../../api/generated/api.ts';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
-import { Job } from '../../api/generated/model';
 import { JobList } from './components/JobList.tsx';
 import { JobPanel } from './components/JobsPanel.tsx';
+import { GetApiJobs200Item } from '../../api/generated/model';
 
 export function JobsListView(): ReactElement {
   const {
@@ -15,7 +15,9 @@ export function JobsListView(): ReactElement {
   } = useGetApiJobs({
     query: { queryKey: ['jobs'] },
   });
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<GetApiJobs200Item | null>(
+    null
+  );
 
   return (
     <PageContainer>

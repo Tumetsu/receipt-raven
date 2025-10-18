@@ -6,9 +6,13 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ReceiptSubmissionItemsItem = {
+export type PostApiReceiptsReceiptIdBodyItemsItem = {
+  /** ID of existing item (omit for new items) */
   id?: number;
+  /** Name of the purchased item */
   name: string;
+  /** Price of the item */
   price: number;
+  /** Ledger expense account for this item */
   expenseAccount: string;
 };

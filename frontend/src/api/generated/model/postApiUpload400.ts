@@ -6,6 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * Error response for failed upload
+ */
 export type PostApiUpload400 = {
+  /** Error message describing what went wrong */
   error: string;
 };

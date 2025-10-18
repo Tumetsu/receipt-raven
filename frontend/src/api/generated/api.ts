@@ -22,21 +22,21 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  GetApiJobs200Item,
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
+  GetApiReceipts200Item,
+  GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
-  Job,
   PostApiReceiptsReceiptId200,
   PostApiReceiptsReceiptId400,
   PostApiReceiptsReceiptId404,
   PostApiReceiptsReceiptId500,
+  PostApiReceiptsReceiptIdBody,
   PostApiUpload200,
   PostApiUpload400,
-  Receipt,
-  ReceiptItem,
-  ReceiptSubmission,
 } from './model';
 
 import { apiClient } from '../axiosInstance';
@@ -420,7 +420,11 @@ export function useGetApiLedgerPayees<
  * Get receipts
  */
 export const getApiReceipts = (signal?: AbortSignal) => {
-  return apiClient<Receipt[]>({ url: `/api/receipts`, method: 'GET', signal });
+  return apiClient<GetApiReceipts200Item[]>({
+    url: `/api/receipts`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetApiReceiptsQueryKey = () => {
@@ -541,14 +545,14 @@ export function useGetApiReceipts<
  */
 export const postApiReceiptsReceiptId = (
   receiptId: number,
-  receiptSubmission: ReceiptSubmission,
+  postApiReceiptsReceiptIdBody: PostApiReceiptsReceiptIdBody,
   signal?: AbortSignal
 ) => {
   return apiClient<PostApiReceiptsReceiptId200>({
     url: `/api/receipts/${receiptId}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    data: receiptSubmission,
+    data: postApiReceiptsReceiptIdBody,
     signal,
   });
 };
@@ -563,13 +567,13 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
     TError,
-    { receiptId: number; data: ReceiptSubmission },
+    { receiptId: number; data: PostApiReceiptsReceiptIdBody },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
   TError,
-  { receiptId: number; data: ReceiptSubmission },
+  { receiptId: number; data: PostApiReceiptsReceiptIdBody },
   TContext
 > => {
   const mutationKey = ['postApiReceiptsReceiptId'];
@@ -583,7 +587,7 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
-    { receiptId: number; data: ReceiptSubmission }
+    { receiptId: number; data: PostApiReceiptsReceiptIdBody }
   > = props => {
     const { receiptId, data } = props ?? {};
 
@@ -596,7 +600,7 @@ export const getPostApiReceiptsReceiptIdMutationOptions = <
 export type PostApiReceiptsReceiptIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiReceiptsReceiptId>>
 >;
-export type PostApiReceiptsReceiptIdMutationBody = ReceiptSubmission;
+export type PostApiReceiptsReceiptIdMutationBody = PostApiReceiptsReceiptIdBody;
 export type PostApiReceiptsReceiptIdMutationError =
   | PostApiReceiptsReceiptId400
   | PostApiReceiptsReceiptId404
@@ -613,7 +617,7 @@ export const usePostApiReceiptsReceiptId = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
       TError,
-      { receiptId: number; data: ReceiptSubmission },
+      { receiptId: number; data: PostApiReceiptsReceiptIdBody },
       TContext
     >;
   },
@@ -621,7 +625,7 @@ export const usePostApiReceiptsReceiptId = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof postApiReceiptsReceiptId>>,
   TError,
-  { receiptId: number; data: ReceiptSubmission },
+  { receiptId: number; data: PostApiReceiptsReceiptIdBody },
   TContext
 > => {
   const mutationOptions = getPostApiReceiptsReceiptIdMutationOptions(options);
@@ -632,8 +636,8 @@ export const usePostApiReceiptsReceiptId = <
 /**
  * Delete receipt
  */
-export const deleteApiReceiptsReceiptId = (receiptId: string) => {
-  return apiClient<unknown>({
+export const deleteApiReceiptsReceiptId = (receiptId: number) => {
+  return apiClient<void>({
     url: `/api/receipts/${receiptId}`,
     method: 'DELETE',
   });
@@ -646,13 +650,13 @@ export const getDeleteApiReceiptsReceiptIdMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
     TError,
-    { receiptId: string },
+    { receiptId: number },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
   TError,
-  { receiptId: string },
+  { receiptId: number },
   TContext
 > => {
   const mutationKey = ['deleteApiReceiptsReceiptId'];
@@ -666,7 +670,7 @@ export const getDeleteApiReceiptsReceiptIdMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
-    { receiptId: string }
+    { receiptId: number }
   > = props => {
     const { receiptId } = props ?? {};
 
@@ -690,7 +694,7 @@ export const useDeleteApiReceiptsReceiptId = <
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
       TError,
-      { receiptId: string },
+      { receiptId: number },
       TContext
     >;
   },
@@ -698,7 +702,7 @@ export const useDeleteApiReceiptsReceiptId = <
 ): UseMutationResult<
   Awaited<ReturnType<typeof deleteApiReceiptsReceiptId>>,
   TError,
-  { receiptId: string },
+  { receiptId: number },
   TContext
 > => {
   const mutationOptions = getDeleteApiReceiptsReceiptIdMutationOptions(options);
@@ -710,17 +714,17 @@ export const useDeleteApiReceiptsReceiptId = <
  * Get receipt items
  */
 export const getApiReceiptsReceiptIdItems = (
-  receiptId: string,
+  receiptId: number,
   signal?: AbortSignal
 ) => {
-  return apiClient<ReceiptItem[]>({
+  return apiClient<GetApiReceiptsReceiptIdItems200Item[]>({
     url: `/api/receipts/${receiptId}/items`,
     method: 'GET',
     signal,
   });
 };
 
-export const getGetApiReceiptsReceiptIdItemsQueryKey = (receiptId?: string) => {
+export const getGetApiReceiptsReceiptIdItemsQueryKey = (receiptId?: number) => {
   return [`/api/receipts/${receiptId}/items`] as const;
 };
 
@@ -728,7 +732,7 @@ export const getGetApiReceiptsReceiptIdItemsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
   TError = unknown,
 >(
-  receiptId: string,
+  receiptId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -770,7 +774,7 @@ export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
   TError = unknown,
 >(
-  receiptId: string,
+  receiptId: number,
   options: {
     query: Partial<
       UseQueryOptions<
@@ -796,7 +800,7 @@ export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
   TError = unknown,
 >(
-  receiptId: string,
+  receiptId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -822,7 +826,7 @@ export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
   TError = unknown,
 >(
-  receiptId: string,
+  receiptId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -841,7 +845,7 @@ export function useGetApiReceiptsReceiptIdItems<
   TData = Awaited<ReturnType<typeof getApiReceiptsReceiptIdItems>>,
   TError = unknown,
 >(
-  receiptId: string,
+  receiptId: number,
   options?: {
     query?: Partial<
       UseQueryOptions<
@@ -874,7 +878,11 @@ export function useGetApiReceiptsReceiptIdItems<
  * Get jobs
  */
 export const getApiJobs = (signal?: AbortSignal) => {
-  return apiClient<Job[]>({ url: `/api/jobs`, method: 'GET', signal });
+  return apiClient<GetApiJobs200Item[]>({
+    url: `/api/jobs`,
+    method: 'GET',
+    signal,
+  });
 };
 
 export const getGetApiJobsQueryKey = () => {

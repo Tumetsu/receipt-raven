@@ -7,7 +7,7 @@ import {
   useGetApiReceiptsReceiptIdItems,
   usePostApiReceiptsReceiptId,
 } from '../../../api/generated/api.ts';
-import { Receipt } from '../../../api/generated/model';
+import { GetApiReceipts200Item } from '../../../api/generated/model';
 
 const receiptFormSchema = z
   .object({
@@ -39,7 +39,10 @@ const receiptFormSchema = z
 
 export type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
-export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
+export function useReceiptForm(
+  receipt: GetApiReceipts200Item,
+  onApprove: () => void
+) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -47,7 +50,7 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
     isPending: isItemsPending,
     isSuccess: isItemsSuccess,
     data: itemsResult,
-  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10), {
+  } = useGetApiReceiptsReceiptIdItems(receipt.id, {
     query: { queryKey: ['receipt', receipt.id, 'receiptItems'] },
   });
 

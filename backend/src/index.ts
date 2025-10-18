@@ -1,6 +1,8 @@
 import Fastify from 'fastify';
 import fs from 'fs/promises';
 import path from 'path';
+import { z } from 'zod';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { config } from './config/index.js';
 import { registerPlugins } from './plugins/index.js';
 import { uploadModule } from './modules/upload/index.js';
@@ -41,22 +43,18 @@ const start = async () => {
     await fastify.register(appModule);
 
     // Register health check route
-    fastify.get('/health', {
+    fastify.withTypeProvider<ZodTypeProvider>().get('/health', {
       schema: {
         tags: ['health'],
         description: 'Health check endpoint',
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              status: { type: 'string', enum: ['ok'] },
-            },
-            required: ['status'],
-          },
+          200: z.object({
+            status: z.literal('ok'),
+          }),
         },
       },
       handler: async () => {
-        return { status: 'ok' };
+        return { status: 'ok' as const };
       },
     });
 

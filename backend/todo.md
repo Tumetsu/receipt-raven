@@ -54,12 +54,12 @@ Export inferred TypeScript types:
 ### 4. Convert Job Schemas to Zod
 **File**: `src/modules/app/schemas/jobs.ts`
 
-- [ ] `jobDtoSchema` → `jobSchema` (Zod)
+- [x] `jobDtoSchema` → `jobSchema` (Zod)
   - Properties: id, filename, fileUrl, retryCount, processedAt, createdAt, status, analysisError
   - Note: analysisError is optional
 
 Export inferred TypeScript types:
-- [ ] Export `type Job = z.infer<typeof jobSchema>`
+- [x] Export `type Job = z.infer<typeof jobSchema>`
 
 ### 5. Update Receipt Routes
 **File**: `src/modules/app/routes/receipts.ts`
@@ -92,9 +92,9 @@ For each route, update schema definition:
 **File**: `src/modules/app/routes/job.ts`
 
 **GET /jobs** (line 5-37):
-- [ ] Replace JSON Schema with Zod schema for response
-- [ ] Use `schema: { response: { 200: z.array(jobSchema) } }`
-- [ ] Verify response transformation matches schema
+- [x] Replace JSON Schema with Zod schema for response
+- [x] Use `schema: { response: { 200: z.array(jobSchema) } }`
+- [x] Verify response transformation matches schema
 
 ### 7. Update Swagger/OpenAPI Generation
 - [ ] Verify that `@fastify/swagger` supports Zod schemas via `@fastify/type-provider-zod`

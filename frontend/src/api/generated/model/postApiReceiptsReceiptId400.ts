@@ -6,7 +6,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
+/**
+ * Error response
+ */
 export type PostApiReceiptsReceiptId400 = {
-  error?: string;
+  /** Error type or title */
+  error: string;
+  /** Detailed error message */
   message?: string;
 };
