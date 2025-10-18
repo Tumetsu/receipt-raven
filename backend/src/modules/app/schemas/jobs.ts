@@ -11,6 +11,7 @@ const jobDtoSchema = {
     processedAt: { type: 'string' },
     createdAt: { type: 'string' },
     status: { type: 'string' },
+    analysisError: { type: 'string' },
   },
   required: [
     'id',

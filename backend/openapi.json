@@ -148,6 +148,9 @@
           },
           "status": {
             "type": "string"
+          },
+          "analysisError": {
+            "type": "string"
           }
         },
         "required": [

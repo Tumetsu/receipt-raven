@@ -27,6 +27,7 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
             processedAt: r.processed_at,
             createdAt: r.created_at,
             status: r.status,
+            analysisError: r.analysis_error,
           };
         }),
         'createdAt',

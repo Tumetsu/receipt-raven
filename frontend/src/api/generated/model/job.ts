@@ -14,4 +14,5 @@ export interface Job {
   processedAt: string;
   createdAt: string;
   status: string;
+  analysisError?: string;
 }
