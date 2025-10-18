@@ -1,5 +1,5 @@
 import { Box, Modal, styled } from '@mui/material';
-import { Img } from '../../../common/components/Img.tsx';
+import { Img } from '../Img.tsx';
 
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -15,7 +15,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
 export function ReceiptImageModal(props: {
   open: boolean;
   onClose: () => void;
-  imagePath: string;
+  url: string;
 }) {
   return (
     <Modal
@@ -25,7 +25,7 @@ export function ReceiptImageModal(props: {
       aria-describedby="modal-receipt-image"
     >
       <ModalContainer>
-        <Img src={props.imagePath} alt="Receipt"></Img>
+        <Img src={props.url} alt="Receipt"></Img>
       </ModalContainer>
     </Modal>
   );
