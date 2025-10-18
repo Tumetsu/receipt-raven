@@ -1,29 +1,15 @@
-import { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 
-const jobDtoSchema = {
-  $id: 'job',
-  type: 'object',
-  properties: {
-    id: { type: 'number' },
-    filename: { type: 'string' },
-    fileUrl: { type: 'string' },
-    retryCount: { type: 'number' },
-    processedAt: { type: 'string' },
-    createdAt: { type: 'string' },
-    status: { type: 'string' },
-    analysisError: { type: 'string' },
-  },
-  required: [
-    'id',
-    'filename',
-    'fileUrl',
-    'retryCount',
-    'processedAt',
-    'createdAt',
-    'status',
-  ],
-};
+export const jobSchema = z.object({
+  id: z.number(),
+  filename: z.string(),
+  fileUrl: z.string(),
+  retryCount: z.number(),
+  processedAt: z.string().optional(),
+  createdAt: z.string(),
+  status: z.string(),
+  analysisError: z.string().optional(),
+});
 
-export function addSchemas(fastify: FastifyInstance): void {
-  fastify.addSchema(jobDtoSchema);
-}
+// Export inferred TypeScript type
+export type Job = z.infer<typeof jobSchema>;
