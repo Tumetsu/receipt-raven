@@ -11,6 +11,7 @@ export const config = {
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
     useMock: process.env.USE_MOCK_OPENAI === 'true',
+    model: process.env.OPENAI_MODEL || 'gpt-5-mini',
   },
   storage: {
     uploadsDir: process.env.UPLOADS_DIR || './uploads',

@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { config } from '../../../config/index.js';
+import { config } from '../../../config';
 
 export interface OpenAIResponse {
   content: string;
@@ -37,7 +37,7 @@ export class OpenAIClient implements AiClient {
       const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
       const response = await this.client.chat.completions.create({
-        model: 'gpt-5-mini',
+        model: config.openai.model,
         response_format: { type: 'json_object' },
         messages: [
           {
