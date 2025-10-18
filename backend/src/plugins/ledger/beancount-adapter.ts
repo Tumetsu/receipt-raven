@@ -1,13 +1,6 @@
-import {
-  Account,
-  Payee,
-  ReceiptTransactionData,
-} from '../../modules/ledger/types.js';
-import { ILedgerService } from './ledger-service.js';
-import {
-  AccountsResponseSchema,
-  PayeesResponseSchema,
-} from '../../modules/ledger/schemas/index.js';
+import { Account, Payee, ReceiptTransactionData } from './types';
+import { ILedgerService } from './ledger-service';
+import { AccountsResponseSchema, PayeesResponseSchema } from './schemas';
 
 /**
  * Beancount adapter implementation
