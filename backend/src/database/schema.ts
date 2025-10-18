@@ -45,6 +45,7 @@ export interface ReceiptJobsTable {
   id: Generated<number>;
   status: ColumnType<ReceiptJobStatus, undefined, ReceiptJobStatus>;
   retry_count: ColumnType<number, undefined, number>;
+  analysis_error: string | null;
   filepath: string;
   created_at: ColumnType<Date, string | undefined, never>;
   updated_at: ColumnType<Date, string | undefined, string>;

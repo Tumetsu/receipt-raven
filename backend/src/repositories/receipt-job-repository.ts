@@ -20,7 +20,7 @@ export interface IReceiptJobQueueRepository {
 
   markJobProcessed(jobId: number): Promise<void>;
 
-  increaseJobRetryCount(jobId: number): Promise<void>;
+  increaseJobRetryCount(jobId: number, error?: string): Promise<void>;
 }
 
 /**
@@ -53,7 +53,7 @@ export class SQLiteReceiptJoqbQueueRepository
     return this.db.selectFrom('receipt_jobs').selectAll().execute();
   }
 
-  async increaseJobRetryCount(jobId: number): Promise<void> {
+  async increaseJobRetryCount(jobId: number, error?: string): Promise<void> {
     const job = await this.db
       .selectFrom('receipt_jobs')
       .select('retry_count')
@@ -65,6 +65,7 @@ export class SQLiteReceiptJoqbQueueRepository
       .updateTable('receipt_jobs')
       .set({
         retry_count: currentRetryCount,
+        analysis_error: error,
         status:
           currentRetryCount < config.analyze.maxRetryCountForJob
             ? ReceiptJobStatus.WAITING
@@ -80,6 +81,7 @@ export class SQLiteReceiptJoqbQueueRepository
       .set({
         processed_at: new Date().toISOString(),
         status: ReceiptJobStatus.PROCESSED,
+        analysis_error: null,
       })
       .where('id', '=', jobId)
       .executeTakeFirstOrThrow();

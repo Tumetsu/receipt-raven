@@ -48,8 +48,9 @@ export const processReceiptJobFromQueue = async (
     );
     await receiptJobQueueRepository.markJobProcessed(job.id);
   } catch (err) {
-    fastify.log.error(`Photo analysis failed for ${job.id}: ${err}`);
-    await receiptJobQueueRepository.increaseJobRetryCount(job.id);
+    const message = `Photo analysis failed for ${job.id}: ${err}b`;
+    fastify.log.error(message);
+    await receiptJobQueueRepository.increaseJobRetryCount(job.id, message);
     isProcessing = false;
   }
 
