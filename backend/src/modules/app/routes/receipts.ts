@@ -23,7 +23,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
           return {
             id: r.id,
             payee: r.payee,
-            expenseAccount: r.expense_account,
+            sourceAccount: r.source_account,
             date: r.receipt_date,
             totalSum: r.total_sum,
             status: r.status,
@@ -84,7 +84,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       request: FastifyRequest<{
         Params: { receiptId: string };
         Body: {
-          expenseAccount: string;
+          sourceAccount: string;
           payee: string;
           date: string;
           totalSum: number;
@@ -94,7 +94,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       reply
     ) => {
       const receiptId = parseInt(request.params.receiptId, 10);
-      const { payee, date, totalSum, expenseAccount, items } = request.body;
+      const { payee, date, totalSum, sourceAccount, items } = request.body;
 
       const receiptToUpdate =
         await fastify.receiptRepository.getReceiptById(receiptId);
@@ -105,7 +105,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
 
       await fastify.receiptRepository.updateReceipt(receiptId, {
         payee,
-        expense_account: expenseAccount,
+        source_account: sourceAccount,
         receipt_date: date,
         total_sum: totalSum,
       });
@@ -116,7 +116,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         receipt_id: receiptId,
         payee,
         date,
-        expense_account: expenseAccount,
+        source_account: sourceAccount,
         items,
         total: totalSum,
       });

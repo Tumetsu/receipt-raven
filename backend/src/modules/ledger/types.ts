@@ -65,7 +65,7 @@ export interface Transaction {
  */
 export interface ReceiptTransactionData {
   receipt_id: number; // Receipt ID from database
-  expense_account: string; // Expense account to use for the receipt
+  source_account: string; // Source account to use for the receipt
   payee: string; // Shop name
   date: string; // Receipt date
   items: ReceiptTransactionItem[]; // Receipt items

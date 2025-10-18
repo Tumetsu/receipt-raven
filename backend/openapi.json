@@ -16,7 +16,7 @@
           "payee": {
             "type": "string"
           },
-          "expenseAccount": {
+          "sourceAccount": {
             "type": "string"
           },
           "date": {
@@ -77,7 +77,7 @@
       "receiptSubmission": {
         "type": "object",
         "properties": {
-          "expenseAccount": {
+          "sourceAccount": {
             "type": "string"
           },
           "payee": {
@@ -117,7 +117,7 @@
           }
         },
         "required": [
-          "expenseAccount",
+          "sourceAccount",
           "payee",
           "date",
           "totalSum",

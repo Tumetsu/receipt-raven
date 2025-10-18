@@ -60,7 +60,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
         total_sum: analysis.total,
         parsed_by: parsedBy ?? 'unknown',
         status: ReceiptStatus.UNAPPROVED,
-        expense_account: config.analyze.defaultSourceAccount,
+        source_account: config.analyze.defaultSourceAccount,
       })
       .executeTakeFirstOrThrow();
 

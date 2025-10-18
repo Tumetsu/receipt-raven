@@ -45,7 +45,7 @@ function ReceiptFormHeader({ control }: ReceiptHeaderProps) {
     <Stack spacing={2} useFlexGap>
       {accounts.isSuccess && (
         <ControlledComboBox
-          name="expenseAccount"
+          name="sourceAccount"
           control={control}
           options={accounts.data}
           label="Expense account"

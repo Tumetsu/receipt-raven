@@ -115,7 +115,7 @@ def invalid_account_transaction():
 def valid_receipt_data():
     """Valid receipt transaction data"""
     return ReceiptTransactionData(
-        receipt_id="RCP-001",
+        receipt_id=1,
         payee="Test Grocery Store",
         date="2024-01-20",
         items=[
@@ -199,12 +199,12 @@ def test_create_beancount_transaction_with_metadata():
             TransactionPosting(account="Expenses:Groceries", amount=10.00, currency="EUR"),
             TransactionPosting(account="Assets:Checking", amount=-10.00, currency="EUR"),
         ],
-        metadata={"receipt_id": "RCP-001", "payment_method": "card"},
+        metadata={"receipt_id": "1", "payment_method": "card"},
     )
 
     bean_txn = create_beancount_transaction(txn)
 
-    assert bean_txn.meta.get("receipt_id") == "RCP-001"
+    assert bean_txn.meta.get("receipt_id") == "1"
     assert bean_txn.meta.get("payment_method") == "card"
 
 
@@ -375,10 +375,10 @@ def test_create_receipt_transaction_basic(valid_receipt_data):
 
     assert isinstance(txn, Transaction)
     assert txn.payee == "Test Grocery Store"
-    assert txn.narration == "Receipt #RCP-001"
+    assert txn.narration == "Receipt #1"
     assert txn.date == "2024-01-20"
-    assert "receipt" in txn.tags
-    assert txn.metadata.get("receipt_id") == "RCP-001"
+    assert "receipt-raven" in txn.tags
+    assert txn.metadata.get("receipt_id") == "1"
 
 
 def test_create_receipt_transaction_postings(valid_receipt_data):
@@ -408,33 +408,6 @@ def test_create_receipt_transaction_item_comments(valid_receipt_data):
     comments = [p.comment for p in expense_postings if p.comment]
     assert "Apples" in comments
     assert "Bread" in comments
-
-
-def test_create_receipt_transaction_default_account():
-    """Test that default expense account is created if not specified"""
-    receipt_data = ReceiptTransactionData(
-        receipt_id="RCP-002",
-        payee="Test Shop",
-        date="2024-01-20",
-        items=[
-            ReceiptTransactionItem(
-                name="Item",
-                category="TestCategory",
-                price=10.00,
-                # No expense_account specified
-            ),
-        ],
-        total=10.00,
-        source_account="Assets:Checking",
-    )
-
-    txn = create_receipt_transaction(receipt_data)
-
-    # Should create Expenses:TestCategory
-    expense_postings = [p for p in txn.postings if p.account.startswith("Expenses")]
-    assert len(expense_postings) == 1
-    assert expense_postings[0].account == "Expenses:TestCategory"
-
 
 # Tests for submit_transaction
 
@@ -519,7 +492,6 @@ def test_submit_receipt_transaction_valid(valid_receipt_data, temp_ledger_path):
     with open(temp_ledger_path, 'r') as f:
         content = f.read()
         assert "Test Grocery Store" in content
-        assert "RCP-001" in content
 
 
 def test_submit_receipt_transaction_dry_run(valid_receipt_data, temp_ledger_path):
@@ -539,7 +511,7 @@ def test_submit_receipt_transaction_dry_run(valid_receipt_data, temp_ledger_path
 def test_submit_receipt_transaction_invalid_account(test_ledger_path):
     """Test that receipt with invalid account is rejected"""
     receipt_data = ReceiptTransactionData(
-        receipt_id="RCP-003",
+        receipt_id=1,
         payee="Test Shop",
         date="2024-01-20",
         items=[

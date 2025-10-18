@@ -9,7 +9,7 @@
 export interface Receipt {
   id: number;
   payee: string;
-  expenseAccount?: string;
+  sourceAccount?: string;
   date: string;
   totalSum: number;
   status: string;

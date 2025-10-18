@@ -26,7 +26,7 @@ export interface ReceiptsTable {
   receipt_date: string;
   total_sum: number;
   parsed_by: string;
-  expense_account: string | null;
+  source_account: string | null;
   status: ReceiptStatus;
   created_at: ColumnType<Date, string | undefined, never>;
 }

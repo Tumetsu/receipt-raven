@@ -11,7 +11,7 @@ import { Receipt } from '../../../api/generated/model';
 
 const receiptFormSchema = z
   .object({
-    expenseAccount: z.string(),
+    sourceAccount: z.string(),
     totalSum: z.coerce.number<number>(),
     date: z.string(),
     payee: z.string(),
@@ -55,7 +55,7 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
     resolver: zodResolver(receiptFormSchema),
     disabled: receipt.status === 'approved',
     values: {
-      expenseAccount: receipt.expenseAccount ?? '',
+      sourceAccount: receipt.sourceAccount ?? '',
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payee,
@@ -79,7 +79,7 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
       {
         receiptId: receipt.id,
         data: {
-          expenseAccount: data.expenseAccount,
+          sourceAccount: data.sourceAccount,
           date: data.date,
           payee: data.payee,
           totalSum: data.totalSum,

@@ -72,7 +72,7 @@ class ReceiptTransactionData(BaseModel):
 
     receipt_id: int
     payee: str
-    expense_account: str
+    source_account: str
     date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
     items: List[ReceiptTransactionItem]
     total: float

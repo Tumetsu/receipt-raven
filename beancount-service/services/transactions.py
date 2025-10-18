@@ -183,7 +183,7 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Add the source account posting (negative, as money is leaving)
     postings.append(
         {
-            "account": receipt_data.expense_account,
+            "account": receipt_data.source_account,
             "amount": -receipt_data.total,
             "currency": currency,
         }
