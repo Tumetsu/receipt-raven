@@ -61,7 +61,7 @@ RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
 }
 
 /**
- * Analyze a receipt image using OpenAI's Vision API
+ * Analyze a receipt image using AI provider
  * @param imageBuffer Buffer containing the receipt image
  * @returns Validated receipt analysis result
  */
@@ -74,14 +74,13 @@ export const analyzeReceipt = async (
     const expenseAccounts = await ledgerService.getAccounts('Expenses');
     const accountsForPrompt = expenseAccounts.map(a => a.name).join(',');
 
-    // Submit image to OpenAI
     const aiResponse = await aiClient.submitImage(
       imageBuffer,
       getPrompt(accountsForPrompt)
     );
 
     const jsonResult = JSON.parse(aiResponse.content);
-    console.log('OpenAI raw response from photo analysis:', jsonResult);
+    console.log('Raw response from photo analysis:', jsonResult);
 
     // Validate the response against our schema
     const validatedResult = ReceiptAnalysisSchema.parse(jsonResult);
@@ -96,7 +95,7 @@ export const analyzeReceipt = async (
       throw new Error(`Invalid receipt analysis result: ${error.message}`);
     }
     if (error instanceof SyntaxError) {
-      throw new Error('Failed to parse OpenAI response as JSON');
+      throw new Error('Failed to parse AI response as JSON');
     }
     throw error;
   }

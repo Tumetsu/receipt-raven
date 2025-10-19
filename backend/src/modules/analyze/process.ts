@@ -29,7 +29,7 @@ export const processReceiptJobFromQueue = async (
       path.join(config.storage.uploadsDir, job.filepath)
     );
 
-    fastify.log.info(`Sending ${job.id} to OpenAI`);
+    fastify.log.info(`Sending ${job.id} to AI`);
     // Analyze the receipt using OpenAI
     const analysisResult = await analyzeReceipt(
       imageBuffer,

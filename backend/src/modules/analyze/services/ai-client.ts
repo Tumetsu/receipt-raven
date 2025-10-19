@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
-import { config } from '../../../config';
+import Anthropic from '@anthropic-ai/sdk';
+import { config } from '../../../config/index.js';
 
 export interface OpenAIResponse {
   content: string;
@@ -82,14 +83,86 @@ export class OpenAIClient implements AiClient {
 }
 
 /**
- * Mock implementation of the OpenAI API client for development
+ * Claude (Anthropic) implementation of the AI client
+ */
+export class ClaudeClient implements AiClient {
+  private client: Anthropic;
+
+  constructor() {
+    this.client = new Anthropic({
+      apiKey: config.anthropic.apiKey,
+    });
+  }
+
+  async submitImage(
+    imageBuffer: Buffer,
+    prompt: string
+  ): Promise<OpenAIResponse> {
+    try {
+      // Convert buffer to base64
+      const base64Image = imageBuffer.toString('base64');
+
+      const response = await this.client.messages.create({
+        model: config.anthropic.model,
+        max_tokens: 4000,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: 'image/jpeg',
+                  data: base64Image,
+                },
+              },
+              {
+                type: 'text',
+                text: prompt + '\n\nRespond with valid JSON only.',
+              },
+            ],
+          },
+        ],
+      });
+
+      // Extract text content from Claude's response
+      const textContent = response.content.find(
+        block => block.type === 'text'
+      );
+      if (!textContent || textContent.type !== 'text') {
+        throw new Error('No text content in Claude response');
+      }
+
+      return {
+        content: textContent.text,
+        model: response.model,
+        usage: {
+          promptTokens: response.usage.input_tokens,
+          completionTokens: response.usage.output_tokens,
+          totalTokens: response.usage.input_tokens + response.usage.output_tokens,
+        },
+      };
+    } catch (error) {
+      console.error('Claude API error:', error);
+      throw new Error(
+        error instanceof Error
+          ? `Claude API error: ${error.message}`
+          : 'Unknown error occurred while calling Claude API'
+      );
+    }
+  }
+}
+
+/**
+ * Mock implementation of the API client for development
  */
 export class MockAIClient implements AiClient {
   async submitImage(
     _imageBuffer: Buffer,
     _prompt: string
   ): Promise<OpenAIResponse> {
-    console.log('Using mock OpenAI client');
+    console.log('Using mock AI client');
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Return a mock response
@@ -125,7 +198,16 @@ export class MockAIClient implements AiClient {
  * Factory function to get the appropriate client based on environment
  */
 export const getAIClient = (): AiClient => {
-  return config.openai.useMock ? new MockAIClient() : new OpenAIClient();
+  switch (config.ai.provider) {
+    case 'anthropic':
+      return new ClaudeClient();
+    case 'openai':
+      return new OpenAIClient();
+    case 'mock':
+      return new MockAIClient();
+    default:
+      throw new Error(`Unsupported AI provider: ${config.ai.provider}`);
+  }
 };
 
 /**
