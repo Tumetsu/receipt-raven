@@ -1,6 +1,12 @@
-import { Account, Payee, ReceiptTransactionData } from './types';
+import {
+  Account,
+  Payee,
+  ReceiptTransactionData,
+  ReceiptTransactionItem,
+} from './types';
 import { ILedgerService } from './ledger-service';
 import { AccountsResponseSchema, PayeesResponseSchema } from './schemas';
+import _, { groupBy } from 'lodash';
 
 /**
  * Beancount adapter implementation
@@ -46,6 +52,22 @@ export class BeancountAdapter implements ILedgerService {
     return validated.payees;
   }
 
+  mergeReceiptItemsByExpenseAccount(
+    items: ReceiptTransactionData['items']
+  ): ReceiptTransactionItem[] {
+    return _(groupBy(items, 'expenseAccount'))
+      .map((group, expenseAccount) => {
+        const totalPrice = group.reduce((sum, item) => sum + item.price, 0);
+        const mergedNames = group.map(i => i.name).join(', ');
+        return {
+          name: mergedNames,
+          price: totalPrice,
+          expenseAccount,
+        };
+      })
+      .value();
+  }
+
   async submitReceiptTransaction(receiptData: ReceiptTransactionData): Promise<{
     success: boolean;
     status?: number;
@@ -58,10 +80,12 @@ export class BeancountAdapter implements ILedgerService {
       payee: receiptData.payee,
       date: receiptData.date,
       total: receiptData.total,
-      items: receiptData.items.map(i => ({
-        ...i,
-        expense_account: i.expenseAccount,
-      })),
+      items: this.mergeReceiptItemsByExpenseAccount(receiptData.items).map(
+        i => ({
+          ...i,
+          expense_account: i.expenseAccount,
+        })
+      ),
     };
 
     const response = await fetch(url.toString(), {
