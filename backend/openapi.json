@@ -202,6 +202,17 @@
                         "description": "Name of the shop or vendor",
                         "type": "string"
                       },
+                      "description": {
+                        "description": "Description or summary of the receipt",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "sourceAccount": {
                         "description": "Source account for the payment (optional)",
                         "anyOf": [
@@ -241,6 +252,7 @@
                     "required": [
                       "id",
                       "payee",
+                      "description",
                       "date",
                       "totalSum",
                       "status",
@@ -272,6 +284,17 @@
                   "sourceAccount": {
                     "description": "Source account for the payment",
                     "type": "string"
+                  },
+                  "description": {
+                    "description": "Description or summary of the receipt",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "payee": {
                     "description": "Name of the shop or vendor",
@@ -319,6 +342,7 @@
                 },
                 "required": [
                   "sourceAccount",
+                  "description",
                   "payee",
                   "date",
                   "totalSum",

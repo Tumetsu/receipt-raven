@@ -67,6 +67,11 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
   return (
     <Stack spacing={2} useFlexGap>
       <ControlledTextField
+        name="description"
+        control={control}
+        label="Description"
+      />
+      <ControlledTextField
         name="payee"
         control={control}
         label="Payee"

@@ -5,6 +5,7 @@
  * API for processing and managing receipts
  * OpenAPI spec version: 1.0.0
  */
+import type { GetApiReceipts200ItemDescription } from './getApiReceipts200ItemDescription';
 import type { GetApiReceipts200ItemSourceAccount } from './getApiReceipts200ItemSourceAccount';
 import type { GetApiReceipts200ItemStatus } from './getApiReceipts200ItemStatus';
 
@@ -16,6 +17,8 @@ export type GetApiReceipts200Item = {
   id: number;
   /** Name of the shop or vendor */
   payee: string;
+  /** Description or summary of the receipt */
+  description: GetApiReceipts200ItemDescription;
   /** Source account for the payment (optional) */
   sourceAccount?: GetApiReceipts200ItemSourceAccount;
   /** Date of the receipt (ISO 8601 format) */

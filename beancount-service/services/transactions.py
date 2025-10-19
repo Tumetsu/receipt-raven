@@ -187,7 +187,7 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     transaction = Transaction(
         date=receipt_data.date,
         payee=receipt_data.payee,
-        narration=f"Receipt #{receipt_data.receipt_id}",
+        narration=f"#{receipt_data.receipt_id} {receipt_data.description or 'Receipt'}",
         postings=postings,
         tags=["receipt-raven"],
         metadata={"receipt_id": str(receipt_data.receipt_id)},

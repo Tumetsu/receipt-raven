@@ -27,7 +27,7 @@ export function ControlledTextField<T extends FieldValues>(
           sx={{ backgroundColor: 'white' }}
           error={!!fieldState.error}
           helperText={fieldState.error?.message || textFieldProps.helperText}
-          required
+          required={required}
         />
       )}
     />

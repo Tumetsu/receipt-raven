@@ -63,6 +63,7 @@ class ReceiptTransactionData(BaseModel):
     """Receipt transaction data for convenience endpoint"""
 
     receipt_id: int
+    description: Optional[str] = None
     payee: str
     source_account: str
     date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")

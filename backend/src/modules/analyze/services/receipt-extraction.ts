@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { DateTime } from 'luxon';
 import { aiClient } from './ai-client.js';
-import { ReceiptAnalysisResponse } from '../../../types/shared.js';
 import { ILedgerService } from '../../../plugins/ledger/ledger-service';
 
 const ProductSchema = z.object({
@@ -12,6 +11,7 @@ const ProductSchema = z.object({
 
 const ReceiptAnalysisSchema = z.object({
   payee: z.string(),
+  description: z.string().nullable(),
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -20,11 +20,23 @@ const ReceiptAnalysisSchema = z.object({
   total: z.number(),
 });
 
+export type ReceiptAnalysis = z.infer<typeof ReceiptAnalysisSchema>;
+export interface ReceiptAnalysisResponse {
+  result: ReceiptAnalysis;
+  model: string;
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
 function getPrompt(expenseAccounts: string) {
   return `
 Please read the details of the provided receipt and list the following properties in a structured way in a json format:
 {
     "payee": "Name of the shop, restaurant or service provider in the receipt",
+    "description": "Short description or summary of the receipt content. Prefer finnish language if possible. Summary of purchased items is usually good description",
     "date": "Date of the purchase in format YYYY-MM-DD",
     "products": [
     {
@@ -41,6 +53,7 @@ Here is an example output:
 {
     "payee": "K-Market",
     "date": "2025-04-09",
+    "description": "Ruokaa ja paita",
     "products": [
         {
             "name": "Banaani",

@@ -5,6 +5,7 @@
  * API for processing and managing receipts
  * OpenAPI spec version: 1.0.0
  */
+import type { PostApiReceiptsReceiptIdBodyDescription } from './postApiReceiptsReceiptIdBodyDescription';
 import type { PostApiReceiptsReceiptIdBodyItemsItem } from './postApiReceiptsReceiptIdBodyItemsItem';
 
 /**
@@ -13,6 +14,8 @@ import type { PostApiReceiptsReceiptIdBodyItemsItem } from './postApiReceiptsRec
 export type PostApiReceiptsReceiptIdBody = {
   /** Source account for the payment */
   sourceAccount: string;
+  /** Description or summary of the receipt */
+  description: PostApiReceiptsReceiptIdBodyDescription;
   /** Name of the shop or vendor */
   payee: string;
   /** Date of the receipt (ISO 8601 format) */

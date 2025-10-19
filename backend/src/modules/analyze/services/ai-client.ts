@@ -168,6 +168,7 @@ export class MockAIClient implements AiClient {
     return {
       content: JSON.stringify({
         payee: 'K-Market',
+        description: 'Ruokaa ja paita',
         date: new Date().toISOString().substring(0, 10),
         products: [
           {

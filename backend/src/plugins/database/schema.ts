@@ -15,6 +15,7 @@ export interface ReceiptsTable {
   job_id: number;
   payee: string;
   receipt_date: string;
+  description: string | null;
   total_sum: number;
   parsed_by: string;
   source_account: string | null;

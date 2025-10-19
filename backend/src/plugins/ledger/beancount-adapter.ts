@@ -78,6 +78,7 @@ export class BeancountAdapter implements ILedgerService {
       receipt_id: receiptData.receiptId,
       source_account: receiptData.sourceAccount,
       payee: receiptData.payee,
+      description: receiptData.description,
       date: receiptData.date,
       total: receiptData.total,
       items: this.mergeReceiptItemsByExpenseAccount(receiptData.items).map(

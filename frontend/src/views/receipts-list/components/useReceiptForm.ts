@@ -16,6 +16,7 @@ const receiptFormSchema = z
   .object({
     sourceAccount: z.string(),
     totalSum: z.coerce.number<number>(),
+    description: z.string(),
     date: z.string(),
     payee: z.string(),
     items: z
@@ -62,6 +63,7 @@ export function useReceiptForm(
     disabled: receipt.status === GetApiReceipts200ItemStatus.approved,
     values: {
       sourceAccount: receipt.sourceAccount ?? '',
+      description: receipt.description ?? '',
       totalSum: receipt.totalSum,
       date: receipt.date,
       payee: receipt.payee,
@@ -86,6 +88,7 @@ export function useReceiptForm(
         receiptId: receipt.id,
         data: {
           sourceAccount: data.sourceAccount,
+          description: data.description ?? null,
           date: data.date,
           payee: data.payee,
           totalSum: data.totalSum,

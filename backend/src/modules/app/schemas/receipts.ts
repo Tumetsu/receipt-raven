@@ -5,6 +5,10 @@ export const receiptSchema = z
   .object({
     id: z.number().describe('Unique identifier for the receipt'),
     payee: z.string().describe('Name of the shop or vendor'),
+    description: z
+      .string()
+      .nullable()
+      .describe('Description or summary of the receipt'),
     sourceAccount: z
       .string()
       .nullish()
@@ -34,6 +38,10 @@ export const receiptItemSchema = z
 export const receiptSubmissionSchema = z
   .object({
     sourceAccount: z.string().describe('Source account for the payment'),
+    description: z
+      .string()
+      .nullable()
+      .describe('Description or summary of the receipt'),
     payee: z.string().describe('Name of the shop or vendor'),
     date: z.string().describe('Date of the receipt (ISO 8601 format)'),
     totalSum: z.number().describe('Total amount of the receipt'),

@@ -57,6 +57,7 @@ export interface Transaction {
  */
 export interface ReceiptTransactionData {
   receiptId: number; // Receipt ID from database
+  description: string | null; // Receipt description
   sourceAccount: string; // Source account to use for the receipt
   payee: string; // Shop name
   date: string; // Receipt date

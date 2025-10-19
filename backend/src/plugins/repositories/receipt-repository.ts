@@ -1,4 +1,3 @@
-import { ReceiptAnalysisResult } from '../../types/shared';
 import { InsertObject, Kysely, Selectable } from 'kysely';
 import { Database } from '../database/schema';
 import { ReceiptJob } from './receipt-job-repository';
@@ -8,6 +7,17 @@ import { ReceiptStatus } from '../../domain/types';
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;
 
+export interface ReceiptAnalysisResult {
+  payee: string;
+  description: string | null;
+  date: string;
+  products: {
+    name: string;
+    expenseAccount: string;
+    price: number;
+  }[];
+  total: number;
+}
 /**
  * Repository for receipt data access operations
  */
@@ -61,6 +71,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
         total_sum: analysis.total,
         parsed_by: parsedBy ?? 'unknown',
         status: ReceiptStatus.UNAPPROVED,
+        description: analysis.description,
         source_account: config.analyze.defaultSourceAccount,
       })
       .executeTakeFirstOrThrow();

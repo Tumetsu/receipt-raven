@@ -45,6 +45,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         receipts.map(r => {
           return {
             id: r.id,
+            description: r.description,
             payee: r.payee,
             sourceAccount: r.source_account,
             date: r.receipt_date,
@@ -75,7 +76,8 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
     },
     handler: async (request, reply) => {
       const receiptId = request.params.receiptId;
-      const { payee, date, totalSum, sourceAccount, items } = request.body;
+      const { payee, date, totalSum, sourceAccount, items, description } =
+        request.body;
 
       const receiptToUpdate =
         await fastify.receiptRepository.getReceiptById(receiptId);
@@ -98,6 +100,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         payee,
         date,
         sourceAccount,
+        description,
         items,
         total: totalSum,
       });
