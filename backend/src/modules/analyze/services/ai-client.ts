@@ -127,9 +127,7 @@ export class ClaudeClient implements AiClient {
       });
 
       // Extract text content from Claude's response
-      const textContent = response.content.find(
-        block => block.type === 'text'
-      );
+      const textContent = response.content.find(block => block.type === 'text');
       if (!textContent || textContent.type !== 'text') {
         throw new Error('No text content in Claude response');
       }
@@ -140,7 +138,8 @@ export class ClaudeClient implements AiClient {
         usage: {
           promptTokens: response.usage.input_tokens,
           completionTokens: response.usage.output_tokens,
-          totalTokens: response.usage.input_tokens + response.usage.output_tokens,
+          totalTokens:
+            response.usage.input_tokens + response.usage.output_tokens,
         },
       };
     } catch (error) {

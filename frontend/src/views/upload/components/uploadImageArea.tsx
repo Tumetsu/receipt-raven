@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, RefObject } from 'react';
+import { ChangeEvent, ReactElement, Ref } from 'react';
 import {
   Box,
   styled,
@@ -76,8 +76,8 @@ const SuccessBadge = styled(Chip)({
 // Meant to be used with useImageCapture hook
 function UploadImageArea(props: {
   capturedImage: string | null;
-  cameraInputRef: RefObject<HTMLInputElement>;
-  galleryInputRef: RefObject<HTMLInputElement>;
+  cameraInputRef: Ref<HTMLInputElement | null>;
+  galleryInputRef: Ref<HTMLInputElement | null>;
   handleCameraClick: () => void;
   handleGalleryClick: () => void;
   handleFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
