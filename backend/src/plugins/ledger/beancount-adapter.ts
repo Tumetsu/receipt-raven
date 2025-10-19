@@ -52,14 +52,24 @@ export class BeancountAdapter implements ILedgerService {
     message?: string;
   }> {
     const url = new URL('/transactions/receipt', this.baseUrl);
+    const payload = {
+      receipt_id: receiptData.receiptId,
+      source_account: receiptData.sourceAccount,
+      payee: receiptData.payee,
+      date: receiptData.date,
+      total: receiptData.total,
+      items: receiptData.items.map(i => ({
+        ...i,
+        expense_account: i.expenseAccount,
+      })),
+    };
+
     const response = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        ...receiptData,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const responseData = (await response.json()) as {

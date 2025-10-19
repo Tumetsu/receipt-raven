@@ -94,12 +94,11 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
       await fastify.receiptRepository.setReceiptItems(receiptId, items);
 
       const result = await fastify.ledgerService.submitReceiptTransaction({
-        receipt_id: receiptId,
+        receiptId,
         payee,
         date,
-        source_account: sourceAccount,
-        // TODO: Fix this by introducing proper domain driven design types instead of adhoc or db types
-        items: items.map(i => ({ ...i, expense_account: i.expenseAccount })),
+        sourceAccount,
+        items,
         total: totalSum,
       });
 

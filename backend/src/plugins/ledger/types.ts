@@ -56,8 +56,8 @@ export interface Transaction {
  * Receipt-specific transaction data for convenience
  */
 export interface ReceiptTransactionData {
-  receipt_id: number; // Receipt ID from database
-  source_account: string; // Source account to use for the receipt
+  receiptId: number; // Receipt ID from database
+  sourceAccount: string; // Source account to use for the receipt
   payee: string; // Shop name
   date: string; // Receipt date
   items: ReceiptTransactionItem[]; // Receipt items
@@ -69,6 +69,6 @@ export interface ReceiptTransactionData {
  */
 export interface ReceiptTransactionItem {
   name: string; // Item name
-  expense_account: string; // Item expense account
+  expenseAccount: string; // Item expense account
   price: number; // Item price
 }
