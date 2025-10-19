@@ -1,5 +1,5 @@
 import { Kysely, Selectable } from 'kysely';
-import { Database } from '../../database/schema';
+import { Database } from '../database/schema';
 import { config } from '../../config';
 import { ReceiptJobStatus } from '../../domain/types';
 

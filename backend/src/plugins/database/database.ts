@@ -2,9 +2,9 @@ import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import SQLite from 'better-sqlite3';
 import { Kysely, SqliteDialect } from 'kysely';
-import { config } from '../config/index.js';
-import { Database } from '../database/schema.js';
-import '../types/fastify.js';
+import { config } from '../../config';
+import { Database } from './schema';
+import '../../types/fastify';
 
 /**
  * Database plugin that provides a singleton Kysely instance

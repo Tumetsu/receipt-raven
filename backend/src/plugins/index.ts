@@ -14,7 +14,7 @@ import {
 } from 'fastify-type-provider-zod';
 import path from 'path';
 import { config } from '../config/index.js';
-import databasePlugin from './database.js';
+import databasePlugin from './database/database';
 import { ledgerPlugin } from './ledger/index.js';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {

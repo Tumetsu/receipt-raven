@@ -1,5 +1,5 @@
 import { ColumnType, Generated } from 'kysely';
-import { ReceiptJobStatus, ReceiptStatus } from '../domain/types';
+import { ReceiptJobStatus, ReceiptStatus } from '../../domain/types';
 
 /**
  * Combined database schema for all tables
