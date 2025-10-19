@@ -10,10 +10,12 @@ import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { TableCard } from '../../../common/components/Layout.tsx';
-import { GetApiJobs200Item } from '../../../api/generated/model';
+import {
+  GetApiJobs200Item,
+  GetApiJobs200ItemStatus,
+} from '../../../api/generated/model';
 
-// TODO: This should be shared with the backend
-type JobStatus = 'waiting' | 'processed' | 'failed';
+type JobStatus = GetApiJobs200ItemStatus;
 
 // TODO: Use colors from theme
 const jobStatusIcons: Record<JobStatus, ReactElement> = {

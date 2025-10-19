@@ -7,7 +7,10 @@ import {
   useGetApiReceiptsReceiptIdItems,
   usePostApiReceiptsReceiptId,
 } from '../../../api/generated/api.ts';
-import { GetApiReceipts200Item } from '../../../api/generated/model';
+import {
+  GetApiReceipts200Item,
+  GetApiReceipts200ItemStatus,
+} from '../../../api/generated/model';
 
 const receiptFormSchema = z
   .object({
@@ -56,7 +59,7 @@ export function useReceiptForm(
 
   const formMethods = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
-    disabled: receipt.status === 'approved',
+    disabled: receipt.status === GetApiReceipts200ItemStatus.approved,
     values: {
       sourceAccount: receipt.sourceAccount ?? '',
       totalSum: receipt.totalSum,

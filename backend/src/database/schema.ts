@@ -1,15 +1,6 @@
 import { ColumnType, Generated } from 'kysely';
+import { ReceiptJobStatus, ReceiptStatus } from '../domain/types';
 
-export enum ReceiptStatus {
-  APPROVED = 'approved',
-  UNAPPROVED = 'unapproved',
-}
-
-export enum ReceiptJobStatus {
-  WAITING = 'waiting',
-  PROCESSED = 'processed',
-  FAILED = 'failed',
-}
 /**
  * Combined database schema for all tables
  */

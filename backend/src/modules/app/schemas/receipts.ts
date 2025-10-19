@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ReceiptStatus } from '../../../domain/types';
 
 export const receiptSchema = z
   .object({
@@ -11,7 +12,7 @@ export const receiptSchema = z
     date: z.string().describe('Date of the receipt (ISO 8601 format)'),
     totalSum: z.number().describe('Total amount of the receipt'),
     status: z
-      .string()
+      .enum(Object.values(ReceiptStatus))
       .describe(
         'Status of the receipt (pending, approved, rejected, or error)'
       ),

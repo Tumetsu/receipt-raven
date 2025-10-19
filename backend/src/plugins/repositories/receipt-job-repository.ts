@@ -1,6 +1,7 @@
 import { Kysely, Selectable } from 'kysely';
-import { Database, ReceiptJobStatus } from '../../database/schema';
+import { Database } from '../../database/schema';
 import { config } from '../../config';
+import { ReceiptJobStatus } from '../../domain/types';
 
 export type ReceiptJob = Selectable<Database['receipt_jobs']>;
 

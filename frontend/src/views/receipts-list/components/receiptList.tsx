@@ -4,7 +4,10 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { TableCard } from '../../../common/components/Layout.tsx';
-import { GetApiReceipts200Item } from '../../../api/generated/model';
+import {
+  GetApiReceipts200Item,
+  GetApiReceipts200ItemStatus,
+} from '../../../api/generated/model';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200Item[];
@@ -26,7 +29,7 @@ export function ReceiptList(props: {
       width: 80,
       renderCell: params => (
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          {params.value === 'approved' ? (
+          {params.value === GetApiReceipts200ItemStatus.approved ? (
             <CheckCircleIcon sx={{ color: '#10b981' }} />
           ) : (
             <RadioButtonUncheckedIcon sx={{ color: '#d1d5db' }} />

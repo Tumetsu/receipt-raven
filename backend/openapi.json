@@ -223,7 +223,11 @@
                       },
                       "status": {
                         "description": "Status of the receipt (pending, approved, rejected, or error)",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                          "approved",
+                          "unapproved"
+                        ]
                       },
                       "filename": {
                         "description": "Filename of the receipt image",
@@ -567,7 +571,12 @@
                       },
                       "status": {
                         "description": "Status of the job (pending, processing, completed, or failed)",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                          "waiting",
+                          "processed",
+                          "failed"
+                        ]
                       },
                       "analysisError": {
                         "description": "Error message if the analysis failed",

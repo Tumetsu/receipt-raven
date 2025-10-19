@@ -1,8 +1,9 @@
 import { ReceiptAnalysisResult } from '../../types/shared';
 import { InsertObject, Kysely, Selectable } from 'kysely';
-import { Database, ReceiptStatus } from '../../database/schema';
+import { Database } from '../../database/schema';
 import { ReceiptJob } from './receipt-job-repository';
 import { config } from '../../config';
+import { ReceiptStatus } from '../../domain/types';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;

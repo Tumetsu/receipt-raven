@@ -6,7 +6,10 @@ import {
   PanelRef,
 } from '../../../common/components/Panel.tsx';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
-import { GetApiJobs200Item } from '../../../api/generated/model';
+import {
+  GetApiJobs200Item,
+  GetApiJobs200ItemStatus,
+} from '../../../api/generated/model';
 
 interface JobPanelProps {
   job: GetApiJobs200Item;
@@ -21,16 +24,14 @@ function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
 
   const getStatusColor = (
     status: string
-  ): 'success' | 'error' | 'warning' | 'info' | 'default' => {
+  ): 'success' | 'error' | 'warning' | 'default' => {
     switch (status.toLowerCase()) {
-      case 'completed':
+      case GetApiJobs200ItemStatus.processed:
         return 'success';
-      case 'failed':
+      case GetApiJobs200ItemStatus.failed:
         return 'error';
-      case 'processing':
+      case GetApiJobs200ItemStatus.waiting:
         return 'warning';
-      case 'pending':
-        return 'info';
       default:
         return 'default';
     }

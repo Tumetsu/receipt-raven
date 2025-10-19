@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ReceiptJobStatus } from '../../../domain/types';
 
 export const jobSchema = z
   .object({
@@ -14,7 +15,7 @@ export const jobSchema = z
       .string()
       .describe('Timestamp when the job was created (ISO 8601 format)'),
     status: z
-      .string()
+      .enum(Object.values(ReceiptJobStatus))
       .describe(
         'Status of the job (pending, processing, completed, or failed)'
       ),

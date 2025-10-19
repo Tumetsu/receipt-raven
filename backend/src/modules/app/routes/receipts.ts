@@ -2,12 +2,12 @@ import orderBy from 'lodash/orderBy.js';
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { ReceiptStatus } from '../../../database/schema.js';
 import {
   receiptSchema,
   receiptItemSchema,
   receiptSubmissionSchema,
 } from '../schemas/receipts.js';
+import { ReceiptStatus } from '../../../domain/types';
 
 // Reusable schemas
 const receiptIdParamSchema = z
