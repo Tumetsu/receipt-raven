@@ -12,6 +12,13 @@ import {
   GetApiReceipts200ItemStatus,
 } from '../../../api/generated/model';
 
+const receiptItemSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().min(1),
+  price: z.coerce.number<number>(),
+  expenseAccount: z.string(),
+});
+
 const receiptFormSchema = z
   .object({
     sourceAccount: z.string(),
@@ -19,16 +26,7 @@ const receiptFormSchema = z
     description: z.string(),
     date: z.string(),
     payee: z.string(),
-    items: z
-      .array(
-        z.object({
-          id: z.number().optional(),
-          name: z.string().min(1),
-          price: z.coerce.number<number>(),
-          expenseAccount: z.string(),
-        })
-      )
-      .min(1),
+    items: z.array(receiptItemSchema).min(1),
   })
   .refine(
     data => {

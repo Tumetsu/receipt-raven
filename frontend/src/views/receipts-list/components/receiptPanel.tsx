@@ -182,7 +182,8 @@ function ReceiptPanelContent({
     isItemsSuccess,
   } = useReceiptForm(receipt, onApprove);
 
-  const { handleSubmit, control } = formMethods;
+  const { handleSubmit, control, formState } = formMethods;
+  const { isValid } = formState;
   const isApproved = receipt.status === GetApiReceipts200ItemStatus.approved;
 
   return (
@@ -229,7 +230,7 @@ function ReceiptPanelContent({
         <ReceiptActions
           isSavePending={isSavePending}
           isApproved={isApproved}
-          isInvalid={!formMethods.formState.isValid}
+          isInvalid={!isValid}
         />
       </PanelFooter>
     </form>

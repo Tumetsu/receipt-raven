@@ -60,11 +60,11 @@ export function ControlledComboBox<T extends FieldValues>({
       rules={{ required }}
       render={({ field, fieldState }) => (
         <ComboBox
+          disabled={field.disabled}
           {...comboBoxProps}
           value={field.value ?? null}
           onChange={field.onChange}
           required={required}
-          disabled={field.disabled}
           sx={{
             ...comboBoxProps.sx,
             '& .MuiInputBase-root': {
