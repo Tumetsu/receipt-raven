@@ -60,6 +60,9 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
   // CORS
   await fastify.register(cors, {
     origin: true, // Allow all origins in development
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   // Security headers
