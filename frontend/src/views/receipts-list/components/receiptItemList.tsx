@@ -12,6 +12,7 @@ import {
 } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 import { useExpenseAccounts } from '../hooks/useExpenseAccounts.ts';
+import { ReactElement } from 'react';
 
 const ProductCard = styled(Box)(({ theme }) => ({
   border: '1px solid #e5e7eb',
@@ -38,6 +39,29 @@ type ReceiptItemListProps<
   name: TFieldArrayName;
   disabled: boolean;
 };
+
+function getIconButton(icon: ReactElement) {
+  return function IconButtonComponent({
+    onClick,
+    disabled,
+  }: {
+    onClick?: () => void;
+    disabled?: boolean;
+  }) {
+    return (
+      <IconButton
+        sx={{ position: 'absolute', right: 4, top: 0 }}
+        onClick={onClick}
+        disabled={disabled}
+      >
+        {icon}
+      </IconButton>
+    );
+  };
+}
+
+const AddItemButton = getIconButton(<AddIcon />);
+const RemoveItemButton = getIconButton(<ClearIcon />);
 
 export function ReceiptItemList<
   TFieldValues extends FieldValues,
@@ -67,24 +91,14 @@ export function ReceiptItemList<
         <Typography variant="h6" sx={{ marginBottom: 2, fontWeight: 500 }}>
           Products
         </Typography>
-        <IconButton
-          sx={{ position: 'absolute', right: 4, top: 0 }}
-          onClick={onAddItem}
-          disabled={disabled}
-        >
-          <AddIcon />
-        </IconButton>
+        <AddItemButton onClick={onAddItem} disabled={disabled} />
       </Box>
       {fields.map((field, idx) => (
         <ProductCard key={field.id}>
-          <IconButton
-            sx={{ position: 'absolute', right: 4, top: 4 }}
+          <RemoveItemButton
             onClick={() => onRemoveItem(idx)}
             disabled={disabled}
-            size="small"
-          >
-            <ClearIcon fontSize="small" />
-          </IconButton>
+          />
           <Box sx={{ paddingRight: 4 }}>
             <ProductHeader>
               <ControlledTextField
