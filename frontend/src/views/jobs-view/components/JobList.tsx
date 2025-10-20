@@ -8,20 +8,24 @@ import { ReactElement } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TableCard } from '../../../common/components/Layout.tsx';
+import {
+  TableCard,
+  MobileCard,
+  MobileCardRow,
+} from '../../../common/components/Layout.tsx';
 import {
   GetApiJobs200Item,
   GetApiJobs200ItemStatus,
 } from '../../../api/generated/model';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 type JobStatus = GetApiJobs200ItemStatus;
 
 // TODO: Use colors from theme
 const jobStatusIcons: Record<JobStatus, ReactElement> = {
-  waiting: <IncompleteCircleIcon sx={{ color: '#f8a335' }} />,
-  processed: <CheckCircleIcon sx={{ color: '#10b981' }} />,
-  failed: <HighlightOffIcon sx={{ color: '#fc6868' }} />,
+  waiting: <IncompleteCircleIcon sx={{ color: '#f8a335', fontSize: 20 }} />,
+  processed: <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />,
+  failed: <HighlightOffIcon sx={{ color: '#fc6868', fontSize: 20 }} />,
 };
 
 type JobRow = {
@@ -35,6 +39,9 @@ export function JobList(props: {
   jobs: GetApiJobs200Item[];
   onRowClick: (id: number) => void;
 }): ReactElement {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const rows: JobRow[] = props.jobs.map(j => ({
     id: j.id,
     status: j.status as JobStatus,
@@ -63,24 +70,6 @@ export function JobList(props: {
       type: 'number',
       valueFormatter: value => `${Number(value)}`,
     },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 50,
-      sortable: false,
-      renderCell: () => (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <ChevronRightIcon sx={{ color: '#9ca3af' }} />
-        </div>
-      ),
-    },
   ];
 
   const paginationModel = { page: 0, pageSize: 50 };
@@ -90,6 +79,36 @@ export function JobList(props: {
     const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
     props.onRowClick(numericId);
   };
+
+  const handleCardClick = (id: number) => {
+    props.onRowClick(id);
+  };
+
+  if (isMobile) {
+    return (
+      <Box sx={{ p: 1 }}>
+        {rows.map(row => {
+          const icon = jobStatusIcons[row.status];
+
+          const mobileRow: MobileCardRow = {
+            icon,
+            primaryText: `Job #${row.id}`,
+            secondaryText: row.createdAt,
+            tertiaryText:
+              row.retryCount > 0 ? `${row.retryCount} retries` : undefined,
+          };
+
+          return (
+            <MobileCard
+              key={row.id}
+              row={mobileRow}
+              onClick={() => handleCardClick(row.id)}
+            />
+          );
+        })}
+      </Box>
+    );
+  }
 
   return (
     <TableCard>

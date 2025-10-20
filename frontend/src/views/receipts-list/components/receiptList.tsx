@@ -3,17 +3,25 @@ import { ReactElement } from 'react';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TableCard } from '../../../common/components/Layout.tsx';
+import {
+  TableCard,
+  MobileCard,
+  MobileCardRow,
+} from '../../../common/components/Layout.tsx';
 import {
   GetApiReceipts200Item,
   GetApiReceipts200ItemStatus,
 } from '../../../api/generated/model';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200Item[];
   selectedReceiptId?: number;
   onRowClick: (id: number) => void;
 }): ReactElement {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const rows = props.receipts.map(r => ({
     id: r.id,
     status: r.status,
@@ -74,6 +82,43 @@ export function ReceiptList(props: {
     const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
     props.onRowClick(numericId);
   };
+
+  const handleCardClick = (id: number) => {
+    props.onRowClick(id);
+  };
+
+  if (isMobile) {
+    return (
+      <Box sx={{ p: 1 }}>
+        {rows.map(row => {
+          const icon =
+            row.status === GetApiReceipts200ItemStatus.approved ? (
+              <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />
+            ) : (
+              <RadioButtonUncheckedIcon
+                sx={{ color: '#d1d5db', fontSize: 20 }}
+              />
+            );
+
+          const mobileRow: MobileCardRow = {
+            icon,
+            primaryText: row.date,
+            secondaryText: row.payee,
+            tertiaryText: `${Number(row.cost).toFixed(2)}€`,
+          };
+
+          return (
+            <MobileCard
+              key={row.id}
+              row={mobileRow}
+              onClick={() => handleCardClick(row.id)}
+              selected={row.id === props.selectedReceiptId}
+            />
+          );
+        })}
+      </Box>
+    );
+  }
 
   return (
     <TableCard>
