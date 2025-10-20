@@ -31,6 +31,68 @@ const ProductHeader = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
+type ProductItemProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldArrayName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>,
+> = {
+  field: FieldArrayWithId<TFieldValues, TFieldArrayName>;
+  index: number;
+  name: TFieldArrayName;
+  control: Control<TFieldValues>;
+  disabled: boolean;
+  onRemove: (index: number) => void;
+  expenseAccountOptions: string[];
+};
+
+function ProductItem<
+  TFieldValues extends FieldValues,
+  TFieldArrayName extends ArrayPath<TFieldValues>,
+>({
+  field,
+  index,
+  name,
+  control,
+  disabled,
+  onRemove,
+  expenseAccountOptions,
+}: ProductItemProps<TFieldValues, TFieldArrayName>) {
+  return (
+    <ProductCard key={field.id}>
+      <RemoveItemButton onClick={() => onRemove(index)} disabled={disabled} />
+      <Box sx={{ paddingRight: 4 }}>
+        <ProductHeader>
+          <ControlledTextField
+            name={`${name}.${index}.name` as unknown as Path<TFieldValues>}
+            label="Product"
+            control={control}
+            required
+            disabled={disabled}
+            sx={{ flex: 1 }}
+          />
+          <ControlledTextField
+            name={`${name}.${index}.price` as unknown as Path<TFieldValues>}
+            label="Price"
+            control={control}
+            required
+            disabled={disabled}
+            sx={{ width: '100px' }}
+          />
+        </ProductHeader>
+        <ControlledComboBox
+          name={
+            `${name}.${index}.expenseAccount` as unknown as Path<TFieldValues>
+          }
+          control={control}
+          options={expenseAccountOptions}
+          label="Expense account"
+          required
+          disabled={disabled}
+        />
+      </Box>
+    </ProductCard>
+  );
+}
+
 type ReceiptItemListProps<
   TFieldValues extends FieldValues = FieldValues,
   TFieldArrayName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>,
@@ -60,7 +122,6 @@ function getIconButton(icon: ReactElement) {
   };
 }
 
-const AddItemButton = getIconButton(<AddIcon />);
 const RemoveItemButton = getIconButton(<ClearIcon />);
 
 export function ReceiptItemList<
@@ -93,46 +154,19 @@ export function ReceiptItemList<
         </Typography>
         <AddItemButton onClick={onAddItem} disabled={disabled} />
       </Box>
-      {fields.map((field, idx) => (
-        <ProductCard key={field.id}>
-          <RemoveItemButton
-            onClick={() => onRemoveItem(idx)}
+      {expenseAccounts.isSuccess &&
+        fields.map((field, idx) => (
+          <ProductItem
+            key={field.id}
+            field={field}
+            index={idx}
+            name={name}
+            control={control}
             disabled={disabled}
+            onRemove={onRemoveItem}
+            expenseAccountOptions={expenseAccounts.data}
           />
-          <Box sx={{ paddingRight: 4 }}>
-            <ProductHeader>
-              <ControlledTextField
-                name={`${name}.${idx}.name` as unknown as Path<TFieldValues>}
-                label="Product"
-                control={control}
-                required
-                disabled={disabled}
-                sx={{ flex: 1 }}
-              />
-              <ControlledTextField
-                name={`${name}.${idx}.price` as unknown as Path<TFieldValues>}
-                label="Price"
-                control={control}
-                required
-                disabled={disabled}
-                sx={{ width: '100px' }}
-              />
-            </ProductHeader>
-            {expenseAccounts.isSuccess && (
-              <ControlledComboBox
-                name={
-                  `${name}.${idx}.expenseAccount` as unknown as Path<TFieldValues>
-                }
-                control={control}
-                options={expenseAccounts.data}
-                label="Expense account"
-                required
-                disabled={disabled}
-              />
-            )}
-          </Box>
-        </ProductCard>
-      ))}
+        ))}
     </>
   );
 }
