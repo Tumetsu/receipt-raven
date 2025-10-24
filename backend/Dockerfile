@@ -20,9 +20,15 @@ WORKDIR /app
 COPY backend ./backend
 COPY frontend ./frontend
 
-# Build frontend first
+# Build frontend first (or use pre-built if exists)
 WORKDIR /app/frontend
-RUN npm run build
+# Check if frontend/dist exists (pre-built locally), otherwise build it
+RUN if [ ! -d "dist" ]; then \
+      echo "Building frontend in Docker..." && \
+      NODE_OPTIONS="--max-old-space-size=4096" npm run build; \
+    else \
+      echo "Using pre-built frontend from local machine"; \
+    fi
 
 # Build backend and copy frontend assets
 WORKDIR /app/backend
