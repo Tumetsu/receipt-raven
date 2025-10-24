@@ -1,9 +1,13 @@
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, RefObject } from 'react';
 
 export function useImageCapture() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(
+    null
+  ) as RefObject<HTMLInputElement>;
+  const galleryInputRef = useRef<HTMLInputElement>(
+    null
+  ) as RefObject<HTMLInputElement>;
 
   const handleCameraClick = () => {
     cameraInputRef.current?.click();
