@@ -21,6 +21,14 @@ export interface ReceiptAnalysisResult {
 /**
  * Repository for receipt data access operations
  */
+export interface PaginatedReceipts {
+  receipts: (Receipt & Pick<ReceiptJob, 'filepath'>)[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface IReceiptRepository {
   saveReceipt(
     jobId: number,
@@ -34,7 +42,7 @@ export interface IReceiptRepository {
   ): Promise<void>;
 
   getReceiptById(receiptId: number): Promise<Receipt | undefined>;
-  getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]>;
+  getReceipts(page?: number, pageSize?: number): Promise<PaginatedReceipts>;
 
   getReceiptItems(receiptId: number): Promise<ReceiptItem[]>;
 
@@ -116,13 +124,38 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .executeTakeFirst();
   }
 
-  async getReceipts(): Promise<(Receipt & Pick<ReceiptJob, 'filepath'>)[]> {
-    return this.db
+  async getReceipts(
+    page: number = 1,
+    pageSize: number = 30
+  ): Promise<PaginatedReceipts> {
+    // Get total count
+    const countResult = await this.db
+      .selectFrom('receipts')
+      .select(({ fn }) => fn.countAll<number>().as('count'))
+      .executeTakeFirstOrThrow();
+
+    const total = Number(countResult.count);
+    const totalPages = Math.ceil(total / pageSize);
+    const offset = (page - 1) * pageSize;
+
+    // Get paginated receipts
+    const receipts = await this.db
       .selectFrom('receipts')
       .innerJoin('receipt_jobs as job', 'receipts.job_id', 'job.id')
       .selectAll('receipts')
       .select(['job.filepath'])
+      .orderBy('receipts.receipt_date', 'desc')
+      .limit(pageSize)
+      .offset(offset)
       .execute();
+
+    return {
+      receipts,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
   }
 
   async getReceiptItems(receiptId: number): Promise<ReceiptItem[]> {

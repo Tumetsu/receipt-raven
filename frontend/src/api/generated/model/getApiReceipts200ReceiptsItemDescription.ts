@@ -7,6 +7,6 @@
  */
 
 /**
- * Source account for the payment (optional)
+ * Description or summary of the receipt
  */
-export type GetApiReceipts200ItemSourceAccount = string | null;
+export type GetApiReceipts200ReceiptsItemDescription = string | null;

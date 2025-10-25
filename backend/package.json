@@ -18,8 +18,8 @@
     "migration:run": "kysely migrate latest",
     "openapi:export": "tsx src/scripts/export-openapi.ts",
     "copy_production": "npm run copy_production_db && npm run copy_production_uploads",
-    "copy_production_db": "scp root@services-vm.home.arpa:/mnt/storage/receipt-raven/data/receipts.db ./data/receipts.db",
-    "copy_production_uploads": "rm -rf ./uploads && scp -r root@services-vm.home.arpa:/mnt/storage/receipt-raven/uploads/ ./uploads/"
+    "copy_production_db": "scp root@10.0.10.41:/mnt/storage/receipt-raven/data/receipts.db ./data/receipts.db",
+    "copy_production_uploads": "rm -rf ./uploads && scp -r root@10.0.10.41:/mnt/storage/receipt-raven/uploads/ ./uploads/"
   },
   "keywords": [
     "fastify",

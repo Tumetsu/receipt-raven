@@ -9,14 +9,19 @@ import {
   MobileCardRow,
 } from '../../../common/components/Layout.tsx';
 import {
-  GetApiReceipts200Item,
-  GetApiReceipts200ItemStatus,
+  GetApiReceipts200ReceiptsItem,
+  GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 
 export function ReceiptList(props: {
-  receipts: GetApiReceipts200Item[];
+  receipts: GetApiReceipts200ReceiptsItem[];
   selectedReceiptId?: number;
+  totalReceipts: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
   onRowClick: (id: number) => void;
 }): ReactElement {
   const theme = useTheme();
@@ -37,7 +42,7 @@ export function ReceiptList(props: {
       width: 80,
       renderCell: params => (
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          {params.value === GetApiReceipts200ItemStatus.approved ? (
+          {params.value === GetApiReceipts200ReceiptsItemStatus.approved ? (
             <CheckCircleIcon sx={{ color: '#10b981' }} />
           ) : (
             <RadioButtonUncheckedIcon sx={{ color: '#d1d5db' }} />
@@ -75,8 +80,6 @@ export function ReceiptList(props: {
     },
   ];
 
-  const paginationModel = { page: 0, pageSize: 50 };
-
   const handleClick = (params: GridRowParams) => {
     const id = params.id;
     const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
@@ -87,12 +90,14 @@ export function ReceiptList(props: {
     props.onRowClick(id);
   };
 
+  const totalPages = Math.ceil(props.totalReceipts / props.pageSize);
+
   if (isMobile) {
     return (
       <Box sx={{ p: 1 }}>
         {rows.map(row => {
           const icon =
-            row.status === GetApiReceipts200ItemStatus.approved ? (
+            row.status === GetApiReceipts200ReceiptsItemStatus.approved ? (
               <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />
             ) : (
               <RadioButtonUncheckedIcon
@@ -116,6 +121,16 @@ export function ReceiptList(props: {
             />
           );
         })}
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Pagination
+              count={totalPages}
+              page={props.page}
+              onChange={(_event, page) => props.onPageChange(page)}
+              color="primary"
+            />
+          </Box>
+        )}
       </Box>
     );
   }
@@ -126,8 +141,21 @@ export function ReceiptList(props: {
         rows={rows}
         onRowClick={handleClick}
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[25, 50, 100]}
+        paginationMode="server"
+        rowCount={props.totalReceipts}
+        paginationModel={{
+          page: props.page - 1, // DataGrid uses 0-based indexing
+          pageSize: props.pageSize,
+        }}
+        onPaginationModelChange={model => {
+          if (model.pageSize !== props.pageSize) {
+            props.onPageSizeChange(model.pageSize);
+          }
+          if (model.page + 1 !== props.page) {
+            props.onPageChange(model.page + 1); // Convert to 1-based indexing
+          }
+        }}
+        pageSizeOptions={[25, 30, 50, 100]}
         getRowClassName={params =>
           params.id === props.selectedReceiptId ? 'selected-row' : ''
         }

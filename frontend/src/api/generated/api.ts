@@ -27,7 +27,8 @@ import type {
   GetApiLedgerAccountsParams,
   GetApiLedgerPayees200,
   GetApiLedgerPayees500,
-  GetApiReceipts200Item,
+  GetApiReceipts200,
+  GetApiReceiptsParams,
   GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
   PostApiReceiptsReceiptId200,
@@ -417,35 +418,42 @@ export function useGetApiLedgerPayees<
 }
 
 /**
- * Get receipts
+ * Get paginated receipts
  */
-export const getApiReceipts = (signal?: AbortSignal) => {
-  return apiClient<GetApiReceipts200Item[]>({
+export const getApiReceipts = (
+  params?: GetApiReceiptsParams,
+  signal?: AbortSignal
+) => {
+  return apiClient<GetApiReceipts200>({
     url: `/api/receipts`,
     method: 'GET',
+    params,
     signal,
   });
 };
 
-export const getGetApiReceiptsQueryKey = () => {
-  return [`/api/receipts`] as const;
+export const getGetApiReceiptsQueryKey = (params?: GetApiReceiptsParams) => {
+  return [`/api/receipts`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetApiReceiptsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
   TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
-  >;
-}) => {
+>(
+  params?: GetApiReceiptsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
+    >;
+  }
+) => {
   const { query: queryOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiReceiptsQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetApiReceiptsQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiReceipts>>> = ({
     signal,
-  }) => getApiReceipts(signal);
+  }) => getApiReceipts(params, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiReceipts>>,
@@ -463,6 +471,7 @@ export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
   TError = unknown,
 >(
+  params: undefined | GetApiReceiptsParams,
   options: {
     query: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
@@ -484,6 +493,7 @@ export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
   TError = unknown,
 >(
+  params?: GetApiReceiptsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
@@ -505,6 +515,7 @@ export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
   TError = unknown,
 >(
+  params?: GetApiReceiptsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
@@ -519,6 +530,7 @@ export function useGetApiReceipts<
   TData = Awaited<ReturnType<typeof getApiReceipts>>,
   TError = unknown,
 >(
+  params?: GetApiReceiptsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiReceipts>>, TError, TData>
@@ -528,7 +540,7 @@ export function useGetApiReceipts<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetApiReceiptsQueryOptions(options);
+  const queryOptions = getGetApiReceiptsQueryOptions(params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

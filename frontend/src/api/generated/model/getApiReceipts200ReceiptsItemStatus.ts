@@ -9,11 +9,11 @@
 /**
  * Status of the receipt (pending, approved, rejected, or error)
  */
-export type GetApiReceipts200ItemStatus =
-  (typeof GetApiReceipts200ItemStatus)[keyof typeof GetApiReceipts200ItemStatus];
+export type GetApiReceipts200ReceiptsItemStatus =
+  (typeof GetApiReceipts200ReceiptsItemStatus)[keyof typeof GetApiReceipts200ReceiptsItemStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GetApiReceipts200ItemStatus = {
+export const GetApiReceipts200ReceiptsItemStatus = {
   approved: 'approved',
   unapproved: 'unapproved',
 } as const;

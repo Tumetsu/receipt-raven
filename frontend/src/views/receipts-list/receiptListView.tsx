@@ -7,18 +7,24 @@ import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
 import { useAccounts } from './hooks/useGetAccounts.ts';
 import { useExpenseAccounts } from './hooks/useExpenseAccounts.ts';
-import { GetApiReceipts200Item } from '../../api/generated/model';
+import { GetApiReceipts200ReceiptsItem } from '../../api/generated/model';
 
 export function ReceiptListView(): ReactElement {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(30);
+
   const {
     isPending,
     isSuccess,
     data: result,
-  } = useGetApiReceipts({
-    query: { queryKey: ['receipts'] },
-  });
+  } = useGetApiReceipts(
+    { page, pageSize },
+    {
+      query: { queryKey: ['receipts', page, pageSize] },
+    }
+  );
   const [selectedReceipt, setSelectedReceipt] =
-    useState<GetApiReceipts200Item | null>(null);
+    useState<GetApiReceipts200ReceiptsItem | null>(null);
 
   // Preload expense accounts to cache for when opening the receipt panel
   useExpenseAccounts();
@@ -28,12 +34,17 @@ export function ReceiptListView(): ReactElement {
     <PageContainer>
       <ContentArea>
         {isPending && <Typography>Loading...</Typography>}
-        {isSuccess && (
+        {isSuccess && result && (
           <ReceiptList
-            receipts={result}
+            receipts={result.receipts}
             selectedReceiptId={selectedReceipt?.id}
+            totalReceipts={result.total}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
             onRowClick={id => {
-              const receipt = result.find(r => r.id === id) || null;
+              const receipt = result.receipts.find(r => r.id === id) || null;
               setSelectedReceipt(receipt);
             }}
           />

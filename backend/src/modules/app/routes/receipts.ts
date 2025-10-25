@@ -1,4 +1,3 @@
-import orderBy from 'lodash/orderBy.js';
 import { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -29,20 +28,53 @@ const successResponseSchema = z
   })
   .describe('Success response');
 
+const paginationQuerySchema = z
+  .object({
+    page: z.coerce
+      .number()
+      .min(1)
+      .optional()
+      .default(1)
+      .describe('Page number (starting from 1)'),
+    pageSize: z.coerce
+      .number()
+      .min(1)
+      .max(100)
+      .optional()
+      .default(30)
+      .describe('Number of items per page (max 100)'),
+  })
+  .describe('Pagination parameters');
+
+const paginatedReceiptsResponseSchema = z
+  .object({
+    receipts: z.array(receiptSchema).describe('Array of receipts'),
+    total: z.number().describe('Total number of receipts'),
+    page: z.number().describe('Current page number'),
+    pageSize: z.number().describe('Number of items per page'),
+    totalPages: z.number().describe('Total number of pages'),
+  })
+  .describe('Paginated receipts response');
+
 const receiptRoutes: FastifyPluginAsync = async fastify => {
   fastify.withTypeProvider<ZodTypeProvider>().get('/receipts', {
     schema: {
       tags: ['receipts'],
-      description: 'Get receipts',
+      description: 'Get paginated receipts',
+      querystring: paginationQuerySchema,
       response: {
-        200: z.array(receiptSchema),
+        200: paginatedReceiptsResponseSchema,
       },
     },
-    handler: async (_request, _reply) => {
-      const receipts = await fastify.receiptRepository.getReceipts();
+    handler: async (request, _reply) => {
+      const { page, pageSize } = request.query;
+      const result = await fastify.receiptRepository.getReceipts(
+        page,
+        pageSize
+      );
 
-      return orderBy(
-        receipts.map(r => {
+      return {
+        receipts: result.receipts.map(r => {
           return {
             id: r.id,
             description: r.description,
@@ -55,9 +87,11 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
             fileUrl: `uploads/${r.filepath}`,
           };
         }),
-        'date',
-        'desc'
-      );
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        totalPages: result.totalPages,
+      };
     },
   });
 

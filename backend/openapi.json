@@ -182,85 +182,141 @@
         "tags": [
           "receipts"
         ],
-        "description": "Get receipts",
+        "description": "Get paginated receipts",
+        "parameters": [
+          {
+            "schema": {
+              "default": 1,
+              "type": "number",
+              "minimum": 1
+            },
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "description": "Page number (starting from 1)"
+          },
+          {
+            "schema": {
+              "default": 30,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "description": "Number of items per page (max 100)"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Default Response",
+            "description": "Paginated receipts response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "description": "A receipt with all its details",
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "description": "Unique identifier for the receipt",
-                        "type": "number"
-                      },
-                      "payee": {
-                        "description": "Name of the shop or vendor",
-                        "type": "string"
-                      },
-                      "description": {
-                        "description": "Description or summary of the receipt",
-                        "anyOf": [
-                          {
+                  "description": "Paginated receipts response",
+                  "type": "object",
+                  "properties": {
+                    "receipts": {
+                      "description": "Array of receipts",
+                      "type": "array",
+                      "items": {
+                        "description": "A receipt with all its details",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "Unique identifier for the receipt",
+                            "type": "number"
+                          },
+                          "payee": {
+                            "description": "Name of the shop or vendor",
                             "type": "string"
                           },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sourceAccount": {
-                        "description": "Source account for the payment (optional)",
-                        "anyOf": [
-                          {
+                          "description": {
+                            "description": "Description or summary of the receipt",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "sourceAccount": {
+                            "description": "Source account for the payment (optional)",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "date": {
+                            "description": "Date of the receipt (ISO 8601 format)",
                             "type": "string"
                           },
-                          {
-                            "type": "null"
+                          "totalSum": {
+                            "description": "Total amount of the receipt",
+                            "type": "number"
+                          },
+                          "status": {
+                            "description": "Status of the receipt (pending, approved, rejected, or error)",
+                            "type": "string",
+                            "enum": [
+                              "approved",
+                              "unapproved"
+                            ]
+                          },
+                          "filename": {
+                            "description": "Filename of the receipt image",
+                            "type": "string"
+                          },
+                          "fileUrl": {
+                            "description": "URL to access the receipt image",
+                            "type": "string"
                           }
-                        ]
-                      },
-                      "date": {
-                        "description": "Date of the receipt (ISO 8601 format)",
-                        "type": "string"
-                      },
-                      "totalSum": {
-                        "description": "Total amount of the receipt",
-                        "type": "number"
-                      },
-                      "status": {
-                        "description": "Status of the receipt (pending, approved, rejected, or error)",
-                        "type": "string",
-                        "enum": [
-                          "approved",
-                          "unapproved"
-                        ]
-                      },
-                      "filename": {
-                        "description": "Filename of the receipt image",
-                        "type": "string"
-                      },
-                      "fileUrl": {
-                        "description": "URL to access the receipt image",
-                        "type": "string"
+                        },
+                        "required": [
+                          "id",
+                          "payee",
+                          "description",
+                          "date",
+                          "totalSum",
+                          "status",
+                          "filename",
+                          "fileUrl"
+                        ],
+                        "additionalProperties": false
                       }
                     },
-                    "required": [
-                      "id",
-                      "payee",
-                      "description",
-                      "date",
-                      "totalSum",
-                      "status",
-                      "filename",
-                      "fileUrl"
-                    ],
-                    "additionalProperties": false
-                  }
+                    "total": {
+                      "description": "Total number of receipts",
+                      "type": "number"
+                    },
+                    "page": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "pageSize": {
+                      "description": "Number of items per page",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "receipts",
+                    "total",
+                    "page",
+                    "pageSize",
+                    "totalPages"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }

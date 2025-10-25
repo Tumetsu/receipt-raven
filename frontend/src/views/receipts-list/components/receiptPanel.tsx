@@ -25,8 +25,8 @@ import { useDeleteApiReceiptsReceiptId } from '../../../api/generated/api.ts';
 import { useQueryClient } from '@tanstack/react-query';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
 import {
-  GetApiReceipts200Item,
-  GetApiReceipts200ItemStatus,
+  GetApiReceipts200ReceiptsItem,
+  GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
 
 const PanelFooter = styled(Box)(({ theme }) => ({
@@ -165,7 +165,7 @@ function ReceiptActions({
 }
 
 interface ReceiptPanelProps {
-  receipt: GetApiReceipts200Item;
+  receipt: GetApiReceipts200ReceiptsItem;
   onApprove: () => void;
   onClosePanel: () => void;
 }
@@ -184,7 +184,8 @@ function ReceiptPanelContent({
 
   const { handleSubmit, control, formState } = formMethods;
   const { isValid } = formState;
-  const isApproved = receipt.status === GetApiReceipts200ItemStatus.approved;
+  const isApproved =
+    receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
 
   return (
     <form
@@ -275,7 +276,8 @@ export function ReceiptPanel(props: ReceiptPanelProps) {
         title="Receipt Details"
         onClose={props.onClosePanel}
         renderHeaderActions={
-          props.receipt.status !== GetApiReceipts200ItemStatus.approved && (
+          props.receipt.status !==
+            GetApiReceipts200ReceiptsItemStatus.approved && (
             <IconButton onClick={handleDeleteClick} size="small">
               <DeleteIcon />
             </IconButton>

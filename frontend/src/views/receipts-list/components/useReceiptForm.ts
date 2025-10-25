@@ -8,8 +8,8 @@ import {
   usePostApiReceiptsReceiptId,
 } from '../../../api/generated/api.ts';
 import {
-  GetApiReceipts200Item,
-  GetApiReceipts200ItemStatus,
+  GetApiReceipts200ReceiptsItem,
+  GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
 
 const receiptItemSchema = z.object({
@@ -42,7 +42,7 @@ const receiptFormSchema = z
 export type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
 export function useReceiptForm(
-  receipt: GetApiReceipts200Item,
+  receipt: GetApiReceipts200ReceiptsItem,
   onApprove: () => void
 ) {
   const { enqueueSnackbar } = useSnackbar();
@@ -58,7 +58,7 @@ export function useReceiptForm(
 
   const formMethods = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
-    disabled: receipt.status === GetApiReceipts200ItemStatus.approved,
+    disabled: receipt.status === GetApiReceipts200ReceiptsItemStatus.approved,
     values: {
       sourceAccount: receipt.sourceAccount ?? '',
       description: receipt.description ?? '',
