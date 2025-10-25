@@ -20,8 +20,9 @@ export interface IReceiptJobQueueRepository {
   /**
    * Saves uploaded receipt to the database to wait for processing.
    * @param filepath
+   * @param mimeType
    */
-  saveReceiptToBeProcessed(filepath: string): Promise<void>;
+  saveReceiptToBeProcessed(filepath: string, mimeType: string): Promise<void>;
 
   getUnprocessedJob(): Promise<ReceiptJob | undefined>;
 
@@ -40,10 +41,13 @@ export class SQLiteReceiptJoqbQueueRepository
 {
   constructor(private readonly db: Kysely<Database>) {}
 
-  async saveReceiptToBeProcessed(filepath: string): Promise<void> {
+  async saveReceiptToBeProcessed(
+    filepath: string,
+    mimeType: string
+  ): Promise<void> {
     await this.db
       .insertInto('receipt_jobs')
-      .values({ filepath })
+      .values({ filepath, mime_type: mimeType })
       .returningAll()
       .executeTakeFirstOrThrow();
   }

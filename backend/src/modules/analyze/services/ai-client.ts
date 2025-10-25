@@ -13,7 +13,11 @@ export interface OpenAIResponse {
 }
 
 export interface AiClient {
-  submitImage(imageBuffer: Buffer, prompt: string): Promise<OpenAIResponse>;
+  submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
+  ): Promise<OpenAIResponse>;
 }
 
 /**
@@ -28,14 +32,15 @@ export class OpenAIClient implements AiClient {
     });
   }
 
-  async submitImage(
-    imageBuffer: Buffer,
-    prompt: string
+  async submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
   ): Promise<OpenAIResponse> {
     try {
       // Convert buffer to base64
-      const base64Image = imageBuffer.toString('base64');
-      const dataUrl = `data:image/jpeg;base64,${base64Image}`;
+      const base64Document = documentBuffer.toString('base64');
+      const dataUrl = `data:${mimeType};base64,${base64Document}`;
 
       const response = await this.client.chat.completions.create({
         model: config.openai.model,
@@ -94,13 +99,40 @@ export class ClaudeClient implements AiClient {
     });
   }
 
-  async submitImage(
-    imageBuffer: Buffer,
-    prompt: string
+  async submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
   ): Promise<OpenAIResponse> {
     try {
       // Convert buffer to base64
-      const base64Image = imageBuffer.toString('base64');
+      const base64Document = documentBuffer.toString('base64');
+
+      // Determine if it's a PDF or image
+      const isPdf = mimeType === 'application/pdf';
+
+      // Build content block based on type
+      const documentBlock = isPdf
+        ? {
+            type: 'document' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: 'application/pdf' as const,
+              data: base64Document,
+            },
+          }
+        : {
+            type: 'image' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: mimeType as
+                | 'image/jpeg'
+                | 'image/png'
+                | 'image/gif'
+                | 'image/webp',
+              data: base64Document,
+            },
+          };
 
       const response = await this.client.messages.create({
         model: config.anthropic.model,
@@ -109,14 +141,7 @@ export class ClaudeClient implements AiClient {
           {
             role: 'user',
             content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: 'image/jpeg',
-                  data: base64Image,
-                },
-              },
+              documentBlock,
               {
                 type: 'text',
                 text: prompt + '\n\nRespond with valid JSON only.',
@@ -157,9 +182,10 @@ export class ClaudeClient implements AiClient {
  * Mock implementation of the API client for development
  */
 export class MockAIClient implements AiClient {
-  async submitImage(
-    _imageBuffer: Buffer,
-    _prompt: string
+  async submitDocument(
+    _documentBuffer: Buffer,
+    _prompt: string,
+    _mimeType: string
   ): Promise<OpenAIResponse> {
     console.log('Using mock AI client');
     await new Promise(resolve => setTimeout(resolve, 3000));

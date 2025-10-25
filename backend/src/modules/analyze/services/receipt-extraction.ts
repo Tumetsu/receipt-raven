@@ -74,22 +74,26 @@ RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
 }
 
 /**
- * Analyze a receipt image using AI provider
- * @param imageBuffer Buffer containing the receipt image
+ * Analyze a receipt image or PDF using AI provider
+ * @param documentBuffer Buffer containing the receipt image or PDF
+ * @param ledgerService Ledger service for fetching expense accounts
+ * @param mimeType MIME type of the document
  * @returns Validated receipt analysis result
  */
 export const analyzeReceipt = async (
-  imageBuffer: Buffer,
-  ledgerService: ILedgerService
+  documentBuffer: Buffer,
+  ledgerService: ILedgerService,
+  mimeType: string
 ): Promise<ReceiptAnalysisResponse> => {
   try {
     // Fetch expense accounts for AI prompt
     const expenseAccounts = await ledgerService.getAccounts('Expenses');
     const accountsForPrompt = expenseAccounts.map(a => a.name).join(',');
 
-    const aiResponse = await aiClient.submitImage(
-      imageBuffer,
-      getPrompt(accountsForPrompt)
+    const aiResponse = await aiClient.submitDocument(
+      documentBuffer,
+      getPrompt(accountsForPrompt),
+      mimeType
     );
 
     const jsonResult = JSON.parse(aiResponse.content);

@@ -6,10 +6,12 @@ import {
   Chip,
   Typography,
   Button,
+  Link,
 } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 const StyledUploadArea = styled(Box, {
   shouldForwardProp: prop => prop !== 'hasImage',
@@ -73,9 +75,21 @@ const SuccessBadge = styled(Chip)({
   },
 });
 
+const PdfPreview = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: theme.spacing(4),
+  backgroundColor: '#f8fafc',
+  borderRadius: theme.shape.borderRadius,
+  minHeight: '400px',
+}));
+
 // Meant to be used with useImageCapture hook
 function UploadImageArea(props: {
   capturedImage: string | null;
+  fileType: string | null;
   cameraInputRef: RefObject<HTMLInputElement>;
   galleryInputRef: RefObject<HTMLInputElement>;
   handleCameraClick: () => void;
@@ -85,6 +99,7 @@ function UploadImageArea(props: {
 }): ReactElement {
   const {
     capturedImage,
+    fileType,
     cameraInputRef,
     galleryInputRef,
     handleFileChange,
@@ -93,11 +108,14 @@ function UploadImageArea(props: {
     showSuccess = false,
   } = props;
 
+  // Check if the captured file is a PDF based on MIME type
+  const isPdf = fileType === 'application/pdf';
+
   return (
     <StyledUploadArea hasImage={!!capturedImage}>
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         capture="environment"
         ref={cameraInputRef}
         onChange={handleFileChange}
@@ -105,7 +123,7 @@ function UploadImageArea(props: {
       />
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         ref={galleryInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
@@ -113,12 +131,65 @@ function UploadImageArea(props: {
 
       {capturedImage ? (
         <Box sx={{ position: 'relative', width: '100%' }}>
-          <StyledImg src={capturedImage} alt="Receipt preview" />
-          {showSuccess && (
-            <SuccessBadge
-              icon={<CheckCircleIcon sx={{ color: 'white !important' }} />}
-              label="Photo captured"
-            />
+          {isPdf ? (
+            <PdfPreview>
+              <PictureAsPdfIcon
+                sx={{
+                  fontSize: '80px',
+                  color: '#e53e3e',
+                  mb: 2,
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  mb: 1,
+                  color: '#2d3748',
+                }}
+              >
+                PDF Receipt
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#718096',
+                  mb: 2,
+                }}
+              >
+                PDF file selected for analysis
+              </Typography>
+              <Link
+                href={capturedImage}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  color: '#3182ce',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                View PDF
+              </Link>
+              {showSuccess && (
+                <SuccessBadge
+                  icon={<CheckCircleIcon sx={{ color: 'white !important' }} />}
+                  label="PDF selected"
+                />
+              )}
+            </PdfPreview>
+          ) : (
+            <>
+              <StyledImg src={capturedImage} alt="Receipt preview" />
+              {showSuccess && (
+                <SuccessBadge
+                  icon={<CheckCircleIcon sx={{ color: 'white !important' }} />}
+                  label="Photo captured"
+                />
+              )}
+            </>
           )}
         </Box>
       ) : (
@@ -135,7 +206,7 @@ function UploadImageArea(props: {
               color: '#2d3748',
             }}
           >
-            Take a photo
+            Take a photo or upload PDF
           </Typography>
           <Typography sx={{ fontSize: '12px', color: '#718096', mb: 2 }}>
             Ensure receipt is flat and well-lit

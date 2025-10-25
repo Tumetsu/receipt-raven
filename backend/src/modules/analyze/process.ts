@@ -25,15 +25,16 @@ export const processReceiptJobFromQueue = async (
 
   try {
     // Read the saved file as a buffer
-    const imageBuffer = await readFile(
+    const documentBuffer = await readFile(
       path.join(config.storage.uploadsDir, job.filepath)
     );
 
     fastify.log.info(`Sending ${job.id} to AI`);
-    // Analyze the receipt using OpenAI
+    // Analyze the receipt using AI
     const analysisResult = await analyzeReceipt(
-      imageBuffer,
-      fastify.ledgerService
+      documentBuffer,
+      fastify.ledgerService,
+      job.mime_type
     );
 
     fastify.log.info(`Saving ${job.id} to receipt database`);

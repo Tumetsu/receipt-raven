@@ -11,8 +11,13 @@ import UploadIcon from '@mui/icons-material/Upload';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 export function UploadView(): ReactElement {
-  const { capturedImage, clearImage, setCapturedImage, ...imageCapture } =
-    useImageCapture();
+  const {
+    capturedImage,
+    fileType,
+    clearImage,
+    setCapturedImage,
+    ...imageCapture
+  } = useImageCapture();
   const sharedImage = useSharedImage();
   const { enqueueSnackbar } = useSnackbar();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -20,12 +25,16 @@ export function UploadView(): ReactElement {
   // Use manual tanstack-query mutation instead of Orval generated since seems like
   // multipart + Axios + generated hooks cause problems.
   const submitImageMutation = useMutation({
-    mutationFn: async (receiptImage: string) => {
-      const response = await fetch(receiptImage);
+    mutationFn: async (receiptData: string) => {
+      const response = await fetch(receiptData);
       const blob = await response.blob();
 
+      // Determine filename based on blob type
+      const isPdf = blob.type === 'application/pdf';
+      const filename = isPdf ? 'receipt.pdf' : 'camera_capture.jpg';
+
       const formData = new FormData();
-      formData.append('image', blob, 'camera_capture.jpg');
+      formData.append('image', blob, filename);
 
       return fetch(`${config.api.baseUrl}/api/upload`, {
         method: 'POST',
@@ -33,7 +42,7 @@ export function UploadView(): ReactElement {
       });
     },
     onSuccess: () => {
-      enqueueSnackbar('Photo uploaded successfully', { variant: 'success' });
+      enqueueSnackbar('Receipt uploaded successfully', { variant: 'success' });
       clearImage();
     },
     onError: error => {
@@ -95,6 +104,7 @@ export function UploadView(): ReactElement {
         {/* Upload Area */}
         <UploadImageArea
           capturedImage={capturedImage}
+          fileType={fileType}
           {...imageCapture}
           handleFileChange={handleImageCapture}
           showSuccess={showSuccess}

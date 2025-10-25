@@ -39,6 +39,7 @@ export interface ReceiptJobsTable {
   retry_count: ColumnType<number, undefined, number>;
   analysis_error: string | null;
   filepath: string;
+  mime_type: ColumnType<string, string | undefined, string>;
   created_at: ColumnType<string, string | undefined, never>;
   updated_at: ColumnType<string, string | undefined, string>;
   processed_at: ColumnType<string | undefined, string | undefined, string>;
