@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -36,7 +36,7 @@ RUN npm run build
 RUN mkdir -p dist/public && cp -r ../frontend/dist/* ./dist/public/
 
 # Production stage
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
