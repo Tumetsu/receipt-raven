@@ -6,8 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export * from './getApiJobs200Item';
-export * from './getApiJobs200ItemStatus';
+export * from './getApiJobs200';
+export * from './getApiJobs200JobsItem';
+export * from './getApiJobs200JobsItemStatus';
+export * from './getApiJobsParams';
 export * from './getApiLedgerAccounts500';
 export * from './getApiLedgerAccountsParams';
 export * from './getApiLedgerPayees200';

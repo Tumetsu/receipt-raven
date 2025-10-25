@@ -5,17 +5,23 @@ import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
 import { JobList } from './components/JobList.tsx';
 import { JobPanel } from './components/JobsPanel.tsx';
-import { GetApiJobs200Item } from '../../api/generated/model';
+import { GetApiJobs200JobsItem } from '../../api/generated/model';
 
 export function JobsListView(): ReactElement {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(30);
+
   const {
     isPending,
     isSuccess,
     data: result,
-  } = useGetApiJobs({
-    query: { queryKey: ['jobs'] },
-  });
-  const [selectedJob, setSelectedJob] = useState<GetApiJobs200Item | null>(
+  } = useGetApiJobs(
+    { page, pageSize },
+    {
+      query: { queryKey: ['jobs', page, pageSize] },
+    }
+  );
+  const [selectedJob, setSelectedJob] = useState<GetApiJobs200JobsItem | null>(
     null
   );
 
@@ -23,12 +29,17 @@ export function JobsListView(): ReactElement {
     <PageContainer>
       <ContentArea>
         {isPending && <Typography>Loading...</Typography>}
-        {isSuccess && (
+        {isSuccess && result && (
           <JobList
-            jobs={result}
+            jobs={result.jobs}
+            totalJobs={result.total}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
             onRowClick={id => {
-              const receipt = result.find(r => r.id === id) || null;
-              setSelectedJob(receipt);
+              const job = result.jobs.find(r => r.id === id) || null;
+              setSelectedJob(job);
             }}
           />
         )}

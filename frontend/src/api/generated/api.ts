@@ -22,7 +22,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetApiJobs200Item,
+  GetApiJobs200,
+  GetApiJobsParams,
   GetApiLedgerAccounts500,
   GetApiLedgerAccountsParams,
   GetApiLedgerPayees200,
@@ -887,35 +888,39 @@ export function useGetApiReceiptsReceiptIdItems<
 }
 
 /**
- * Get jobs
+ * Get paginated jobs
  */
-export const getApiJobs = (signal?: AbortSignal) => {
-  return apiClient<GetApiJobs200Item[]>({
+export const getApiJobs = (params?: GetApiJobsParams, signal?: AbortSignal) => {
+  return apiClient<GetApiJobs200>({
     url: `/api/jobs`,
     method: 'GET',
+    params,
     signal,
   });
 };
 
-export const getGetApiJobsQueryKey = () => {
-  return [`/api/jobs`] as const;
+export const getGetApiJobsQueryKey = (params?: GetApiJobsParams) => {
+  return [`/api/jobs`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetApiJobsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiJobs>>,
   TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
-  >;
-}) => {
+>(
+  params?: GetApiJobsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
+    >;
+  }
+) => {
   const { query: queryOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiJobsQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetApiJobsQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiJobs>>> = ({
     signal,
-  }) => getApiJobs(signal);
+  }) => getApiJobs(params, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiJobs>>,
@@ -933,6 +938,7 @@ export function useGetApiJobs<
   TData = Awaited<ReturnType<typeof getApiJobs>>,
   TError = unknown,
 >(
+  params: undefined | GetApiJobsParams,
   options: {
     query: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
@@ -954,6 +960,7 @@ export function useGetApiJobs<
   TData = Awaited<ReturnType<typeof getApiJobs>>,
   TError = unknown,
 >(
+  params?: GetApiJobsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
@@ -975,6 +982,7 @@ export function useGetApiJobs<
   TData = Awaited<ReturnType<typeof getApiJobs>>,
   TError = unknown,
 >(
+  params?: GetApiJobsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
@@ -989,6 +997,7 @@ export function useGetApiJobs<
   TData = Awaited<ReturnType<typeof getApiJobs>>,
   TError = unknown,
 >(
+  params?: GetApiJobsParams,
   options?: {
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof getApiJobs>>, TError, TData>
@@ -998,7 +1007,7 @@ export function useGetApiJobs<
 ): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetApiJobsQueryOptions(options);
+  const queryOptions = getGetApiJobsQueryOptions(params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<
     TData,

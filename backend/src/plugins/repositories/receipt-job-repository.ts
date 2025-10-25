@@ -5,6 +5,14 @@ import { ReceiptJobStatus } from '../../domain/types';
 
 export type ReceiptJob = Selectable<Database['receipt_jobs']>;
 
+export interface PaginatedJobs {
+  jobs: ReceiptJob[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 /**
  * Repository for receipt job queue operations
  */
@@ -17,7 +25,7 @@ export interface IReceiptJobQueueRepository {
 
   getUnprocessedJob(): Promise<ReceiptJob | undefined>;
 
-  getJobs(): Promise<ReceiptJob[]>;
+  getJobs(page?: number, pageSize?: number): Promise<PaginatedJobs>;
 
   markJobProcessed(jobId: number): Promise<void>;
 
@@ -50,8 +58,36 @@ export class SQLiteReceiptJoqbQueueRepository
       .executeTakeFirst();
   }
 
-  async getJobs(): Promise<ReceiptJob[]> {
-    return this.db.selectFrom('receipt_jobs').selectAll().execute();
+  async getJobs(
+    page: number = 1,
+    pageSize: number = 30
+  ): Promise<PaginatedJobs> {
+    // Get total count
+    const countResult = await this.db
+      .selectFrom('receipt_jobs')
+      .select(({ fn }) => fn.countAll<number>().as('count'))
+      .executeTakeFirstOrThrow();
+
+    const total = Number(countResult.count);
+    const totalPages = Math.ceil(total / pageSize);
+    const offset = (page - 1) * pageSize;
+
+    // Get paginated jobs
+    const jobs = await this.db
+      .selectFrom('receipt_jobs')
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(pageSize)
+      .offset(offset)
+      .execute();
+
+    return {
+      jobs,
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
   }
 
   async increaseJobRetryCount(jobId: number, error?: string): Promise<void> {

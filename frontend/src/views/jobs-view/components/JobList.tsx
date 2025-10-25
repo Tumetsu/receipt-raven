@@ -14,12 +14,12 @@ import {
   MobileCardRow,
 } from '../../../common/components/Layout.tsx';
 import {
-  GetApiJobs200Item,
-  GetApiJobs200ItemStatus,
+  GetApiJobs200JobsItem,
+  GetApiJobs200JobsItemStatus,
 } from '../../../api/generated/model';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 
-type JobStatus = GetApiJobs200ItemStatus;
+type JobStatus = GetApiJobs200JobsItemStatus;
 
 // TODO: Use colors from theme
 const jobStatusIcons: Record<JobStatus, ReactElement> = {
@@ -36,7 +36,12 @@ type JobRow = {
 };
 
 export function JobList(props: {
-  jobs: GetApiJobs200Item[];
+  jobs: GetApiJobs200JobsItem[];
+  totalJobs: number;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
   onRowClick: (id: number) => void;
 }): ReactElement {
   const theme = useTheme();
@@ -72,8 +77,6 @@ export function JobList(props: {
     },
   ];
 
-  const paginationModel = { page: 0, pageSize: 50 };
-
   const handleClick = (params: GridRowParams) => {
     const id = params.id;
     const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
@@ -83,6 +86,8 @@ export function JobList(props: {
   const handleCardClick = (id: number) => {
     props.onRowClick(id);
   };
+
+  const totalPages = Math.ceil(props.totalJobs / props.pageSize);
 
   if (isMobile) {
     return (
@@ -106,6 +111,16 @@ export function JobList(props: {
             />
           );
         })}
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Pagination
+              count={totalPages}
+              page={props.page}
+              onChange={(_event, page) => props.onPageChange(page)}
+              color="primary"
+            />
+          </Box>
+        )}
       </Box>
     );
   }
@@ -116,8 +131,21 @@ export function JobList(props: {
         rows={rows}
         onRowClick={handleClick}
         columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[25, 50, 100]}
+        paginationMode="server"
+        rowCount={props.totalJobs}
+        paginationModel={{
+          page: props.page - 1, // DataGrid uses 0-based indexing
+          pageSize: props.pageSize,
+        }}
+        onPaginationModelChange={model => {
+          if (model.pageSize !== props.pageSize) {
+            props.onPageSizeChange(model.pageSize);
+          }
+          if (model.page + 1 !== props.page) {
+            props.onPageChange(model.page + 1); // Convert to 1-based indexing
+          }
+        }}
+        pageSizeOptions={[25, 30, 50, 100]}
         sx={{
           border: 0,
           '& .MuiDataGrid-columnHeaders': {

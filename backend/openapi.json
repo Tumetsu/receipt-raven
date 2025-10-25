@@ -613,66 +613,122 @@
         "tags": [
           "jobs"
         ],
-        "description": "Get jobs",
+        "description": "Get paginated jobs",
+        "parameters": [
+          {
+            "schema": {
+              "default": 1,
+              "type": "number",
+              "minimum": 1
+            },
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "description": "Page number (starting from 1)"
+          },
+          {
+            "schema": {
+              "default": 30,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "description": "Number of items per page (max 100)"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Default Response",
+            "description": "Paginated jobs response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "description": "A job representing an uploaded receipt to be processed",
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "description": "Unique identifier for the job",
-                        "type": "number"
-                      },
-                      "filename": {
-                        "description": "Filename of the uploaded receipt image",
-                        "type": "string"
-                      },
-                      "fileUrl": {
-                        "description": "URL to access the receipt image",
-                        "type": "string"
-                      },
-                      "retryCount": {
-                        "description": "Number of times the job has been retried",
-                        "type": "number"
-                      },
-                      "processedAt": {
-                        "description": "Timestamp when the job was processed (ISO 8601 format)",
-                        "type": "string"
-                      },
-                      "createdAt": {
-                        "description": "Timestamp when the job was created (ISO 8601 format)",
-                        "type": "string"
-                      },
-                      "status": {
-                        "description": "Status of the job (pending, processing, completed, or failed)",
-                        "type": "string",
-                        "enum": [
-                          "waiting",
-                          "processed",
-                          "failed"
-                        ]
-                      },
-                      "analysisError": {
-                        "description": "Error message if the analysis failed",
-                        "type": "string"
+                  "description": "Paginated jobs response",
+                  "type": "object",
+                  "properties": {
+                    "jobs": {
+                      "description": "Array of jobs",
+                      "type": "array",
+                      "items": {
+                        "description": "A job representing an uploaded receipt to be processed",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "Unique identifier for the job",
+                            "type": "number"
+                          },
+                          "filename": {
+                            "description": "Filename of the uploaded receipt image",
+                            "type": "string"
+                          },
+                          "fileUrl": {
+                            "description": "URL to access the receipt image",
+                            "type": "string"
+                          },
+                          "retryCount": {
+                            "description": "Number of times the job has been retried",
+                            "type": "number"
+                          },
+                          "processedAt": {
+                            "description": "Timestamp when the job was processed (ISO 8601 format)",
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "description": "Timestamp when the job was created (ISO 8601 format)",
+                            "type": "string"
+                          },
+                          "status": {
+                            "description": "Status of the job (pending, processing, completed, or failed)",
+                            "type": "string",
+                            "enum": [
+                              "waiting",
+                              "processed",
+                              "failed"
+                            ]
+                          },
+                          "analysisError": {
+                            "description": "Error message if the analysis failed",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "filename",
+                          "fileUrl",
+                          "retryCount",
+                          "createdAt",
+                          "status"
+                        ],
+                        "additionalProperties": false
                       }
                     },
-                    "required": [
-                      "id",
-                      "filename",
-                      "fileUrl",
-                      "retryCount",
-                      "createdAt",
-                      "status"
-                    ],
-                    "additionalProperties": false
-                  }
+                    "total": {
+                      "description": "Total number of jobs",
+                      "type": "number"
+                    },
+                    "page": {
+                      "description": "Current page number",
+                      "type": "number"
+                    },
+                    "pageSize": {
+                      "description": "Number of items per page",
+                      "type": "number"
+                    },
+                    "totalPages": {
+                      "description": "Total number of pages",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "jobs",
+                    "total",
+                    "page",
+                    "pageSize",
+                    "totalPages"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }

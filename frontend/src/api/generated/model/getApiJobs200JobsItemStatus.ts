@@ -9,11 +9,11 @@
 /**
  * Status of the job (pending, processing, completed, or failed)
  */
-export type GetApiJobs200ItemStatus =
-  (typeof GetApiJobs200ItemStatus)[keyof typeof GetApiJobs200ItemStatus];
+export type GetApiJobs200JobsItemStatus =
+  (typeof GetApiJobs200JobsItemStatus)[keyof typeof GetApiJobs200JobsItemStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const GetApiJobs200ItemStatus = {
+export const GetApiJobs200JobsItemStatus = {
   waiting: 'waiting',
   processed: 'processed',
   failed: 'failed',

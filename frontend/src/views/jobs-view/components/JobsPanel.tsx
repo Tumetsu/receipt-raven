@@ -7,12 +7,12 @@ import {
 } from '../../../common/components/Panel.tsx';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
 import {
-  GetApiJobs200Item,
-  GetApiJobs200ItemStatus,
+  GetApiJobs200JobsItem,
+  GetApiJobs200JobsItemStatus,
 } from '../../../api/generated/model';
 
 interface JobPanelProps {
-  job: GetApiJobs200Item;
+  job: GetApiJobs200JobsItem;
   onClosePanel: () => void;
 }
 
@@ -26,11 +26,11 @@ function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
     status: string
   ): 'success' | 'error' | 'warning' | 'default' => {
     switch (status.toLowerCase()) {
-      case GetApiJobs200ItemStatus.processed:
+      case GetApiJobs200JobsItemStatus.processed:
         return 'success';
-      case GetApiJobs200ItemStatus.failed:
+      case GetApiJobs200JobsItemStatus.failed:
         return 'error';
-      case GetApiJobs200ItemStatus.waiting:
+      case GetApiJobs200JobsItemStatus.waiting:
         return 'warning';
       default:
         return 'default';

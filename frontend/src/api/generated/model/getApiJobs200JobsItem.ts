@@ -5,12 +5,12 @@
  * API for processing and managing receipts
  * OpenAPI spec version: 1.0.0
  */
-import type { GetApiJobs200ItemStatus } from './getApiJobs200ItemStatus';
+import type { GetApiJobs200JobsItemStatus } from './getApiJobs200JobsItemStatus';
 
 /**
  * A job representing an uploaded receipt to be processed
  */
-export type GetApiJobs200Item = {
+export type GetApiJobs200JobsItem = {
   /** Unique identifier for the job */
   id: number;
   /** Filename of the uploaded receipt image */
@@ -24,7 +24,7 @@ export type GetApiJobs200Item = {
   /** Timestamp when the job was created (ISO 8601 format) */
   createdAt: string;
   /** Status of the job (pending, processing, completed, or failed) */
-  status: GetApiJobs200ItemStatus;
+  status: GetApiJobs200JobsItemStatus;
   /** Error message if the analysis failed */
   analysisError?: string;
 };
