@@ -85,7 +85,15 @@ export default function TopBar() {
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
               >
-                <Box sx={{ width: 250 }} role="presentation">
+                <Box
+                  sx={{
+                    width: 250,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                  role="presentation"
+                >
                   <List>
                     {allNavItems.map(item => (
                       <ListItem key={item.label} disablePadding>
@@ -101,6 +109,25 @@ export default function TopBar() {
                       </ListItem>
                     ))}
                   </List>
+                  <Box
+                    sx={{
+                      marginTop: 'auto',
+                      padding: 2,
+                      borderTop: '1px solid #e0e0e0',
+                      backgroundColor: '#f5f5f5',
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      Version: {__GIT_COMMIT_HASH__}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      Built: {new Date(__BUILD_TIMESTAMP__).toLocaleString()}
+                    </Typography>
+                  </Box>
                 </Box>
               </Drawer>
             </>
