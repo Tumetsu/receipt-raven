@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 
 export default function TopBar() {
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar disableGutters>
         <Box
           sx={{ flexGrow: 1, display: 'flex', paddingLeft: 3, paddingRight: 3 }}

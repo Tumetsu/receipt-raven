@@ -1,13 +1,20 @@
 import { Card, Box, styled, Typography } from '@mui/material';
 import { ReactElement } from 'react';
 
-export const PageContainer = styled(Box)({
+export const PageContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
   backgroundColor: '#f9fafb',
-  overflow: 'hidden',
-});
+  // Desktop: fixed viewport height with overflow hidden for DataGrid
+  [theme.breakpoints.up('md')]: {
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  // Mobile: natural flow, body scroll
+  [theme.breakpoints.down('md')]: {
+    minHeight: '100vh',
+  },
+}));
 
 export const TableCard = styled(Card)({
   height: '100%',

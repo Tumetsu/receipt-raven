@@ -94,7 +94,7 @@ export function ReceiptList(props: {
 
   if (isMobile) {
     return (
-      <Box sx={{ p: 1 }}>
+      <Box sx={{ width: '100%', overflowX: 'hidden' }}>
         {rows.map(row => {
           const icon =
             row.status === GetApiReceipts200ReceiptsItemStatus.approved ? (
