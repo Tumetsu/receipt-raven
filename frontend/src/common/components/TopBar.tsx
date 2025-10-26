@@ -1,44 +1,124 @@
-import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 
 export default function TopBar() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const allNavItems = [
+    { label: 'Receipts', path: '/' },
+    { label: 'Jobs', path: '/jobs' },
+    { label: 'Upload', path: '/upload' },
+  ];
+
   return (
     <AppBar position="sticky">
       <Toolbar disableGutters>
         <Box
-          sx={{ flexGrow: 1, display: 'flex', paddingLeft: 3, paddingRight: 3 }}
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: 3,
+            paddingRight: 3,
+          }}
         >
           <Typography
             variant="h6"
             component="div"
-            sx={{ display: 'block', alignContent: 'center', marginRight: 4 }}
+            sx={{ display: 'block', marginRight: 'auto' }}
           >
             ReceiptRaven
           </Typography>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <Button
-              key={'Receipts'}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Receipts
-            </Button>
-          </Link>
-          <Link to="/jobs" style={{ textDecoration: 'none' }}>
-            <Button
-              key={'Jobs'}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Jobs
-            </Button>
-          </Link>
-          <Link to="/upload" style={{ textDecoration: 'none' }}>
-            <Button
-              key={'Upload'}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Upload
-            </Button>
-          </Link>
+
+          {isMobile ? (
+            <>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                  <IconButton
+                    color="inherit"
+                    aria-label="receipts"
+                    sx={{ color: 'white' }}
+                  >
+                    <ReceiptLongIcon />
+                  </IconButton>
+                </Link>
+                <Link to="/upload" style={{ textDecoration: 'none' }}>
+                  <IconButton
+                    color="inherit"
+                    aria-label="upload"
+                    sx={{ color: 'white' }}
+                  >
+                    <PhotoCameraIcon />
+                  </IconButton>
+                </Link>
+              </Box>
+              <IconButton
+                color="inherit"
+                aria-label="open navigation menu"
+                edge="end"
+                onClick={() => setDrawerOpen(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Drawer
+                anchor="right"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+              >
+                <Box sx={{ width: 250 }} role="presentation">
+                  <List>
+                    {allNavItems.map(item => (
+                      <ListItem key={item.label} disablePadding>
+                        <Link
+                          to={item.path}
+                          style={{ textDecoration: 'none', width: '100%' }}
+                          onClick={() => setDrawerOpen(false)}
+                        >
+                          <ListItemButton>
+                            <ListItemText primary={item.label} />
+                          </ListItemButton>
+                        </Link>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Drawer>
+            </>
+          ) : (
+            <Box sx={{ display: 'flex' }}>
+              {allNavItems.map(item => (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Button sx={{ my: 2, color: 'white', display: 'block' }}>
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
+            </Box>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
