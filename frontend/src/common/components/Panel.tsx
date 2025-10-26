@@ -20,7 +20,7 @@ const SlidingPanel = styled(Box, {
   position: 'fixed',
   right: 0,
   top: 0,
-  zIndex: 10,
+  zIndex: 1200, // Higher than AppBar (1100) to appear above sticky header
   height: '100dvh',
   width: `${PANEL_WIDTH}px`,
   backgroundColor: '#ffffff',
