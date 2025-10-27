@@ -144,7 +144,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       .innerJoin('receipt_jobs as job', 'receipts.job_id', 'job.id')
       .selectAll('receipts')
       .select(['job.filepath'])
-      .orderBy('receipts.receipt_date', 'desc')
+      .orderBy('receipts.created_at', 'desc')
       .limit(pageSize)
       .offset(offset)
       .execute();
