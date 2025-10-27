@@ -25,7 +25,7 @@ export function ReceiptImageModal(props: {
       aria-describedby="modal-receipt-image"
     >
       <ModalContainer>
-        <Img src={props.url} alt="Receipt"></Img>
+        <Img src={props.url} alt="Receipt" onClick={props.onClose}></Img>
       </ModalContainer>
     </Modal>
   );
