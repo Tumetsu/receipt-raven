@@ -140,24 +140,13 @@ function SumComparison({ control }: SumComparisonProps) {
 }
 
 interface ReceiptActionsProps {
-  isSavePending: boolean;
-  isApproved: boolean;
-  isInvalid: boolean;
+  isDisabled: boolean;
 }
 
-function ReceiptActions({
-  isSavePending,
-  isApproved,
-  isInvalid,
-}: ReceiptActionsProps) {
+function ReceiptActions({ isDisabled }: ReceiptActionsProps) {
   return (
     <Stack spacing={2} direction="row" useFlexGap>
-      <Button
-        fullWidth
-        variant="contained"
-        type="submit"
-        disabled={isSavePending || isApproved || isInvalid}
-      >
+      <Button fullWidth variant="contained" type="submit" disabled={isDisabled}>
         Approve
       </Button>
     </Stack>
@@ -174,6 +163,8 @@ function ReceiptPanelContent({
   receipt,
   onApprove,
 }: Omit<ReceiptPanelProps, 'onClosePanel'>) {
+  const [isMergeInProgress, setIsMergeInProgress] = useState(false);
+
   const {
     formMethods,
     onSubmit,
@@ -186,6 +177,9 @@ function ReceiptPanelContent({
   const { isValid } = formState;
   const isApproved =
     receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
+
+  const isApproveDisabled =
+    isSavePending || isApproved || !isValid || isMergeInProgress;
 
   return (
     <form
@@ -220,6 +214,7 @@ function ReceiptPanelContent({
                 name="items"
                 control={control}
                 disabled={isApproved}
+                onMergeStateChange={setIsMergeInProgress}
               />
             </Box>
           )}
@@ -228,11 +223,7 @@ function ReceiptPanelContent({
 
       <PanelFooter>
         <SumComparison control={control} />
-        <ReceiptActions
-          isSavePending={isSavePending}
-          isApproved={isApproved}
-          isInvalid={!isValid}
-        />
+        <ReceiptActions isDisabled={isApproveDisabled} />
       </PanelFooter>
     </form>
   );

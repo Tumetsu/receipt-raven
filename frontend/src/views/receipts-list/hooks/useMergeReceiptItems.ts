@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrayPath,
   FieldArrayWithId,
@@ -13,6 +13,7 @@ type UseMergeReceiptItemsParams<
 > = {
   fields: FieldArrayWithId<TFieldValues, TFieldArrayName>[];
   replace: UseFieldArrayReplace<TFieldValues, TFieldArrayName>;
+  onMergeStateChange?: (isMerging: boolean) => void;
 };
 
 export function useMergeReceiptItems<
@@ -21,11 +22,16 @@ export function useMergeReceiptItems<
 >({
   fields,
   replace,
+  onMergeStateChange,
 }: UseMergeReceiptItemsParams<TFieldValues, TFieldArrayName>) {
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedReceiptItems, setSelectedReceiptItems] = useState<
     Record<string, boolean>
   >({});
+
+  useEffect(() => {
+    onMergeStateChange?.(mergeMode);
+  }, [mergeMode, onMergeStateChange]);
 
   const onSelectItem = (idx: string) => {
     setSelectedReceiptItems(prev => ({

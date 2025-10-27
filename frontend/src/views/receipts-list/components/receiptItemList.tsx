@@ -119,6 +119,7 @@ type ReceiptItemListProps<
   control: Control<TFieldValues>;
   name: TFieldArrayName;
   disabled: boolean;
+  onMergeStateChange?: (isMerging: boolean) => void;
 };
 
 function RemoveItemButton({
@@ -237,6 +238,7 @@ export function ReceiptItemList<
   control,
   name,
   disabled,
+  onMergeStateChange,
 }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
   const expenseAccounts = useExpenseAccounts();
 
@@ -256,6 +258,7 @@ export function ReceiptItemList<
   } = useMergeReceiptItems({
     fields,
     replace,
+    onMergeStateChange,
   });
 
   const onAddItem = () => {
