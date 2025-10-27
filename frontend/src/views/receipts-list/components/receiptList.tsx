@@ -32,6 +32,7 @@ export function ReceiptList(props: {
     status: r.status,
     date: r.date,
     payee: r.payee,
+    description: r.description,
     cost: r.totalSum,
   }));
 
@@ -52,6 +53,7 @@ export function ReceiptList(props: {
     },
     { field: 'date', headerName: 'Date', flex: 1, minWidth: 130 },
     { field: 'payee', headerName: 'Payee', flex: 2, minWidth: 200 },
+    { field: 'description', headerName: 'Description', flex: 2, minWidth: 200 },
     {
       field: 'cost',
       headerName: 'Amount',
@@ -107,8 +109,8 @@ export function ReceiptList(props: {
 
           const mobileRow: MobileCardRow = {
             icon,
-            primaryText: row.date,
-            secondaryText: row.payee,
+            primaryText: `${row.date} ${row.payee}`,
+            secondaryText: row.description ?? '',
             tertiaryText: `${Number(row.cost).toFixed(2)}€`,
           };
 
