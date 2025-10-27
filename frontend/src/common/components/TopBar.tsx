@@ -118,6 +118,7 @@ export default function TopBar() {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
+                      {/* eslint-disable-next-line no-undef */}
                       Version: {__GIT_COMMIT_HASH__}
                     </Typography>
                     <Typography
@@ -125,6 +126,7 @@ export default function TopBar() {
                       color="text.secondary"
                       display="block"
                     >
+                      {/* eslint-disable-next-line no-undef */}
                       Built: {new Date(__BUILD_TIMESTAMP__).toLocaleString()}
                     </Typography>
                   </Box>
