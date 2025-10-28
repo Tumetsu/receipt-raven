@@ -373,7 +373,7 @@ def test_create_receipt_transaction_basic(valid_receipt_data):
 
     assert isinstance(txn, Transaction)
     assert txn.payee == "Test Grocery Store"
-    assert txn.narration == "Receipt #1"
+    assert txn.narration == "#1 Receipt"
     assert txn.date == "2024-01-20"
     assert "receipt-raven" in txn.tags
     assert txn.metadata.get("receipt_id") == "1"
