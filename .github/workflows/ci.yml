@@ -8,6 +8,13 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to registry after checks pass'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   frontend-ci:
@@ -39,6 +46,9 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+      - name: Create uploads directory
+        run: mkdir -p ../backend/uploads
 
       - name: Build
         run: npm run build
@@ -99,8 +109,8 @@ jobs:
     name: Build and Push Docker Images
     runs-on: self-hosted
     needs: [frontend-ci, backend-ci, beancount-ci]
-    # Only run on push to main branch (after merge)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Run on push to main OR manual workflow dispatch with deploy=true
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true)
 
     steps:
       - name: Checkout code
@@ -115,6 +125,7 @@ jobs:
 
       - name: Build frontend locally
         run: |
+          mkdir -p backend/uploads
           cd frontend
           npm ci
           npm run build
