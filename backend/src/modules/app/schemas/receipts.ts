@@ -64,7 +64,35 @@ export const receiptSubmissionSchema = z
   })
   .describe('Data required to submit a receipt to the ledger');
 
+export const receiptCreationSchema = z
+  .object({
+    payee: z.string().describe('Name of the shop or vendor'),
+    description: z
+      .string()
+      .nullable()
+      .describe('Description or summary of the receipt'),
+    sourceAccount: z
+      .string()
+      .describe('Source account for the payment (optional)'),
+    date: z.string().describe('Date of the receipt (ISO 8601 format)'),
+    totalSum: z.number().describe('Total amount of the receipt'),
+    items: z
+      .array(
+        z.object({
+          name: z.string().describe('Name of the purchased item'),
+          price: z.number().describe('Price of the item'),
+          expenseAccount: z
+            .string()
+            .describe('Ledger expense account for this item'),
+        })
+      )
+      .min(1)
+      .describe('List of items in the receipt (at least 1 required)'),
+  })
+  .describe('Data required to create a new manual receipt');
+
 // Export inferred TypeScript types
 export type Receipt = z.infer<typeof receiptSchema>;
 export type ReceiptItem = z.infer<typeof receiptItemSchema>;
 export type ReceiptSubmission = z.infer<typeof receiptSubmissionSchema>;
+export type ReceiptCreation = z.infer<typeof receiptCreationSchema>;

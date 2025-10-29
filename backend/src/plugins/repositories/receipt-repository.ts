@@ -36,6 +36,19 @@ export interface IReceiptRepository {
     parsedBy?: string
   ): Promise<void>;
 
+  createManualReceipt(data: {
+    payee: string;
+    date: string;
+    totalSum: number;
+    description: string | null;
+    sourceAccount: string | null;
+    items: Array<{
+      name: string;
+      expenseAccount: string;
+      price: number;
+    }>;
+  }): Promise<number>;
+
   updateReceipt(
     receiptId: number,
     data: Omit<Partial<Receipt>, 'created_at' | 'id' | 'job_id'>
@@ -99,6 +112,52 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       }));
 
     await this.db.insertInto('receipt_items').values(items).execute();
+  }
+
+  async createManualReceipt(data: {
+    payee: string;
+    date: string;
+    totalSum: number;
+    description: string | null;
+    sourceAccount: string | null;
+    items: Array<{
+      name: string;
+      expenseAccount: string;
+      price: number;
+    }>;
+  }): Promise<number> {
+    const receipt = await this.db
+      .insertInto('receipts')
+      .values({
+        job_id: null, // Manual receipts don't have associated jobs
+        payee: data.payee,
+        receipt_date: data.date,
+        total_sum: data.totalSum,
+        parsed_by: 'user', // Manual entry by user
+        status: ReceiptStatus.UNAPPROVED,
+        description: data.description,
+        source_account: data.sourceAccount,
+      })
+      .executeTakeFirstOrThrow();
+
+    if (!receipt.insertId) {
+      throw new Error('Insert failed');
+    }
+    const insertedId = Number(receipt.insertId);
+
+    const items: InsertObject<Database, 'receipt_items'>[] = data.items.map(
+      item => ({
+        receipt_id: insertedId,
+        name: item.name,
+        expense_account: item.expenseAccount,
+        price: item.price,
+        parsed_by: 'manual',
+      })
+    );
+
+    await this.db.insertInto('receipt_items').values(items).execute();
+
+    return insertedId;
   }
 
   async updateReceipt(
