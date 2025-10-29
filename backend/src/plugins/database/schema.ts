@@ -12,7 +12,7 @@ export interface Database {
 
 export interface ReceiptsTable {
   id: Generated<number>;
-  job_id: number;
+  job_id: number | null;
   payee: string;
   receipt_date: string;
   description: string | null;

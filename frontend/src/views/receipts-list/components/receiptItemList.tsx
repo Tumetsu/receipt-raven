@@ -296,7 +296,7 @@ export function ReceiptItemList<
               onToggleMergeMode={() => setMergeMode(true)}
               onAddItem={onAddItem}
               disabled={disabled}
-              hasMultipleFields={true}
+              hasMultipleFields={fields.length > 1}
             />
           )}
         </Box>

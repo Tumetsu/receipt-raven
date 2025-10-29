@@ -272,11 +272,25 @@
                           },
                           "filename": {
                             "description": "Filename of the receipt image",
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "fileUrl": {
                             "description": "URL to access the receipt image",
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
@@ -315,6 +329,172 @@
                     "page",
                     "pageSize",
                     "totalPages"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "receipts"
+        ],
+        "description": "Create a new manual receipt",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Data required to create a new manual receipt",
+                "type": "object",
+                "properties": {
+                  "payee": {
+                    "description": "Name of the shop or vendor",
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "Description or summary of the receipt",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sourceAccount": {
+                    "description": "Source account for the payment (optional)",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "date": {
+                    "description": "Date of the receipt (ISO 8601 format)",
+                    "type": "string"
+                  },
+                  "totalSum": {
+                    "description": "Total amount of the receipt",
+                    "type": "number"
+                  },
+                  "items": {
+                    "description": "List of items in the receipt (at least 1 required)",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Name of the purchased item",
+                          "type": "string"
+                        },
+                        "price": {
+                          "description": "Price of the item",
+                          "type": "number"
+                        },
+                        "expenseAccount": {
+                          "description": "Ledger expense account for this item",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "price",
+                        "expenseAccount"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "payee",
+                  "description",
+                  "sourceAccount",
+                  "date",
+                  "totalSum",
+                  "items"
+                ]
+              }
+            }
+          },
+          "required": true,
+          "description": "Data required to create a new manual receipt"
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "ID of the created receipt",
+                      "type": "number"
+                    },
+                    "success": {
+                      "description": "Whether the operation was successful",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "success"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "description": "Error type or title",
+                      "type": "string"
+                    },
+                    "message": {
+                      "description": "Detailed error message",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Error response",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "description": "Error type or title",
+                      "type": "string"
+                    },
+                    "message": {
+                      "description": "Detailed error message",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
                   ],
                   "additionalProperties": false
                 }

@@ -5,6 +5,7 @@ import {
   receiptSchema,
   receiptItemSchema,
   receiptSubmissionSchema,
+  receiptCreationSchema,
 } from '../schemas/receipts.js';
 import { ReceiptStatus } from '../../../domain/types';
 
@@ -83,8 +84,8 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
             date: r.receipt_date,
             totalSum: r.total_sum,
             status: r.status,
-            filename: `${r.filepath}`,
-            fileUrl: `uploads/${r.filepath}`,
+            filename: r.filepath ? `${r.filepath}` : null,
+            fileUrl: r.filepath ? `uploads/${r.filepath}` : null,
           };
         }),
         total: result.total,
@@ -92,6 +93,40 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
         pageSize: result.pageSize,
         totalPages: result.totalPages,
       };
+    },
+  });
+
+  fastify.withTypeProvider<ZodTypeProvider>().post('/receipts', {
+    schema: {
+      tags: ['receipts'],
+      description: 'Create a new manual receipt',
+      body: receiptCreationSchema,
+      response: {
+        201: z.object({
+          id: z.number().describe('ID of the created receipt'),
+          success: z.boolean().describe('Whether the operation was successful'),
+        }),
+        400: errorResponseSchema,
+        500: errorResponseSchema,
+      },
+    },
+    handler: async (request, reply) => {
+      const { payee, date, totalSum, sourceAccount, items, description } =
+        request.body;
+
+      const receiptId = await fastify.receiptRepository.createManualReceipt({
+        payee,
+        date,
+        totalSum,
+        description,
+        sourceAccount,
+        items,
+      });
+
+      return reply.code(201).send({
+        id: receiptId,
+        success: true,
+      });
     },
   });
 

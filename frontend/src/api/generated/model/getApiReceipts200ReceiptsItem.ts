@@ -8,6 +8,8 @@
 import type { GetApiReceipts200ReceiptsItemDescription } from './getApiReceipts200ReceiptsItemDescription';
 import type { GetApiReceipts200ReceiptsItemSourceAccount } from './getApiReceipts200ReceiptsItemSourceAccount';
 import type { GetApiReceipts200ReceiptsItemStatus } from './getApiReceipts200ReceiptsItemStatus';
+import type { GetApiReceipts200ReceiptsItemFilename } from './getApiReceipts200ReceiptsItemFilename';
+import type { GetApiReceipts200ReceiptsItemFileUrl } from './getApiReceipts200ReceiptsItemFileUrl';
 
 /**
  * A receipt with all its details
@@ -28,7 +30,7 @@ export type GetApiReceipts200ReceiptsItem = {
   /** Status of the receipt (pending, approved, rejected, or error) */
   status: GetApiReceipts200ReceiptsItemStatus;
   /** Filename of the receipt image */
-  filename: string;
+  filename: GetApiReceipts200ReceiptsItemFilename;
   /** URL to access the receipt image */
-  fileUrl: string;
+  fileUrl: GetApiReceipts200ReceiptsItemFileUrl;
 };
