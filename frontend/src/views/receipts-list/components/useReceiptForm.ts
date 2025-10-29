@@ -5,12 +5,11 @@ import { useSnackbar } from 'notistack';
 import { z } from 'zod';
 import {
   useGetApiReceiptsReceiptIdItems,
+  usePostApiReceipts,
   usePostApiReceiptsReceiptId,
 } from '../../../api/generated/api.ts';
-import {
-  GetApiReceipts200ReceiptsItem,
-  GetApiReceipts200ReceiptsItemStatus,
-} from '../../../api/generated/model';
+import { GetApiReceipts200ReceiptsItemStatus } from '../../../api/generated/model';
+import { Receipt } from './receiptPanel.tsx';
 
 const receiptItemSchema = z.object({
   id: z.number().optional(),
@@ -41,10 +40,7 @@ const receiptFormSchema = z
 
 export type IReceiptInputs = z.infer<typeof receiptFormSchema>;
 
-export function useReceiptForm(
-  receipt: GetApiReceipts200ReceiptsItem,
-  onApprove: () => void
-) {
+export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
@@ -52,8 +48,11 @@ export function useReceiptForm(
     isPending: isItemsPending,
     isSuccess: isItemsSuccess,
     data: itemsResult,
-  } = useGetApiReceiptsReceiptIdItems(receipt.id, {
-    query: { queryKey: ['receipt', receipt.id, 'receiptItems'] },
+  } = useGetApiReceiptsReceiptIdItems(receipt.id ?? 0, {
+    query: {
+      queryKey: ['receipt', receipt.id, 'receiptItems'],
+      enabled: receipt.id != null,
+    },
   });
 
   const formMethods = useForm<IReceiptInputs>({
@@ -69,50 +68,90 @@ export function useReceiptForm(
     },
   });
 
-  const { mutate, isPending: isSavePending } = usePostApiReceiptsReceiptId({
-    mutation: {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ['receipts'] });
-        await queryClient.invalidateQueries({
-          queryKey: ['receipt', receipt.id, 'receiptItems'],
-        });
-      },
-    },
-  });
-
-  const onSubmit = (data: IReceiptInputs) => {
-    mutate(
-      {
-        receiptId: receipt.id,
-        data: {
-          sourceAccount: data.sourceAccount,
-          description: data.description ?? null,
-          date: data.date,
-          payee: data.payee,
-          totalSum: data.totalSum,
-          items: data.items,
-        },
-      },
-      {
+  const { mutate: mutateEdit, isPending: isSavePending } =
+    usePostApiReceiptsReceiptId({
+      mutation: {
         onSuccess: async () => {
-          formMethods.reset();
-          enqueueSnackbar('Receipt approved', { variant: 'success' });
-          onApprove();
-        },
-        onError: error => {
-          enqueueSnackbar(error.message ?? 'Error saving receipt', {
-            variant: 'error',
+          await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+          await queryClient.invalidateQueries({
+            queryKey: ['receipt', receipt.id, 'receiptItems'],
           });
         },
-      }
-    );
+      },
+    });
+
+  const { mutate: mutateCreate, isPending: isCreatePending } =
+    usePostApiReceipts({
+      mutation: {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+          await queryClient.invalidateQueries({
+            queryKey: ['receipt', receipt.id, 'receiptItems'],
+          });
+        },
+      },
+    });
+
+  const onSubmit = (data: IReceiptInputs) => {
+    if (receipt.id) {
+      mutateEdit(
+        {
+          receiptId: receipt.id,
+          data: {
+            sourceAccount: data.sourceAccount,
+            description: data.description ?? null,
+            date: data.date,
+            payee: data.payee,
+            totalSum: data.totalSum,
+            items: data.items,
+          },
+        },
+        {
+          onSuccess: async () => {
+            formMethods.reset();
+            enqueueSnackbar('Receipt approved', { variant: 'success' });
+            onApprove();
+          },
+          onError: error => {
+            enqueueSnackbar(error.message ?? 'Error saving receipt', {
+              variant: 'error',
+            });
+          },
+        }
+      );
+    } else {
+      mutateCreate(
+        {
+          data: {
+            sourceAccount: data.sourceAccount,
+            description: data.description ?? null,
+            date: data.date,
+            payee: data.payee,
+            totalSum: data.totalSum,
+            items: data.items,
+          },
+        },
+        {
+          onSuccess: async () => {
+            formMethods.reset();
+            enqueueSnackbar('Receipt approved', { variant: 'success' });
+            onApprove();
+          },
+          onError: error => {
+            enqueueSnackbar(error.message ?? 'Error saving receipt', {
+              variant: 'error',
+            });
+          },
+        }
+      );
+    }
   };
 
   return {
     formMethods,
     onSubmit,
-    isSavePending,
-    isItemsPending,
-    isItemsSuccess,
+    isSavePending: isSavePending || isCreatePending,
+    isItemsPending: isItemsPending && receipt.id != null,
+    isItemsSuccess: isItemsSuccess || receipt.id == null,
   };
 }

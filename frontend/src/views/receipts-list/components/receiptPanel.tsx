@@ -141,20 +141,24 @@ function SumComparison({ control }: SumComparisonProps) {
 
 interface ReceiptActionsProps {
   isDisabled: boolean;
+  createAction?: boolean;
 }
 
-function ReceiptActions({ isDisabled }: ReceiptActionsProps) {
+function ReceiptActions({ isDisabled, createAction }: ReceiptActionsProps) {
   return (
     <Stack spacing={2} direction="row" useFlexGap>
       <Button fullWidth variant="contained" type="submit" disabled={isDisabled}>
-        Approve
+        {createAction ? 'Save Receipt' : 'Approve Receipt'}
       </Button>
     </Stack>
   );
 }
 
+export type Receipt = Omit<GetApiReceipts200ReceiptsItem, 'id'> & {
+  id: number | null;
+};
 interface ReceiptPanelProps {
-  receipt: GetApiReceipts200ReceiptsItem;
+  receipt: Receipt;
   onApprove: () => void;
   onClosePanel: () => void;
 }
@@ -221,20 +225,27 @@ function ReceiptPanelContent({
 
       <PanelFooter>
         <SumComparison control={control} />
-        <ReceiptActions isDisabled={isApproveDisabled} />
+        <ReceiptActions
+          isDisabled={isApproveDisabled}
+          createAction={!receipt.id}
+        />
       </PanelFooter>
     </form>
   );
 }
 
-export function ReceiptPanel(props: ReceiptPanelProps) {
+export function ReceiptPanel({
+  receipt,
+  onApprove,
+  onClosePanel,
+}: ReceiptPanelProps) {
   const panelRef = useRef<PanelRef>(null);
   const deleteMutation = useDeleteApiReceiptsReceiptId();
   const queryClient = useQueryClient();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleApprove = () => {
-    panelRef.current?.close(props.onApprove);
+    panelRef.current?.close(onApprove);
   };
 
   const handleDeleteClick = () => {
@@ -247,15 +258,17 @@ export function ReceiptPanel(props: ReceiptPanelProps) {
 
   const handleDeleteConfirm = () => {
     setIsDeleteDialogOpen(false);
-    deleteMutation.mutate(
-      { receiptId: props.receipt.id },
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: ['receipts'] });
-          panelRef.current?.close(props.onClosePanel);
-        },
-      }
-    );
+    if (receipt.id) {
+      deleteMutation.mutate(
+        { receiptId: receipt.id },
+        {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+            panelRef.current?.close(onClosePanel);
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -263,20 +276,17 @@ export function ReceiptPanel(props: ReceiptPanelProps) {
       <Panel
         ref={panelRef}
         title="Receipt Details"
-        onClose={props.onClosePanel}
+        onClose={onClosePanel}
         renderHeaderActions={
-          props.receipt.status !==
-            GetApiReceipts200ReceiptsItemStatus.approved && (
+          receipt.status !== GetApiReceipts200ReceiptsItemStatus.approved &&
+          receipt.id && (
             <IconButton onClick={handleDeleteClick} size="small">
               <DeleteIcon />
             </IconButton>
           )
         }
       >
-        <ReceiptPanelContent
-          receipt={props.receipt}
-          onApprove={handleApprove}
-        />
+        <ReceiptPanelContent receipt={receipt} onApprove={handleApprove} />
       </Panel>
 
       <DeleteDialog

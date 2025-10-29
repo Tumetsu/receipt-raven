@@ -32,6 +32,10 @@ import type {
   GetApiReceiptsParams,
   GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
+  PostApiReceipts201,
+  PostApiReceipts400,
+  PostApiReceipts500,
+  PostApiReceiptsBody,
   PostApiReceiptsReceiptId200,
   PostApiReceiptsReceiptId400,
   PostApiReceiptsReceiptId404,
@@ -552,6 +556,91 @@ export function useGetApiReceipts<
 
   return query;
 }
+
+/**
+ * Create a new manual receipt
+ */
+export const postApiReceipts = (
+  postApiReceiptsBody: PostApiReceiptsBody,
+  signal?: AbortSignal
+) => {
+  return apiClient<PostApiReceipts201>({
+    url: `/api/receipts`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: postApiReceiptsBody,
+    signal,
+  });
+};
+
+export const getPostApiReceiptsMutationOptions = <
+  TError = PostApiReceipts400 | PostApiReceipts500,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiReceipts>>,
+    TError,
+    { data: PostApiReceiptsBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiReceipts>>,
+  TError,
+  { data: PostApiReceiptsBody },
+  TContext
+> => {
+  const mutationKey = ['postApiReceipts'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiReceipts>>,
+    { data: PostApiReceiptsBody }
+  > = props => {
+    const { data } = props ?? {};
+
+    return postApiReceipts(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiReceiptsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiReceipts>>
+>;
+export type PostApiReceiptsMutationBody = PostApiReceiptsBody;
+export type PostApiReceiptsMutationError =
+  | PostApiReceipts400
+  | PostApiReceipts500;
+
+export const usePostApiReceipts = <
+  TError = PostApiReceipts400 | PostApiReceipts500,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiReceipts>>,
+      TError,
+      { data: PostApiReceiptsBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiReceipts>>,
+  TError,
+  { data: PostApiReceiptsBody },
+  TContext
+> => {
+  const mutationOptions = getPostApiReceiptsMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
 
 /**
  * Save receipt and its items to the ledger
