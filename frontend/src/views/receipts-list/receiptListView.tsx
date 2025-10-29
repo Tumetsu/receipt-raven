@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Fab, Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
@@ -7,18 +7,7 @@ import { ContentArea } from '../../common/components/ContentArea.tsx';
 import { PageContainer } from '../../common/components/Layout.tsx';
 import { useAccounts } from './hooks/useGetAccounts.ts';
 import { useExpenseAccounts } from './hooks/useExpenseAccounts.ts';
-
-function ReceiptListControls({
-  onAddClick,
-}: {
-  onAddClick: () => void;
-}): ReactElement {
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-      <Button onClick={onAddClick}>Add manually</Button>
-    </Box>
-  );
-}
+import AddIcon from '@mui/icons-material/Add';
 
 export function ReceiptListView(): ReactElement {
   const [page, setPage] = useState(1);
@@ -59,8 +48,7 @@ export function ReceiptListView(): ReactElement {
       <ContentArea>
         {isPending && <Typography>Loading...</Typography>}
         {isSuccess && result && (
-          <Box>
-            <ReceiptListControls onAddClick={addReceiptManually} />
+          <Box sx={{ marginBottom: 8 }}>
             <ReceiptList
               receipts={result.receipts}
               totalReceipts={result.total}
@@ -73,6 +61,13 @@ export function ReceiptListView(): ReactElement {
                 setSelectedReceipt(receipt);
               }}
             />
+            <Fab
+              color="primary"
+              onClick={addReceiptManually}
+              sx={{ position: 'fixed', bottom: 16, right: 16 }}
+            >
+              <AddIcon />
+            </Fab>
           </Box>
         )}
       </ContentArea>

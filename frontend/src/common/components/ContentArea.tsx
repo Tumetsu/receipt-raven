@@ -8,6 +8,7 @@ export const ContentArea = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     overflow: 'auto',
     overflowX: 'hidden',
+    marginBottom: 6,
   },
   // Mobile: no overflow, use body scroll
   [theme.breakpoints.down('md')]: {
