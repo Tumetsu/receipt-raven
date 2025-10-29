@@ -16,7 +16,6 @@ import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200ReceiptsItem[];
-  selectedReceiptId?: number;
   totalReceipts: number;
   page: number;
   pageSize: number;
@@ -119,7 +118,6 @@ export function ReceiptList(props: {
               key={row.id}
               row={mobileRow}
               onClick={() => handleCardClick(row.id)}
-              selected={row.id === props.selectedReceiptId}
             />
           );
         })}
@@ -158,9 +156,6 @@ export function ReceiptList(props: {
           }
         }}
         pageSizeOptions={[25, 30, 50, 100]}
-        getRowClassName={params =>
-          params.id === props.selectedReceiptId ? 'selected-row' : ''
-        }
         sx={{
           border: 0,
           '& .MuiDataGrid-columnHeaders': {

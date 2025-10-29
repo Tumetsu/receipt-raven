@@ -35,7 +35,6 @@ export interface MobileCardRow {
 export function MobileCard(props: {
   row: MobileCardRow;
   onClick: () => void;
-  selected?: boolean;
 }): ReactElement {
   return (
     <Box
@@ -46,9 +45,9 @@ export function MobileCard(props: {
         borderRadius: 1,
         border: '1px solid #f3f4f6',
         cursor: 'pointer',
-        backgroundColor: props.selected ? '#eff6ff' : 'white',
+        backgroundColor: 'white',
         '&:hover': {
-          backgroundColor: props.selected ? '#dbeafe' : '#eff6ff',
+          backgroundColor: '#eff6ff',
         },
       }}
     >

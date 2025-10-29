@@ -37,7 +37,6 @@ export function ReceiptListView(): ReactElement {
         {isSuccess && result && (
           <ReceiptList
             receipts={result.receipts}
-            selectedReceiptId={selectedReceipt?.id}
             totalReceipts={result.total}
             page={page}
             pageSize={pageSize}
