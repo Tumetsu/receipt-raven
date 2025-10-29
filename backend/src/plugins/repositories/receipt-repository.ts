@@ -1,4 +1,4 @@
-import { InsertObject, Kysely, Selectable } from 'kysely';
+import { InsertObject, Kysely, Nullable, Selectable } from 'kysely';
 import { Database } from '../database/schema';
 import { ReceiptJob } from './receipt-job-repository';
 import { config } from '../../config';
@@ -22,7 +22,7 @@ export interface ReceiptAnalysisResult {
  * Repository for receipt data access operations
  */
 export interface PaginatedReceipts {
-  receipts: (Receipt & Pick<ReceiptJob, 'filepath'>)[];
+  receipts: (Receipt & Nullable<Pick<ReceiptJob, 'filepath'>>)[];
   total: number;
   page: number;
   pageSize: number;
@@ -141,7 +141,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
     // Get paginated receipts
     const receipts = await this.db
       .selectFrom('receipts')
-      .innerJoin('receipt_jobs as job', 'receipts.job_id', 'job.id')
+      .leftJoin('receipt_jobs as job', 'receipts.job_id', 'job.id')
       .selectAll('receipts')
       .select(['job.filepath'])
       .orderBy('receipts.created_at', 'desc')

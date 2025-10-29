@@ -20,8 +20,8 @@ export const receiptSchema = z
       .describe(
         'Status of the receipt (pending, approved, rejected, or error)'
       ),
-    filename: z.string().describe('Filename of the receipt image'),
-    fileUrl: z.string().describe('URL to access the receipt image'),
+    filename: z.string().nullable().describe('Filename of the receipt image'),
+    fileUrl: z.string().nullable().describe('URL to access the receipt image'),
   })
   .describe('A receipt with all its details');
 
