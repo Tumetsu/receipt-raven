@@ -17,6 +17,8 @@ export * from './getApiLedgerPayees500';
 export * from './getApiReceipts200';
 export * from './getApiReceipts200ReceiptsItem';
 export * from './getApiReceipts200ReceiptsItemDescription';
+export * from './getApiReceipts200ReceiptsItemFileUrl';
+export * from './getApiReceipts200ReceiptsItemFilename';
 export * from './getApiReceipts200ReceiptsItemSourceAccount';
 export * from './getApiReceipts200ReceiptsItemStatus';
 export * from './getApiReceiptsParams';
