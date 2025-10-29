@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import { config } from '../../../config/index.js';
 
 export interface OpenAIResponse {
@@ -12,7 +13,11 @@ export interface OpenAIResponse {
 }
 
 export interface AiClient {
-  submitImage(imageBuffer: Buffer, prompt: string): Promise<OpenAIResponse>;
+  submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
+  ): Promise<OpenAIResponse>;
 }
 
 /**
@@ -27,17 +32,18 @@ export class OpenAIClient implements AiClient {
     });
   }
 
-  async submitImage(
-    imageBuffer: Buffer,
-    prompt: string
+  async submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
   ): Promise<OpenAIResponse> {
     try {
       // Convert buffer to base64
-      const base64Image = imageBuffer.toString('base64');
-      const dataUrl = `data:image/jpeg;base64,${base64Image}`;
+      const base64Document = documentBuffer.toString('base64');
+      const dataUrl = `data:${mimeType};base64,${base64Document}`;
 
       const response = await this.client.chat.completions.create({
-        model: 'gpt-5-mini',
+        model: config.openai.model,
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -82,36 +88,129 @@ export class OpenAIClient implements AiClient {
 }
 
 /**
- * Mock implementation of the OpenAI API client for development
+ * Claude (Anthropic) implementation of the AI client
+ */
+export class ClaudeClient implements AiClient {
+  private client: Anthropic;
+
+  constructor() {
+    this.client = new Anthropic({
+      apiKey: config.anthropic.apiKey,
+    });
+  }
+
+  async submitDocument(
+    documentBuffer: Buffer,
+    prompt: string,
+    mimeType: string
+  ): Promise<OpenAIResponse> {
+    try {
+      // Convert buffer to base64
+      const base64Document = documentBuffer.toString('base64');
+
+      // Determine if it's a PDF or image
+      const isPdf = mimeType === 'application/pdf';
+
+      // Build content block based on type
+      const documentBlock = isPdf
+        ? {
+            type: 'document' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: 'application/pdf' as const,
+              data: base64Document,
+            },
+          }
+        : {
+            type: 'image' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: mimeType as
+                | 'image/jpeg'
+                | 'image/png'
+                | 'image/gif'
+                | 'image/webp',
+              data: base64Document,
+            },
+          };
+
+      const response = await this.client.messages.create({
+        model: config.anthropic.model,
+        max_tokens: 4000,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              documentBlock,
+              {
+                type: 'text',
+                text: prompt + '\n\nRespond with valid JSON only.',
+              },
+            ],
+          },
+        ],
+      });
+
+      // Extract text content from Claude's response
+      const textContent = response.content.find(block => block.type === 'text');
+      if (!textContent || textContent.type !== 'text') {
+        throw new Error('No text content in Claude response');
+      }
+
+      return {
+        content: textContent.text,
+        model: response.model,
+        usage: {
+          promptTokens: response.usage.input_tokens,
+          completionTokens: response.usage.output_tokens,
+          totalTokens:
+            response.usage.input_tokens + response.usage.output_tokens,
+        },
+      };
+    } catch (error) {
+      console.error('Claude API error:', error);
+      throw new Error(
+        error instanceof Error
+          ? `Claude API error: ${error.message}`
+          : 'Unknown error occurred while calling Claude API'
+      );
+    }
+  }
+}
+
+/**
+ * Mock implementation of the API client for development
  */
 export class MockAIClient implements AiClient {
-  async submitImage(
-    _imageBuffer: Buffer,
-    _prompt: string
+  async submitDocument(
+    _documentBuffer: Buffer,
+    _prompt: string,
+    _mimeType: string
   ): Promise<OpenAIResponse> {
-    console.log('Using mock OpenAI client');
+    console.log('Using mock AI client');
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Return a mock response
     return {
       content: JSON.stringify({
-        shop: 'K-Market',
-        date: '2025-04-09',
+        payee: 'K-Market',
+        description: 'Ruokaa ja paita',
+        date: new Date().toISOString().substring(0, 10),
         products: [
           {
             name: 'Banaani',
-            category: 'food',
+            expenseAccount: 'Expenses:Consumables:Food',
             price: 0.8,
           },
           {
             name: 'T-paita',
-            category: 'clothes',
+            expenseAccount: 'Expenses:Clothes',
             price: 14.99,
           },
         ],
         total: 15.79,
       }),
-      model: 'gpt-5',
+      model: 'mock',
       usage: {
         promptTokens: 150,
         completionTokens: 200,
@@ -125,7 +224,16 @@ export class MockAIClient implements AiClient {
  * Factory function to get the appropriate client based on environment
  */
 export const getAIClient = (): AiClient => {
-  return config.openai.useMock ? new MockAIClient() : new OpenAIClient();
+  switch (config.ai.provider) {
+    case 'anthropic':
+      return new ClaudeClient();
+    case 'openai':
+      return new OpenAIClient();
+    case 'mock':
+      return new MockAIClient();
+    default:
+      throw new Error(`Unsupported AI provider: ${config.ai.provider}`);
+  }
 };
 
 /**

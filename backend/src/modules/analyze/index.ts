@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
-import { SQLiteReceiptRepository } from '../../repositories/receipt-repository';
-import { SQLiteReceiptJoqbQueueRepository } from '../../repositories/receipt-job-repository.js';
+import { SQLiteReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
+import { SQLiteReceiptJoqbQueueRepository } from '../../plugins/repositories/receipt-job-repository.js';
 import { processReceiptJobFromQueue } from './process.js';
 
 /**
@@ -27,7 +27,7 @@ export const analyzeModule: FastifyPluginAsync = async (fastify, _opts) => {
     intervalId = setInterval(async () => {
       try {
         await processReceiptJobFromQueue(
-          fastify.log,
+          fastify,
           receiptRepository,
           receiptJobQueueRepository
         );

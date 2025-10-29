@@ -5,9 +5,23 @@ dotenv.config();
 export const config = {
   port: parseInt(process.env.PORT || '3001', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
+  analyze: {
+    maxRetryCountForJob: 3,
+    defaultSourceAccount: process.env.DEFAULT_SOURCE_ACCOUNT || null,
+  },
+  ai: {
+    provider: (process.env.AI_PROVIDER || 'openai') as
+      | 'openai'
+      | 'anthropic'
+      | 'mock',
+  },
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
-    useMock: process.env.USE_MOCK_OPENAI === 'true',
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  },
+  anthropic: {
+    apiKey: process.env.ANTHROPIC_API_KEY || '',
+    model: process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022',
   },
   storage: {
     uploadsDir: process.env.UPLOADS_DIR || './uploads',

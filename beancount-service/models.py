@@ -24,13 +24,6 @@ class Account(BaseModel):
     display_name: Optional[str] = None
 
 
-class Category(BaseModel):
-    """Category model"""
-
-    name: str
-    account_mapping: str
-
-
 class Payee(BaseModel):
     """Payee model"""
 
@@ -62,7 +55,6 @@ class ReceiptTransactionItem(BaseModel):
     """Receipt transaction item"""
 
     name: str
-    category: str
     price: float
     expense_account: Optional[str] = None
 
@@ -70,12 +62,13 @@ class ReceiptTransactionItem(BaseModel):
 class ReceiptTransactionData(BaseModel):
     """Receipt transaction data for convenience endpoint"""
 
-    receipt_id: str
-    shop: str
+    receipt_id: int
+    description: Optional[str] = None
+    payee: str
+    source_account: str
     date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
     items: List[ReceiptTransactionItem]
     total: float
-    source_account: str
     currency: Optional[str] = "EUR"
 
 
@@ -93,13 +86,15 @@ class AccountsResponse(BaseModel):
     accounts: List[Account]
 
 
-class CategoriesResponse(BaseModel):
-    """Response containing list of categories"""
-
-    categories: List[Category]
-
-
 class PayeesResponse(BaseModel):
     """Response containing list of payees"""
 
     payees: List[Payee]
+
+
+class MonthlyExpensesResponse(BaseModel):
+    """Response containing monthly expenses by currency"""
+
+    expenses_by_currency: Dict[str, float]
+    year: int
+    month: int

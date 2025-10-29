@@ -10,19 +10,19 @@ from dotenv import load_dotenv
 
 from models import (
     AccountsResponse,
-    CategoriesResponse,
     PayeesResponse,
     Transaction,
     ReceiptTransactionData,
     TransactionSubmitResponse,
+    MonthlyExpensesResponse,
 )
 from services.accounts import get_accounts
-from services.categories import get_categories
 from services.payees import get_payees
 from services.transactions import (
     submit_transaction,
     submit_receipt_transaction,
 )
+from services.monthly_expenses import get_current_month_expenses
 
 # Load environment variables
 load_dotenv()
@@ -85,23 +85,6 @@ async def get_accounts_endpoint(
         raise HTTPException(status_code=500, detail=f"Failed to fetch accounts: {e}")
 
 
-@app.get("/categories", response_model=CategoriesResponse)
-async def get_categories_endpoint():
-    """
-    Get expense categories from the ledger
-
-    Returns:
-        List of categories
-    """
-    try:
-        categories = get_categories(BEANCOUNT_LEDGER_PATH)
-        return CategoriesResponse(categories=categories)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch categories: {e}"
-        )
-
-
 @app.get("/payees", response_model=PayeesResponse)
 async def get_payees_endpoint():
     """
@@ -115,6 +98,27 @@ async def get_payees_endpoint():
         return PayeesResponse(payees=payees)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch payees: {e}")
+
+
+@app.get("/monthly-expenses", response_model=MonthlyExpensesResponse)
+async def get_monthly_expenses_endpoint():
+    """
+    Get total expenses for the current month
+
+    Returns:
+        Total expenses by currency for the ongoing month
+    """
+    try:
+        from datetime import datetime
+        now = datetime.now()
+        expenses = get_current_month_expenses(BEANCOUNT_LEDGER_PATH)
+        return MonthlyExpensesResponse(
+            expenses_by_currency=expenses,
+            year=now.year,
+            month=now.month
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch monthly expenses: {e}")
 
 
 @app.post("/transactions", response_model=TransactionSubmitResponse)
@@ -162,11 +166,7 @@ async def submit_receipt_transaction_endpoint(
         result = submit_receipt_transaction(
             receipt_data, BEANCOUNT_LEDGER_PATH, dry_run
         )
-        if not result.success:
-            raise HTTPException(status_code=400, detail=result.message)
         return result
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Failed to submit receipt transaction: {e}"

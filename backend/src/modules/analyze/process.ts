@@ -1,12 +1,14 @@
-import { IReceiptJobQueueRepository } from '../../repositories/receipt-job-repository.js';
+import { IReceiptJobQueueRepository } from '../../plugins/repositories/receipt-job-repository.js';
 import { readFile } from 'fs/promises';
 import { analyzeReceipt } from './services/receipt-extraction.js';
-import { FastifyBaseLogger } from 'fastify';
-import { IReceiptRepository } from '../../repositories/receipt-repository';
+import { FastifyInstance } from 'fastify';
+import { IReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
+import path from 'path';
+import { config } from '../../config/index.js';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
-  logger: FastifyBaseLogger,
+  fastify: FastifyInstance,
   receiptRepository: IReceiptRepository,
   receiptJobQueueRepository: IReceiptJobQueueRepository
 ): Promise<void> => {
@@ -19,24 +21,39 @@ export const processReceiptJobFromQueue = async (
     return;
   }
 
-  logger.info(`Analyzing receipt ${job.id}`);
+  fastify.log.info(`Analyzing receipt ${job.id}`);
 
-  // Read the saved file as a buffer
-  const imageBuffer = await readFile(job.filepath);
+  try {
+    // Read the saved file as a buffer
+    const documentBuffer = await readFile(
+      path.join(config.storage.uploadsDir, job.filepath)
+    );
 
-  logger.info(`Sending ${job.id} to OpenAI`);
-  // Analyze the receipt using OpenAI
-  const analysisResult = await analyzeReceipt(imageBuffer);
+    fastify.log.info(`Sending ${job.id} to AI`);
+    // Analyze the receipt using AI
+    const analysisResult = await analyzeReceipt(
+      documentBuffer,
+      fastify.ledgerService,
+      job.mime_type
+    );
 
-  logger.info(`Saving ${job.id} to receipt database`);
-  // Save analysis results to database
-  await receiptRepository.saveReceipt(
-    job.id,
-    analysisResult.result,
-    analysisResult.model
-  );
-  logger.info(`Saved analyzed results of ${job.id} to receipt database.`);
-  await receiptJobQueueRepository.markJobProcessed(job.id);
+    fastify.log.info(`Saving ${job.id} to receipt database`);
+    // Save analysis results to database
+    await receiptRepository.saveReceipt(
+      job.id,
+      analysisResult.result,
+      analysisResult.model
+    );
+    fastify.log.info(
+      `Saved analyzed results of ${job.id} to receipt database.`
+    );
+    await receiptJobQueueRepository.markJobProcessed(job.id);
+  } catch (err) {
+    const message = `Photo analysis failed for ${job.id}: ${err}b`;
+    fastify.log.error(message);
+    await receiptJobQueueRepository.increaseJobRetryCount(job.id, message);
+    isProcessing = false;
+  }
 
   isProcessing = false;
 };

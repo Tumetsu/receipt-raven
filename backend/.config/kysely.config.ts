@@ -7,7 +7,7 @@ export default defineConfig({
   dialectConfig: {
     database: database(resolve(__dirname, '../data/receipts.db')),
   },
-  // migrations: {
-  //   migrationFolder: database(resolve(__dirname, './migrations/')),
-  // },
+  migrations: {
+    migrationFolder: resolve(__dirname, '../migrations/'),
+  },
 });

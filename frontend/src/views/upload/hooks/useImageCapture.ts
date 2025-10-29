@@ -1,11 +1,21 @@
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, RefObject } from 'react';
 
 export function useImageCapture() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileType, setFileType] = useState<string | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(
+    null
+  ) as RefObject<HTMLInputElement>;
+  const galleryInputRef = useRef<HTMLInputElement>(
+    null
+  ) as RefObject<HTMLInputElement>;
 
   const handleCameraClick = () => {
-    fileInputRef.current?.click();
+    cameraInputRef.current?.click();
+  };
+
+  const handleGalleryClick = () => {
+    galleryInputRef.current?.click();
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -13,17 +23,23 @@ export function useImageCapture() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setCapturedImage(imageUrl);
+      setFileType(file.type);
     }
   };
 
   const clearImage = () => {
     setCapturedImage(null);
+    setFileType(null);
   };
 
   return {
     capturedImage,
-    fileInputRef,
+    fileType,
+    setCapturedImage,
+    cameraInputRef,
+    galleryInputRef,
     handleCameraClick,
+    handleGalleryClick,
     handleFileChange,
     clearImage,
   };

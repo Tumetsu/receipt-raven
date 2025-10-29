@@ -6,16 +6,27 @@ import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+  ZodTypeProvider,
+} from 'fastify-type-provider-zod';
 import path from 'path';
 import { config } from '../config/index.js';
-import databasePlugin from './database.js';
+import databasePlugin from './database/database';
+import { ledgerPlugin } from './ledger/index.js';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
+  // Set up Zod validators and serializers
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
+
   // Database (must be first so it's available to other plugins/modules)
   await fastify.register(databasePlugin);
 
   // Swagger/OpenAPI documentation
-  await fastify.register(swagger, {
+  await fastify.withTypeProvider<ZodTypeProvider>().register(swagger, {
     openapi: {
       openapi: '3.1.0',
       info: {
@@ -35,6 +46,7 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
         { name: 'ledger', description: 'Ledger integration endpoints' },
       ],
     },
+    transform: jsonSchemaTransform,
   });
 
   await fastify.register(swaggerUi, {
@@ -48,6 +60,9 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
   // CORS
   await fastify.register(cors, {
     origin: true, // Allow all origins in development
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   // Security headers
@@ -73,4 +88,25 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
     root: path.resolve(config.storage.uploadsDir),
     prefix: '/uploads/',
   });
+
+  // Static file serving for frontend (SPA)
+  // Register this separately to serve the frontend build
+  const frontendPath = path.resolve('./dist/public');
+  try {
+    // Only register if the frontend build exists
+    await import('fs/promises').then(fs => fs.access(frontendPath));
+    await fastify.register(staticFiles, {
+      root: frontendPath,
+      prefix: '/',
+      decorateReply: false, // Don't override the reply decorator from uploads static
+    });
+    fastify.log.info(`Serving frontend from ${frontendPath}`);
+  } catch {
+    fastify.log.warn(
+      `Frontend build not found at ${frontendPath}, skipping frontend static serving`
+    );
+  }
+
+  // Plug-in for ledger functionalities
+  await fastify.register(ledgerPlugin);
 }

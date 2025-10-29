@@ -20,3 +20,16 @@ option "operating_currency" "EUR"
 2024-01-15 * "Grocery Store" "Weekly groceries"
   Expenses:Groceries   50.00 EUR
   Assets:Checking     -50.00 EUR
+
+; Current month test transactions (October 2025)
+2025-10-05 * "Grocery Store" "Weekly groceries"
+  Expenses:Groceries   75.50 EUR
+  Assets:Checking     -75.50 EUR
+
+2025-10-10 * "Gas Station" "Fuel"
+  Expenses:Transport   60.00 EUR
+  Assets:Checking     -60.00 EUR
+
+2025-10-15 * "Restaurant" "Lunch meeting"
+  Expenses:Dining   45.50 EUR
+  Assets:Checking  -45.50 EUR

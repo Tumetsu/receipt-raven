@@ -165,15 +165,9 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Create postings for each item
     for item in receipt_data.items:
         # Determine expense account
-        if item.expense_account:
-            expense_account = item.expense_account
-        else:
-            # Default to a generic expense account with the category
-            expense_account = f"Expenses:{item.category}"
-
         postings.append(
             {
-                "account": expense_account,
+                "account": item.expense_account,
                 "amount": item.price,
                 "currency": currency,
                 "comment": item.name,
@@ -192,11 +186,11 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
     # Create transaction
     transaction = Transaction(
         date=receipt_data.date,
-        payee=receipt_data.shop,
-        narration=f"Receipt #{receipt_data.receipt_id}",
+        payee=receipt_data.payee,
+        narration=f"#{receipt_data.receipt_id} {receipt_data.description or 'Receipt'}",
         postings=postings,
-        tags=["receipt"],
-        metadata={"receipt_id": receipt_data.receipt_id},
+        tags=["receipt-raven"],
+        metadata={"receipt_id": str(receipt_data.receipt_id)},
     )
 
     return transaction
@@ -286,7 +280,6 @@ def submit_receipt_transaction(
 
         # Submit the transaction
         return submit_transaction(transaction, ledger_path, dry_run)
-
     except Exception as e:
         return TransactionSubmitResponse(
             success=False, message=f"Failed to process receipt: {str(e)}"

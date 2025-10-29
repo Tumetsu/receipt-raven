@@ -1,16 +1,14 @@
 import Fastify from 'fastify';
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { config } from '../config/index.js';
-import { registerPlugins } from '../plugins/index.js';
+import { z } from 'zod';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { config } from '../config';
+import { registerPlugins } from '../plugins';
 import { uploadModule } from '../modules/upload';
 import { analyzeModule } from '../modules/analyze';
 import { ledgerModule } from '../modules/ledger';
 import { appModule } from '../modules/app';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function exportOpenAPI() {
   const fastify = Fastify({
@@ -31,22 +29,18 @@ async function exportOpenAPI() {
     await fastify.register(appModule);
 
     // Register health check route
-    fastify.get('/health', {
+    fastify.withTypeProvider<ZodTypeProvider>().get('/health', {
       schema: {
         tags: ['health'],
         description: 'Health check endpoint',
         response: {
-          200: {
-            type: 'object',
-            properties: {
-              status: { type: 'string', enum: ['ok'] },
-            },
-            required: ['status'],
-          },
+          200: z.object({
+            status: z.literal('ok'),
+          }),
         },
       },
       handler: async () => {
-        return { status: 'ok' };
+        return { status: 'ok' as const };
       },
     });
 

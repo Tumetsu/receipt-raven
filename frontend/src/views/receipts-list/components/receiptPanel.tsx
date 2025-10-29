@@ -1,108 +1,293 @@
 import {
   Box,
   Button,
-  Card,
   CircularProgress,
-  Grid,
+  IconButton,
   Stack,
-  TextField,
+  styled,
   Typography,
 } from '@mui/material';
-import { GetApiReceipts200Item } from '../../../api/generated/model';
-import { useModal } from '../hooks/useModal';
-import { ReceiptImageModal } from './receiptImageModal.tsx';
-import { Img } from '../../../common/components/Img.tsx';
-import { useGetApiReceiptsReceiptIdItems } from '../../../api/generated/api.ts';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Control, useWatch } from 'react-hook-form';
+import { useRef, useState } from 'react';
 import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
-import { ComboBox } from '../../../common/components/comboBox.tsx';
+import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
+import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
+import { useReceiptForm, IReceiptInputs } from './useReceiptForm.ts';
+import {
+  Panel,
+  PanelContent,
+  PanelRef,
+} from '../../../common/components/Panel.tsx';
+import { DeleteDialog } from '../../../common/components/DeleteDialog.tsx';
+import { useDeleteApiReceiptsReceiptId } from '../../../api/generated/api.ts';
+import { useQueryClient } from '@tanstack/react-query';
+import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
+import {
+  GetApiReceipts200ReceiptsItem,
+  GetApiReceipts200ReceiptsItemStatus,
+} from '../../../api/generated/model';
 
-function ReceiptPanel(props: { receipt: GetApiReceipts200Item }) {
-  const { receipt } = props;
-  const imgModal = useModal();
+const PanelFooter = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2, 3),
+  paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
+  borderTop: '1px solid #e5e7eb',
+  flexShrink: 0,
+  backgroundColor: '#ffffff',
+}));
 
-  const {
-    isPending,
-    isSuccess,
-    data: result,
-  } = useGetApiReceiptsReceiptIdItems(receipt.id.toString(10));
+interface ReceiptHeaderProps {
+  control: Control<IReceiptInputs>;
+}
 
+function ReceiptFormHeader({ control }: ReceiptHeaderProps) {
   const accounts = useAccounts();
+
   return (
-    <Box>
-      <Card sx={{ p: 2 }}>
-        <Grid container spacing={4}>
-          <Grid size={12}>
-            <Stack spacing={2} useFlexGap>
-              <Typography variant="h4">Receipt details</Typography>
-              {accounts.isSuccess && (
-                <ComboBox options={accounts.data} label="Account" required />
-              )}
-            </Stack>
-          </Grid>
-          <Grid size={12}>
-            <Stack
-              spacing={2}
-              useFlexGap
-              direction={{
-                xs: 'column-reverse',
-                lg: 'row',
-              }}
-            >
-              <Stack spacing={2} useFlexGap>
-                <TextField label="Payee" value={receipt.payeeName} required />
-                <TextField label="Date" value={receipt.date} required />
-                <TextField
-                  label="Total sum"
-                  value={receipt.totalSum}
-                  required
-                />
-                <Stack spacing={2} direction="row" useFlexGap>
-                  <Button fullWidth variant="contained">
-                    Approve
-                  </Button>
-                  <Button fullWidth variant="outlined">
-                    Delete
-                  </Button>
-                </Stack>
-              </Stack>
-              <Img
-                sx={{
-                  height: '20',
-                  width: {
-                    xs: '100%',
-                    lg: '50%',
-                  },
-                }}
-                src={receipt.filepath}
-                alt="Receipt"
-                onClick={imgModal.openModal}
-              />
-            </Stack>
-          </Grid>
-          <Grid size={12}>
-            {isPending && (
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            )}
-            {isSuccess && <ReceiptItemList items={result.data} />}
-          </Grid>
-        </Grid>
-      </Card>
-      <ReceiptImageModal
-        open={imgModal.isOpen}
-        onClose={imgModal.onModalClose}
-        imagePath={receipt.filepath}
-      />
-    </Box>
+    <Stack spacing={2} useFlexGap>
+      {accounts.isSuccess && (
+        <ControlledComboBox
+          name="sourceAccount"
+          control={control}
+          options={accounts.data}
+          label="Expense account"
+          required
+        />
+      )}
+    </Stack>
   );
 }
 
-export default ReceiptPanel;
+interface ReceiptDetailsFormProps {
+  control: Control<IReceiptInputs>;
+}
+
+function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
+  return (
+    <Stack spacing={2} useFlexGap>
+      <ControlledTextField
+        name="description"
+        control={control}
+        label="Description"
+      />
+      <ControlledTextField
+        name="payee"
+        control={control}
+        label="Payee"
+        required
+      />
+      <ControlledTextField
+        name="date"
+        control={control}
+        label="Date"
+        required
+      />
+      <ControlledTextField
+        name="totalSum"
+        control={control}
+        label="Total sum"
+        required
+      />
+    </Stack>
+  );
+}
+
+interface SumComparisonProps {
+  control: Control<IReceiptInputs>;
+}
+
+function SumComparison({ control }: SumComparisonProps) {
+  const items = useWatch({ control, name: 'items' });
+  const totalSum = useWatch({ control, name: 'totalSum' });
+
+  const itemsSum = Array.isArray(items)
+    ? items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
+    : 0;
+  const totalSumNumber = Number(totalSum) || 0;
+  const isMatch = Math.abs(itemsSum - totalSumNumber) < 0.01;
+
+  return (
+    <Stack spacing={1} sx={{ mb: 2 }}>
+      {!isMatch && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="body2" color="text.secondary">
+            Expected total:
+          </Typography>
+          <Typography variant="body1" fontWeight={500}>
+            {totalSumNumber.toFixed(2)} €
+          </Typography>
+        </Stack>
+      )}
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="body2" color="text.secondary">
+          Items sum:
+        </Typography>
+        <Typography
+          variant="body1"
+          fontWeight={500}
+          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+        >
+          {itemsSum.toFixed(2)} €
+        </Typography>
+      </Stack>
+    </Stack>
+  );
+}
+
+interface ReceiptActionsProps {
+  isDisabled: boolean;
+}
+
+function ReceiptActions({ isDisabled }: ReceiptActionsProps) {
+  return (
+    <Stack spacing={2} direction="row" useFlexGap>
+      <Button fullWidth variant="contained" type="submit" disabled={isDisabled}>
+        Approve
+      </Button>
+    </Stack>
+  );
+}
+
+interface ReceiptPanelProps {
+  receipt: GetApiReceipts200ReceiptsItem;
+  onApprove: () => void;
+  onClosePanel: () => void;
+}
+
+function ReceiptPanelContent({
+  receipt,
+  onApprove,
+}: Omit<ReceiptPanelProps, 'onClosePanel'>) {
+  const [isMergeInProgress, setIsMergeInProgress] = useState(false);
+
+  const {
+    formMethods,
+    onSubmit,
+    isSavePending,
+    isItemsPending,
+    isItemsSuccess,
+  } = useReceiptForm(receipt, onApprove);
+
+  const { handleSubmit, control, formState } = formMethods;
+  const { isValid } = formState;
+  const isApproved =
+    receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
+
+  const isApproveDisabled =
+    isSavePending || isApproved || !isValid || isMergeInProgress;
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+      }}
+    >
+      <PanelContent>
+        <Stack spacing={3}>
+          {/* Receipt Image */}
+          <Box>
+            <ReceiptImage url={receipt.fileUrl} />
+          </Box>
+
+          {/* Receipt Information */}
+          <ReceiptFormHeader control={control} />
+          <ReceiptDetailsForm control={control} />
+
+          {/* Products/Items */}
+          {isItemsPending && (
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {isItemsSuccess && (
+            <Box>
+              <ReceiptItemList
+                name="items"
+                control={control}
+                disabled={isApproved}
+                onMergeStateChange={setIsMergeInProgress}
+              />
+            </Box>
+          )}
+        </Stack>
+      </PanelContent>
+
+      <PanelFooter>
+        <SumComparison control={control} />
+        <ReceiptActions isDisabled={isApproveDisabled} />
+      </PanelFooter>
+    </form>
+  );
+}
+
+export function ReceiptPanel(props: ReceiptPanelProps) {
+  const panelRef = useRef<PanelRef>(null);
+  const deleteMutation = useDeleteApiReceiptsReceiptId();
+  const queryClient = useQueryClient();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleApprove = () => {
+    panelRef.current?.close(props.onApprove);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    setIsDeleteDialogOpen(false);
+    deleteMutation.mutate(
+      { receiptId: props.receipt.id },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ['receipts'] });
+          panelRef.current?.close(props.onClosePanel);
+        },
+      }
+    );
+  };
+
+  return (
+    <>
+      <Panel
+        ref={panelRef}
+        title="Receipt Details"
+        onClose={props.onClosePanel}
+        renderHeaderActions={
+          props.receipt.status !==
+            GetApiReceipts200ReceiptsItemStatus.approved && (
+            <IconButton onClick={handleDeleteClick} size="small">
+              <DeleteIcon />
+            </IconButton>
+          )
+        }
+      >
+        <ReceiptPanelContent
+          receipt={props.receipt}
+          onApprove={handleApprove}
+        />
+      </Panel>
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        title="Delete Receipt"
+        message="Are you sure you want to delete this receipt? This action cannot be undone."
+        onCancel={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+      />
+    </>
+  );
+}

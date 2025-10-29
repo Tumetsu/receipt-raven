@@ -1,17 +1,12 @@
 import { FastifyPluginAsync } from 'fastify';
-import { BeancountAdapter } from './services/beancount-adapter.js';
-import { config } from '../../config/index.js';
 import ledgerRoutes from './routes.js';
-
+import { SQLiteReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
 /**
  * Ledger module plugin - handles ledger integration and master data
  */
 export const ledgerModule: FastifyPluginAsync = async (fastify, _opts) => {
-  // Create ledger service (Beancount adapter)
-  const ledgerService = new BeancountAdapter(config.ledger.beancountServiceUrl);
-
-  // Store service in fastify instance for access in routes
-  fastify.decorate('ledgerService', ledgerService);
+  const receiptRepository = new SQLiteReceiptRepository(fastify.db);
+  fastify.decorate('receiptRepository', receiptRepository);
 
   // Register routes with /api prefix
   await fastify.register(ledgerRoutes, { prefix: '/api' });

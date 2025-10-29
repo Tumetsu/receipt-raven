@@ -8,10 +8,16 @@ export function useAccounts() {
       {
         queryKey: ['ledgerAccounts', 'Assets'],
         queryFn: () => getApiLedgerAccounts({ type: 'Assets' }),
+        staleTime: 1000 * 60 * 60,
+        gcTime: 1000 * 60 * 60,
+        refetchOnMount: false,
       },
       {
         queryKey: ['ledgerAccounts', 'Liabilities'],
         queryFn: () => getApiLedgerAccounts({ type: 'Liabilities' }),
+        staleTime: 1000 * 60 * 60,
+        gcTime: 1000 * 60 * 60,
+        refetchOnMount: false,
       },
     ],
   });
@@ -22,7 +28,7 @@ export function useAccounts() {
   // Combine data safely with useMemo
   const combinedData = useMemo((): string[] => {
     if (!assetQuery.data || !liabilityQuery.data) return [];
-    return [...assetQuery.data.data, ...liabilityQuery.data.data];
+    return [...assetQuery.data, ...liabilityQuery.data];
   }, [assetQuery.data, liabilityQuery.data]);
 
   return {

@@ -1,38 +1,63 @@
-import { Grid, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
-import { GetApiReceipts200Item } from '../../api/generated/model';
-import ReceiptPanel from './components/receiptPanel.tsx';
+import { ReceiptPanel } from './components/receiptPanel.tsx';
+import { ContentArea } from '../../common/components/ContentArea.tsx';
+import { PageContainer } from '../../common/components/Layout.tsx';
+import { useAccounts } from './hooks/useGetAccounts.ts';
+import { useExpenseAccounts } from './hooks/useExpenseAccounts.ts';
+import { GetApiReceipts200ReceiptsItem } from '../../api/generated/model';
 
 export function ReceiptListView(): ReactElement {
-  const { isPending, isSuccess, data: result } = useGetApiReceipts();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(30);
+
+  const {
+    isPending,
+    isSuccess,
+    data: result,
+  } = useGetApiReceipts(
+    { page, pageSize },
+    {
+      query: { queryKey: ['receipts', page, pageSize] },
+    }
+  );
   const [selectedReceipt, setSelectedReceipt] =
-    useState<GetApiReceipts200Item | null>(null);
+    useState<GetApiReceipts200ReceiptsItem | null>(null);
+
+  // Preload expense accounts to cache for when opening the receipt panel
+  useExpenseAccounts();
+  useAccounts();
 
   return (
-    <Grid container spacing={2}>
-      <Grid size={12}>
-        <Typography variant="h1" gutterBottom>
-          Receipts
-        </Typography>
-      </Grid>
-      <Grid size={7}>
-        {isPending && <span>Loading</span>}
-        {isSuccess && (
+    <PageContainer>
+      <ContentArea>
+        {isPending && <Typography>Loading...</Typography>}
+        {isSuccess && result && (
           <ReceiptList
-            receipts={result.data}
+            receipts={result.receipts}
+            selectedReceiptId={selectedReceipt?.id}
+            totalReceipts={result.total}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
             onRowClick={id => {
-              const receipt = result.data.find(r => r.id === id) || null;
-              console.log(id, receipt);
+              const receipt = result.receipts.find(r => r.id === id) || null;
               setSelectedReceipt(receipt);
             }}
-          ></ReceiptList>
+          />
         )}
-      </Grid>
-      <Grid size={5}>
-        {selectedReceipt && <ReceiptPanel receipt={selectedReceipt} />}
-      </Grid>
-    </Grid>
+      </ContentArea>
+
+      {selectedReceipt && (
+        <ReceiptPanel
+          receipt={selectedReceipt}
+          onApprove={() => setSelectedReceipt(null)}
+          onClosePanel={() => setSelectedReceipt(null)}
+        />
+      )}
+    </PageContainer>
   );
 }
