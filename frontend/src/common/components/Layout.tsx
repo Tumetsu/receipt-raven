@@ -7,7 +7,6 @@ export const PageContainer = styled(Box)(({ theme }) => ({
   backgroundColor: '#f9fafb',
   // Desktop: fixed viewport height with overflow hidden for DataGrid
   [theme.breakpoints.up('md')]: {
-    height: '100vh',
     overflow: 'hidden',
   },
   // Mobile: natural flow, body scroll

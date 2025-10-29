@@ -167,15 +167,6 @@ export function ReceiptList(props: {
             '&:hover': {
               backgroundColor: '#eff6ff',
             },
-            '&.selected-row': {
-              backgroundColor: '#eff6ff',
-              '&:hover': {
-                backgroundColor: '#dbeafe',
-              },
-            },
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid #f3f4f6',
           },
         }}
       />
