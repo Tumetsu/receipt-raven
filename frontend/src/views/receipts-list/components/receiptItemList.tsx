@@ -1,4 +1,11 @@
-import { Typography, IconButton, Box, styled, Button } from '@mui/material';
+import {
+  Typography,
+  IconButton,
+  Box,
+  Stack,
+  styled,
+  Button,
+} from '@mui/material';
 import { blue, grey, purple } from '@mui/material/colors';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,14 +31,6 @@ const ProductCard = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   position: 'relative',
   backgroundColor: grey[50],
-}));
-
-const ProductHeader = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: theme.spacing(2),
-  gap: theme.spacing(2),
 }));
 
 type ProductItemProps<
@@ -80,7 +79,7 @@ function ProductItem<
         <RemoveItemButton onClick={() => onRemove(index)} disabled={disabled} />
       )}
       <Box sx={{ paddingRight: 4, pointerEvents: mergeMode ? 'none' : 'auto' }}>
-        <ProductHeader>
+        <Stack gap={2}>
           <ControlledTextField
             name={`${name}.${index}.name` as unknown as Path<TFieldValues>}
             label="Product"
@@ -88,6 +87,16 @@ function ProductItem<
             required
             disabled={disabled || mergeMode}
             sx={{ flex: 1 }}
+          />
+          <ControlledComboBox
+            name={
+              `${name}.${index}.expenseAccount` as unknown as Path<TFieldValues>
+            }
+            control={control}
+            options={expenseAccountOptions}
+            label="Expense account"
+            required
+            disabled={disabled || mergeMode}
           />
           <ControlledTextField
             name={`${name}.${index}.price` as unknown as Path<TFieldValues>}
@@ -97,17 +106,7 @@ function ProductItem<
             disabled={disabled || mergeMode}
             sx={{ width: '100px' }}
           />
-        </ProductHeader>
-        <ControlledComboBox
-          name={
-            `${name}.${index}.expenseAccount` as unknown as Path<TFieldValues>
-          }
-          control={control}
-          options={expenseAccountOptions}
-          label="Expense account"
-          required
-          disabled={disabled || mergeMode}
-        />
+        </Stack>
       </Box>
     </ProductCard>
   );
