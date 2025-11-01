@@ -10,11 +10,12 @@ import {
   FieldValues,
   FieldArrayWithId,
   Path,
-  useFieldArray,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
 } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 import { useExpenseAccounts } from '../hooks/useExpenseAccounts.ts';
-import { useMergeReceiptItems } from '../hooks/useMergeReceiptItems.ts';
+import { ActionType } from './receiptPanel.tsx';
 
 const ProductCard = styled(Box)(({ theme }) => ({
   border: '1px solid #e5e7eb',
@@ -117,9 +118,15 @@ type ReceiptItemListProps<
   TFieldArrayName extends ArrayPath<TFieldValues> = ArrayPath<TFieldValues>,
 > = {
   control: Control<TFieldValues>;
+  fields: FieldArrayWithId<TFieldValues, TFieldArrayName>[];
+  append: UseFieldArrayAppend<TFieldValues, TFieldArrayName>;
+  remove: UseFieldArrayRemove;
+  actionMode: ActionType;
   name: TFieldArrayName;
   disabled: boolean;
-  onMergeStateChange?: (isMerging: boolean) => void;
+  onMergeActivate: () => void;
+  selectedReceiptItems: Record<string, boolean>;
+  onSelectItem: (id: string) => void;
 };
 
 function RemoveItemButton({
@@ -141,13 +148,13 @@ function RemoveItemButton({
 }
 
 type NormalModeActionsProps = {
-  onToggleMergeMode: () => void;
+  onMergeActivate: () => void;
   onAddItem: () => void;
   disabled: boolean;
   hasMultipleFields: boolean;
 };
 const NormalModeActions = ({
-  onToggleMergeMode,
+  onMergeActivate,
   onAddItem,
   disabled,
   hasMultipleFields,
@@ -156,7 +163,7 @@ const NormalModeActions = ({
     <Button
       size="small"
       startIcon={<MergeIcon />}
-      onClick={onToggleMergeMode}
+      onClick={onMergeActivate}
       disabled={disabled || !hasMultipleFields}
       sx={{
         color: purple[600],
@@ -183,83 +190,22 @@ const NormalModeActions = ({
   </>
 );
 
-type MergeModeActionsProps = {
-  onCancel: () => void;
-  onMerge: () => void;
-  mergeAllowed: boolean;
-  disabled: boolean;
-};
-const MergeModeActions = ({
-  onCancel,
-  onMerge,
-  mergeAllowed,
-  disabled,
-}: MergeModeActionsProps) => (
-  <>
-    <Button
-      size="small"
-      startIcon={<MergeIcon />}
-      onClick={onMerge}
-      disabled={disabled || !mergeAllowed}
-      sx={{
-        color: purple[600],
-        fontWeight: 500,
-        '&:hover': { backgroundColor: purple[50] },
-        '&.Mui-disabled': {
-          color: grey[400],
-        },
-      }}
-    >
-      Merge selected
-    </Button>
-    <Button
-      size="small"
-      startIcon={<ClearIcon />}
-      onClick={onCancel}
-      disabled={disabled}
-      sx={{
-        color: grey[600],
-        fontWeight: 500,
-        '&:hover': { backgroundColor: grey[50] },
-        '&.Mui-disabled': {
-          color: grey[400],
-        },
-      }}
-    >
-      Cancel
-    </Button>
-  </>
-);
-
 export function ReceiptItemList<
   TFieldValues extends FieldValues,
   TFieldArrayName extends ArrayPath<TFieldValues>,
 >({
   control,
+  fields,
+  append,
+  remove,
+  actionMode,
   name,
   disabled,
-  onMergeStateChange,
+  onMergeActivate,
+  selectedReceiptItems,
+  onSelectItem,
 }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
   const expenseAccounts = useExpenseAccounts();
-
-  const { fields, append, remove, replace } = useFieldArray({
-    control,
-    name,
-  });
-
-  const {
-    mergeMode,
-    setMergeMode,
-    selectedReceiptItems,
-    onSelectItem,
-    onMergeItems,
-    resetMerge,
-    isMergeAllowed,
-  } = useMergeReceiptItems({
-    fields,
-    replace,
-    onMergeStateChange,
-  });
 
   const onAddItem = () => {
     append({ name: '', price: '', expenseAccount: '' } as never);
@@ -284,16 +230,9 @@ export function ReceiptItemList<
           Products
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          {mergeMode ? (
-            <MergeModeActions
-              mergeAllowed={isMergeAllowed}
-              onMerge={onMergeItems}
-              onCancel={() => resetMerge()}
-              disabled={disabled}
-            />
-          ) : (
+          {actionMode !== 'merge' && (
             <NormalModeActions
-              onToggleMergeMode={() => setMergeMode(true)}
+              onMergeActivate={onMergeActivate}
               onAddItem={onAddItem}
               disabled={disabled}
               hasMultipleFields={fields.length > 1}
@@ -312,7 +251,7 @@ export function ReceiptItemList<
             disabled={disabled}
             onRemove={onRemoveItem}
             expenseAccountOptions={expenseAccounts.data}
-            mergeMode={mergeMode}
+            mergeMode={actionMode === 'merge'}
             isSelected={selectedReceiptItems[field.id]}
             onSelect={onSelectItem}
           />

@@ -1,14 +1,12 @@
 import {
   Box,
-  Button,
   CircularProgress,
   IconButton,
   Stack,
-  styled,
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Control, useWatch } from 'react-hook-form';
+import { Control, useFieldArray, useWatch } from 'react-hook-form';
 import { useRef, useState } from 'react';
 import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
@@ -28,14 +26,10 @@ import {
   GetApiReceipts200ReceiptsItem,
   GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
+import { PanelFooter } from './PanelFooter.tsx';
+import { useMergeReceiptItems } from '../hooks/useMergeReceiptItems.ts';
 
-const PanelFooter = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 3),
-  paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
-  borderTop: '1px solid #e5e7eb',
-  flexShrink: 0,
-  backgroundColor: '#ffffff',
-}));
+export type ActionType = 'save' | 'approve' | 'merge';
 
 interface ReceiptHeaderProps {
   control: Control<IReceiptInputs>;
@@ -139,21 +133,6 @@ function SumComparison({ control }: SumComparisonProps) {
   );
 }
 
-interface ReceiptActionsProps {
-  isDisabled: boolean;
-  createAction?: boolean;
-}
-
-function ReceiptActions({ isDisabled, createAction }: ReceiptActionsProps) {
-  return (
-    <Stack spacing={2} direction="row" useFlexGap>
-      <Button fullWidth variant="contained" type="submit" disabled={isDisabled}>
-        {createAction ? 'Save Receipt' : 'Approve Receipt'}
-      </Button>
-    </Stack>
-  );
-}
-
 export type Receipt = Omit<GetApiReceipts200ReceiptsItem, 'id'> & {
   id: number | null;
 };
@@ -167,7 +146,9 @@ function ReceiptPanelContent({
   receipt,
   onApprove,
 }: Omit<ReceiptPanelProps, 'onClosePanel'>) {
-  const [isMergeInProgress, setIsMergeInProgress] = useState(false);
+  const [actionMode, setActionMode] = useState<ActionType>(
+    receipt.id ? 'approve' : 'save'
+  );
 
   const {
     formMethods,
@@ -182,8 +163,47 @@ function ReceiptPanelContent({
   const isApproved =
     receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
 
-  const isApproveDisabled =
-    isSavePending || isApproved || !isValid || isMergeInProgress;
+  const isApproveDisabled = isSavePending || isApproved || !isValid;
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: 'items',
+  });
+
+  const {
+    selectedReceiptItems,
+    onSelectItem,
+    mergeItems,
+    resetMerge,
+    isMergeAllowed,
+  } = useMergeReceiptItems({
+    fields,
+    replace,
+  });
+
+  function onActionSuccess() {
+    if (actionMode === 'merge') {
+      mergeItems();
+    }
+    setActionMode(receipt.id ? 'approve' : 'save');
+  }
+
+  function onActionCancel() {
+    if (actionMode === 'merge') {
+      resetMerge();
+      setActionMode(receipt.id ? 'approve' : 'save');
+    }
+  }
+
+  function isActionDisabled() {
+    if (actionMode === 'approve' || actionMode === 'save') {
+      return isApproveDisabled;
+    }
+    if (actionMode === 'merge') {
+      return !isMergeAllowed;
+    }
+    return false;
+  }
 
   return (
     <form
@@ -218,22 +238,30 @@ function ReceiptPanelContent({
             <Box>
               <ReceiptItemList
                 name="items"
+                fields={fields}
+                append={append}
+                remove={remove}
+                selectedReceiptItems={selectedReceiptItems}
+                onSelectItem={onSelectItem}
+                actionMode={actionMode}
                 control={control}
                 disabled={isApproved}
-                onMergeStateChange={setIsMergeInProgress}
+                onMergeActivate={() => setActionMode('merge')}
               />
             </Box>
           )}
         </Stack>
       </PanelContent>
 
-      <PanelFooter>
-        <SumComparison control={control} />
-        <ReceiptActions
-          isDisabled={isApproveDisabled}
-          createAction={!receipt.id}
-        />
-      </PanelFooter>
+      <PanelFooter
+        actionType={actionMode}
+        isActionDisabled={isActionDisabled()}
+        onSuccess={onActionSuccess}
+        onCancel={onActionCancel}
+        actionStatusComponent={
+          actionMode !== 'merge' && <SumComparison control={control} />
+        }
+      />
     </form>
   );
 }

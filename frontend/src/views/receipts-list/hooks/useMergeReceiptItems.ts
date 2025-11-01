@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   ArrayPath,
   FieldArrayWithId,
@@ -13,7 +13,6 @@ type UseMergeReceiptItemsParams<
 > = {
   fields: FieldArrayWithId<TFieldValues, TFieldArrayName>[];
   replace: UseFieldArrayReplace<TFieldValues, TFieldArrayName>;
-  onMergeStateChange?: (isMerging: boolean) => void;
 };
 
 export function useMergeReceiptItems<
@@ -22,16 +21,10 @@ export function useMergeReceiptItems<
 >({
   fields,
   replace,
-  onMergeStateChange,
 }: UseMergeReceiptItemsParams<TFieldValues, TFieldArrayName>) {
-  const [mergeMode, setMergeMode] = useState(false);
   const [selectedReceiptItems, setSelectedReceiptItems] = useState<
     Record<string, boolean>
   >({});
-
-  useEffect(() => {
-    onMergeStateChange?.(mergeMode);
-  }, [mergeMode, onMergeStateChange]);
 
   const onSelectItem = (idx: string) => {
     setSelectedReceiptItems(prev => ({
@@ -40,7 +33,7 @@ export function useMergeReceiptItems<
     }));
   };
 
-  const onMergeItems = () => {
+  const mergeItems = () => {
     type ItemType = PathValue<TFieldValues, TFieldArrayName>[number];
 
     const mergeResult = fields.reduce<ItemType | null>((acc, field) => {
@@ -89,7 +82,6 @@ export function useMergeReceiptItems<
   };
 
   const resetMerge = () => {
-    setMergeMode(false);
     setSelectedReceiptItems({});
   };
 
@@ -97,11 +89,9 @@ export function useMergeReceiptItems<
     Object.values(selectedReceiptItems).filter(Boolean).length > 1;
 
   return {
-    mergeMode,
-    setMergeMode,
     selectedReceiptItems,
     onSelectItem,
-    onMergeItems,
+    mergeItems,
     resetMerge,
     isMergeAllowed,
   };
