@@ -179,6 +179,8 @@ function ReceiptPanelContent({
   } = useMergeReceiptItems({
     fields,
     replace,
+    getValues: formMethods.getValues,
+    name: 'items',
   });
 
   function onActionSuccess() {

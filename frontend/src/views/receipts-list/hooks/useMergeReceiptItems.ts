@@ -3,8 +3,10 @@ import {
   ArrayPath,
   FieldArrayWithId,
   FieldValues,
+  Path,
   PathValue,
   UseFieldArrayReplace,
+  UseFormGetValues,
 } from 'react-hook-form';
 
 type UseMergeReceiptItemsParams<
@@ -13,6 +15,8 @@ type UseMergeReceiptItemsParams<
 > = {
   fields: FieldArrayWithId<TFieldValues, TFieldArrayName>[];
   replace: UseFieldArrayReplace<TFieldValues, TFieldArrayName>;
+  getValues: UseFormGetValues<TFieldValues>;
+  name: TFieldArrayName;
 };
 
 export function useMergeReceiptItems<
@@ -21,6 +25,8 @@ export function useMergeReceiptItems<
 >({
   fields,
   replace,
+  getValues,
+  name,
 }: UseMergeReceiptItemsParams<TFieldValues, TFieldArrayName>) {
   const [selectedReceiptItems, setSelectedReceiptItems] = useState<
     Record<string, boolean>
@@ -36,9 +42,10 @@ export function useMergeReceiptItems<
   const mergeItems = () => {
     type ItemType = PathValue<TFieldValues, TFieldArrayName>[number];
 
-    const mergeResult = fields.reduce<ItemType | null>((acc, field) => {
+    const currentItems = getValues(name as Path<TFieldValues>) as ItemType[];
+    const mergeResult = fields.reduce<ItemType | null>((acc, field, index) => {
       if (selectedReceiptItems[field.id]) {
-        const item = field as ItemType;
+        const item = currentItems[index];
 
         if (!acc) {
           return {
@@ -63,8 +70,8 @@ export function useMergeReceiptItems<
     // Filter out merged items and create new array with merged result
     const otherFields = fields
       .filter(field => !selectedReceiptItems[field.id])
-      .map(field => {
-        const item = field as ItemType;
+      .map((_, index) => {
+        const item = currentItems[index];
         return {
           name: item.name,
           price: item.price,
