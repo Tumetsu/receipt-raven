@@ -73,6 +73,7 @@ export function useMergeReceiptItems<
       });
 
     if (mergeResult) {
+      mergeResult.price = Number(mergeResult.price.toFixed(2));
       otherFields.push(mergeResult);
     }
 
