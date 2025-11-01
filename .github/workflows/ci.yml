@@ -105,60 +105,60 @@ jobs:
       - name: Run tests
         run: pytest
 
-  docker-build:
-    name: Build and Push Docker Images
-    runs-on: self-hosted
-    needs: [frontend-ci, backend-ci, beancount-ci]
-    # Run on push to main OR manual workflow dispatch with deploy=true
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true)
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Build frontend locally
-        run: |
-          mkdir -p backend/uploads
-          cd frontend
-          npm ci
-          npm run build
-          cd ..
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Gitea Registry
-        uses: docker/login-action@v3
-        with:
-          registry: gitea.lintula.xyz
-          username: ${{ secrets.GITEA_REGISTRY_USERNAME }}
-          password: ${{ secrets.GITEA_REGISTRY_TOKEN }}
-
-      - name: Build and push receipt-raven image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./backend/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: gitea.lintula.xyz/tuomas/receipt-raven:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push beancount-service image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./beancount-service/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: gitea.lintula.xyz/tuomas/receipt-raven-beancount-service:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#  docker-build:
+#    name: Build and Push Docker Images
+#    runs-on: self-hosted
+#    needs: [frontend-ci, backend-ci, beancount-ci]
+#    # Run on push to main OR manual workflow dispatch with deploy=true
+#    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true)
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: '24'
+#          cache: 'npm'
+#          cache-dependency-path: frontend/package-lock.json
+#
+#      - name: Build frontend locally
+#        run: |
+#          mkdir -p backend/uploads
+#          cd frontend
+#          npm ci
+#          npm run build
+#          cd ..
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Login to Gitea Registry
+#        uses: docker/login-action@v3
+#        with:
+#          registry: gitea.lintula.xyz
+#          username: ${{ secrets.GITEA_REGISTRY_USERNAME }}
+#          password: ${{ secrets.GITEA_REGISTRY_TOKEN }}
+#
+#      - name: Build and push receipt-raven image
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          file: ./backend/Dockerfile
+#          platforms: linux/amd64
+#          push: true
+#          tags: gitea.lintula.xyz/tuomas/receipt-raven:latest
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#
+#      - name: Build and push beancount-service image
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          file: ./beancount-service/Dockerfile
+#          platforms: linux/amd64
+#          push: true
+#          tags: gitea.lintula.xyz/tuomas/receipt-raven-beancount-service:latest
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
