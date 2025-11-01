@@ -1,0 +1,12 @@
+{
+  "backend/src/**/*.ts": [
+    "bash -c 'cd backend && npx eslint \"$@\"' _",
+    "bash -c 'cd backend && npx prettier --check \"$@\"' _",
+    "bash -c 'cd backend && npx tsc --noEmit'"
+  ],
+  "frontend/src/**/*.{ts,tsx}": [
+    "bash -c 'cd frontend && npx eslint \"$@\"' _",
+    "bash -c 'cd frontend && npx prettier --check \"$@\"' _",
+    "bash -c 'cd frontend && npm run type-check'"
+  ]
+}

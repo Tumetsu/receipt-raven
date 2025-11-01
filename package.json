@@ -18,6 +18,11 @@
     "format:frontend": "cd frontend && npm run format",
     "format:backend": "cd backend && npm run format",
     "lint": "npm run lint:frontend && npm run lint:backend",
-    "format": "npm run format:frontend && npm run format:backend"
+    "format": "npm run format:frontend && npm run format:backend",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6"
   }
 }
