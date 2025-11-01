@@ -64,7 +64,7 @@ export function ReceiptListView(): ReactElement {
             <Fab
               color="primary"
               onClick={addReceiptManually}
-              sx={{ position: 'fixed', bottom: 16, right: 16 }}
+              sx={{ position: 'fixed', bottom: 24, right: 24 }}
             >
               <AddIcon />
             </Fab>
