@@ -33,43 +33,51 @@ export interface ReceiptAnalysisResponse {
 
 function getPrompt(expenseAccounts: string) {
   return `
-Please read the details of the provided receipt and list the following properties in a structured way in a json format:
-{
-    "payee": "Name of the shop, restaurant or service provider in the receipt",
-    "description": "Short description or summary of the receipt content. Prefer finnish language if possible. Summary of purchased items is usually good description",
-    "date": "Date of the purchase in format YYYY-MM-DD",
-    "products": [
-    {
-        "name": "product name",
-        "expenseAccount": "expense account for the product, choose from the following list entry which you think most likely suits the item in question. Take in account also payee when deciding the account: ${expenseAccounts}",
-        "price": "price of the product in euros for example 12.50",
-    }],
-    "total": "Total sum of the receipt in euros for example 12.50"
-}
+You are tasked with extracting structured information from the given receipt content image and returning it in JSON format. This information will be used for expense tracking and categorization.
 
-The response should be in json format containing nothing else. If you cannot find the information, just return null for that property.
+Your task is to extract the following information from the receipt:
 
-Here is an example output:
+1. **Payee**: Name of the shop, restaurant, or service provider
+2. **Description**: Brief summary of the purchase contents (preferably in Finnish if possible)
+3. **Date**: Purchase date in YYYY-MM-DD format
+4. **Products**: List of individual items with names, expense accounts, and prices
+5. **Total**: Total amount of the receipt
+
+**Important Instructions for Product Analysis**:
+- When a receipt shows multiple quantities of the same item with both unit price and total price listed, use the total price for all quantities combined, not the single unit price
+- For each product, you must assign an expense account from this predefined list: ${expenseAccounts}
+
+**Analysis Process**:
+Before providing your final JSON output, wrap your analysis in <analysis> tags and work through the receipt systematically:
+
+1. Quote the key parts of the receipt content verbatim (merchant name, date, product lines, total)
+2. Identify the merchant/payee name from the quoted content
+3. Extract the date and convert to YYYY-MM-DD format
+4. List each product/item found on the receipt with its price as shown
+5. For each item, explicitly state your reasoning for choosing the expense account, considering both the item type and the merchant context
+6. Double-check quantity/price calculations - if multiple quantities are shown, confirm you're using the total price for those quantities, not the unit price
+7. Calculate or verify the total amount
+8. Create a brief description of the purchase contents, preferably in Finnish
+
+It's OK for this section to be quite long if there are many products to analyze.
+
+**Output Format**:
+Return your response as pure JSON with no additional text, markdown formatting, or code blocks. Use this structure:
 {
-    "payee": "K-Market",
-    "date": "2025-04-09",
-    "description": "Ruokaa ja paita",
+    "payee": "merchant name or null",
+    "date": "YYYY-MM-DD or null", 
+    "description": "brief description or null",
     "products": [
         {
-            "name": "Banaani",
-            "expenseAccount": "Expenses:Consumables:Food",
-            "price": 0.80,
-        }
-        {
-            "name": "T-paita",
-            "expenseAccount": "Expenses:Clothes",
-            "price": 14.99,
+            "name": "product name",
+            "expenseAccount": "account from predefined list",
+            "price": 0.00
         }
     ],
-    "total": 15.79
+    "total": 0.00
 }
 
-RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
+If you cannot find specific information, use null for that property. Ensure all prices are formatted as decimal numbers (e.g., 12.50, not "12.50").
 `;
 }
 
