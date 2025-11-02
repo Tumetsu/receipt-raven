@@ -118,7 +118,7 @@ export function ReceiptList(props: {
 
           const mobileRow: MobileCardRow = {
             icon,
-            primaryText: `${row.date} ${row.payee}`,
+            primaryText: `${DateTime.fromISO(row.date).toLocaleString(DateTime.DATE_SHORT)} ${row.payee}`,
             secondaryText: row.description ?? '',
             tertiaryText: `${Number(row.cost).toFixed(2)}€`,
           };

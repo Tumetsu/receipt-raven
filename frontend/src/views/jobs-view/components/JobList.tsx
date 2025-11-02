@@ -109,7 +109,7 @@ export function JobList(props: {
           const mobileRow: MobileCardRow = {
             icon,
             primaryText: `Job #${row.id}`,
-            secondaryText: row.createdAt,
+            secondaryText: `${DateTime.fromSQL(row.createdAt).toLocaleString(DateTime.DATETIME_SHORT)}`,
             tertiaryText:
               row.retryCount > 0 ? `${row.retryCount} retries` : undefined,
           };
