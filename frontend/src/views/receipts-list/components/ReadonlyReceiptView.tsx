@@ -1,10 +1,9 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { DateTime } from 'luxon';
 import { DisplayField } from '../../../common/components/DisplayField.tsx';
 import { ReadonlyReceiptItems } from './ReadonlyReceiptItems.tsx';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
 import { Receipt } from './receiptPanel.tsx';
-import { formatCurrency } from '../../../common/utils.ts';
+import { formatCurrency, formatDate } from '../../../common/utils.ts';
 
 interface ReceiptItem {
   id?: number;
@@ -17,11 +16,6 @@ interface ReadonlyReceiptViewProps {
   receipt: Receipt;
   items: ReceiptItem[];
 }
-
-const formatDate = (dateString: string): string => {
-  const date = DateTime.fromISO(dateString);
-  return date.isValid ? date.toLocaleString(DateTime.DATE_SHORT) : dateString;
-};
 
 export const ReadonlyReceiptView = ({
   receipt,

@@ -1,5 +1,4 @@
 import { Box, Stack, Typography, Chip, Divider } from '@mui/material';
-import { DateTime } from 'luxon';
 import { useRef } from 'react';
 import {
   Panel,
@@ -11,6 +10,7 @@ import {
   GetApiJobs200JobsItem,
   GetApiJobs200JobsItemStatus,
 } from '../../../api/generated/model';
+import { formatDate } from '../../../common/utils.ts';
 
 interface JobPanelProps {
   job: GetApiJobs200JobsItem;
@@ -18,14 +18,6 @@ interface JobPanelProps {
 }
 
 function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
-  const formatDate = (dateString: string) => {
-    const date = DateTime.fromSQL(dateString);
-    if (!date.isValid) {
-      return DateTime.fromISO(dateString).toLocaleString();
-    }
-    return date.toLocaleString();
-  };
-
   const getStatusColor = (
     status: string
   ): 'success' | 'error' | 'warning' | 'default' => {

@@ -19,6 +19,7 @@ import {
 } from '../../../api/generated/model';
 import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 import { DateTime } from 'luxon';
+import { formatDate } from '../../../common/utils.ts';
 
 type JobStatus = GetApiJobs200JobsItemStatus;
 
@@ -74,8 +75,7 @@ export function JobList(props: {
       flex: 2,
       minWidth: 200,
       renderCell: params => {
-        const date = DateTime.fromSQL(params.value);
-        return date.toLocaleString(DateTime.DATETIME_SHORT);
+        return formatDate(params.value);
       },
     },
     {
@@ -109,7 +109,7 @@ export function JobList(props: {
           const mobileRow: MobileCardRow = {
             icon,
             primaryText: `Job #${row.id}`,
-            secondaryText: `${DateTime.fromSQL(row.createdAt).toLocaleString(DateTime.DATETIME_SHORT)}`,
+            secondaryText: `${formatDate(row.createdAt, DateTime.DATETIME_SHORT)}`,
             tertiaryText:
               row.retryCount > 0 ? `${row.retryCount} retries` : undefined,
           };

@@ -13,8 +13,7 @@ import {
   GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
 import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
-import { DateTime } from 'luxon';
-import { formatCurrency } from '../../../common/utils.ts';
+import { formatCurrency, formatDate } from '../../../common/utils.ts';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200ReceiptsItem[];
@@ -58,8 +57,7 @@ export function ReceiptList(props: {
       flex: 1,
       minWidth: 130,
       renderCell: params => {
-        const date = DateTime.fromISO(params.value);
-        return date.toLocaleString(DateTime.DATE_SHORT);
+        return formatDate(params.value);
       },
     },
     { field: 'payee', headerName: 'Payee', flex: 2, minWidth: 200 },
@@ -119,7 +117,7 @@ export function ReceiptList(props: {
 
           const mobileRow: MobileCardRow = {
             icon,
-            primaryText: `${DateTime.fromISO(row.date).toLocaleString(DateTime.DATE_SHORT)} ${row.payee}`,
+            primaryText: `${formatDate(row.date)} ${row.payee}`,
             secondaryText: row.description ?? '',
             tertiaryText: `${formatCurrency(row.cost)}`,
           };
