@@ -38,9 +38,6 @@ export function MobileCard(props: {
         border: theme => `1px solid ${theme.palette.grey[100]}`,
         cursor: 'pointer',
         backgroundColor: 'background.paper',
-        '&:hover': {
-          backgroundColor: 'info.light',
-        },
       }}
     >
       <Box
