@@ -68,24 +68,18 @@ export function useMergeReceiptItems<
     }, null);
 
     // Filter out merged items and create new array with merged result
-    // BUG: The index mapping here is incorrect!
-    // After filtering, the array has new indices (0, 1, 2...), but we're using
-    // those to access currentItems which still has the original indices.
-    // This causes wrong items to be selected when non-contiguous items are merged.
-    // Example: If we merge items 0 and 2 (leaving 1 and 3), after filter we get
-    // [item1, item3] with indices [0, 1], but we access currentItems[0] and
-    // currentItems[1] which gives us [item0, item1] instead of [item1, item3].
-    // TODO: Fix by using the original field index or the field itself to get items
-    const otherFields = fields
-      .filter(field => !selectedReceiptItems[field.id])
-      .map((_, index) => {
+    // Use reduce to preserve the correct index mapping between fields and currentItems
+    const otherFields = fields.reduce<ItemType[]>((acc, field, index) => {
+      if (!selectedReceiptItems[field.id]) {
         const item = currentItems[index];
-        return {
+        acc.push({
           name: item.name,
           price: item.price,
           expenseAccount: item.expenseAccount,
-        } as ItemType;
-      });
+        } as ItemType);
+      }
+      return acc;
+    }, []);
 
     if (mergeResult) {
       mergeResult.price = Number(mergeResult.price.toFixed(2));

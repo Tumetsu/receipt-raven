@@ -249,7 +249,7 @@ describe('useMergeReceiptItems', () => {
       expect(mergedItem.expenseAccount).toBe('Expenses:Groceries');
     });
 
-    it('should preserve unselected items in the array', () => {
+    it('should preserve unselected non-contiguous items correctly', () => {
       const { result } = renderHook(() =>
         useMergeReceiptItems({
           fields,
@@ -259,7 +259,7 @@ describe('useMergeReceiptItems', () => {
         })
       );
 
-      // Select items 0 and 2, leave 1 and 3 unselected
+      // Select items 0 and 2 (Coffee and Bread), leave 1 and 3 unselected (Milk and Eggs)
       act(() => {
         result.current.onSelectItem('field-0');
         result.current.onSelectItem('field-2');
@@ -275,10 +275,19 @@ describe('useMergeReceiptItems', () => {
       // Should have 3 items (2 unselected + 1 merged)
       expect(mergedArray).toHaveLength(3);
 
-      // KNOWN BUG: Due to incorrect index mapping in lines 71-80 of the hook,
-      // unselected items may not be preserved correctly when they're not contiguous.
-      // This test documents the current behavior, not the expected behavior.
-      // The merged item should be Coffee + Bread, but we're testing what actually happens.
+      const preservedItems = mergedArray.slice(0, -1);
+      const mergedItem = mergedArray[mergedArray.length - 1];
+
+      // Unselected items (Milk and Eggs) should be preserved in order
+      expect(preservedItems[0].name).toBe('Milk');
+      expect(preservedItems[0].price).toBe(2.99);
+      expect(preservedItems[1].name).toBe('Eggs');
+      expect(preservedItems[1].price).toBe(3.99);
+
+      // Merged item should combine Coffee and Bread
+      expect(mergedItem.name).toBe('Coffee, Bread');
+      expect(mergedItem.price).toBe(14.98); // 12.99 + 1.99
+      expect(mergedItem.expenseAccount).toBe('Expenses:Groceries'); // From last selected item
     });
 
     it('should round the merged price to 2 decimal places', () => {
