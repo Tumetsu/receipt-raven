@@ -12,6 +12,7 @@ import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
+import { ControlledDatePicker } from '../../../common/components/ControlledDatePicker.tsx';
 import { useReceiptForm, IReceiptInputs } from './useReceiptForm.ts';
 import {
   Panel,
@@ -75,7 +76,7 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
         label="Payee"
         required
       />
-      <ControlledTextField
+      <ControlledDatePicker
         name="date"
         control={control}
         label="Date"

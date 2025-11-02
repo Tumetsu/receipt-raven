@@ -4,6 +4,8 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SnackbarProvider } from 'notistack';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 
 const queryClient = new QueryClient();
 
@@ -23,12 +25,14 @@ declare module '@tanstack/react-router' {
 function App(): ReactElement {
   return (
     <StrictMode>
-      <SnackbarProvider maxSnack={3}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </SnackbarProvider>
+      <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="fi">
+        <SnackbarProvider maxSnack={3}>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
     </StrictMode>
   );
 }
