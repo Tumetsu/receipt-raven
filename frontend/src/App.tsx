@@ -6,8 +6,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SnackbarProvider } from 'notistack';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-
+import { CURRENT_LOCALE } from './common/locale.ts';
+import { Settings } from 'luxon';
 const queryClient = new QueryClient();
+
+// Set the default locale for Luxon globally
+Settings.defaultLocale = CURRENT_LOCALE;
 
 const router = createRouter({
   routeTree,
@@ -25,7 +29,10 @@ declare module '@tanstack/react-router' {
 function App(): ReactElement {
   return (
     <StrictMode>
-      <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="fi">
+      <LocalizationProvider
+        dateAdapter={AdapterLuxon}
+        adapterLocale={CURRENT_LOCALE}
+      >
         <SnackbarProvider maxSnack={3}>
           <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />

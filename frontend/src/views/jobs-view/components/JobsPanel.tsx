@@ -1,4 +1,5 @@
 import { Box, Stack, Typography, Chip, Divider } from '@mui/material';
+import { DateTime } from 'luxon';
 import { useRef } from 'react';
 import {
   Panel,
@@ -18,7 +19,10 @@ interface JobPanelProps {
 
 function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = DateTime.fromSQL(dateString);
+    if (!date.isValid) {
+      return DateTime.fromISO(dateString).toLocaleString();
+    }
     return date.toLocaleString();
   };
 

@@ -13,6 +13,7 @@ import {
   GetApiReceipts200ReceiptsItemStatus,
 } from '../../../api/generated/model';
 import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
+import { DateTime } from 'luxon';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200ReceiptsItem[];
@@ -50,7 +51,16 @@ export function ReceiptList(props: {
         </div>
       ),
     },
-    { field: 'date', headerName: 'Date', flex: 1, minWidth: 130 },
+    {
+      field: 'date',
+      headerName: 'Date',
+      flex: 1,
+      minWidth: 130,
+      renderCell: params => {
+        const date = DateTime.fromISO(params.value);
+        return date.toLocaleString(DateTime.DATE_SHORT);
+      },
+    },
     { field: 'payee', headerName: 'Payee', flex: 2, minWidth: 200 },
     { field: 'description', headerName: 'Description', flex: 2, minWidth: 200 },
     {

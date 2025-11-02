@@ -18,6 +18,7 @@ import {
   GetApiJobs200JobsItemStatus,
 } from '../../../api/generated/model';
 import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
+import { DateTime } from 'luxon';
 
 type JobStatus = GetApiJobs200JobsItemStatus;
 
@@ -67,7 +68,16 @@ export function JobList(props: {
       ),
     },
     { field: 'id', headerName: 'Id', flex: 1, minWidth: 130 },
-    { field: 'createdAt', headerName: 'Created', flex: 2, minWidth: 200 },
+    {
+      field: 'createdAt',
+      headerName: 'Created',
+      flex: 2,
+      minWidth: 200,
+      renderCell: params => {
+        const date = DateTime.fromSQL(params.value);
+        return date.toLocaleString(DateTime.DATETIME_SHORT);
+      },
+    },
     {
       field: 'retryCount',
       headerName: 'Retries',

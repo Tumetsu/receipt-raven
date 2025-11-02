@@ -18,8 +18,8 @@ interface ReadonlyReceiptViewProps {
 }
 
 const formatDate = (dateString: string): string => {
-  const date = DateTime.fromISO(dateString).setLocale('en');
-  return date.isValid ? date.toLocaleString(DateTime.DATE_FULL) : dateString;
+  const date = DateTime.fromISO(dateString);
+  return date.isValid ? date.toLocaleString(DateTime.DATE_SHORT) : dateString;
 };
 
 const formatCurrency = (amount: number): string => {
