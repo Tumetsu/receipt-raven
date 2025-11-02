@@ -12,6 +12,9 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "api-client:generate": "rm -rf src/api/generated && npm run api-client:export-from-backend && orval --config ./orval.config.ts && npm run api-client:format",
     "api-client:export-from-backend": "cd ../backend && npm run openapi:export && cd ../frontend",
     "api-client:format": "prettier --write \"src/api/generated/**/*.ts\""
@@ -40,6 +43,9 @@
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@tanstack/router-plugin": "^1.133.13",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/luxon": "^3.7.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -53,10 +59,12 @@
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.4.0",
+    "jsdom": "^27.1.0",
     "orval": "^7.14.0",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
     "vite": "^7.1.10",
-    "vite-plugin-checker": "^0.11.0"
+    "vite-plugin-checker": "^0.11.0",
+    "vitest": "^4.0.6"
   }
 }
