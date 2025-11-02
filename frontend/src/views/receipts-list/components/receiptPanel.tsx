@@ -33,6 +33,7 @@ import {
 import { PanelFooter } from './PanelFooter.tsx';
 import { useMergeReceiptItems } from '../hooks/useMergeReceiptItems.ts';
 import { ReadonlyReceiptView } from './ReadonlyReceiptView.tsx';
+import { formatCurrency } from '../../../common/utils.ts';
 
 export type ActionType = 'save' | 'approve' | 'merge';
 
@@ -118,7 +119,7 @@ function SumComparison({ control }: SumComparisonProps) {
             Expected total:
           </Typography>
           <Typography variant="body1" fontWeight={500}>
-            {totalSumNumber.toFixed(2)} €
+            {formatCurrency(totalSumNumber)}
           </Typography>
         </Stack>
       )}

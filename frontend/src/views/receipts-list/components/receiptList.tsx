@@ -14,6 +14,7 @@ import {
 } from '../../../api/generated/model';
 import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 import { DateTime } from 'luxon';
+import { formatCurrency } from '../../../common/utils.ts';
 
 export function ReceiptList(props: {
   receipts: GetApiReceipts200ReceiptsItem[];
@@ -69,7 +70,7 @@ export function ReceiptList(props: {
       flex: 1,
       minWidth: 100,
       type: 'number',
-      valueFormatter: value => `${Number(value).toFixed(2)}€`,
+      valueFormatter: value => `${formatCurrency(value)}`,
     },
     {
       field: 'actions',
@@ -120,7 +121,7 @@ export function ReceiptList(props: {
             icon,
             primaryText: `${DateTime.fromISO(row.date).toLocaleString(DateTime.DATE_SHORT)} ${row.payee}`,
             secondaryText: row.description ?? '',
-            tertiaryText: `${Number(row.cost).toFixed(2)}€`,
+            tertiaryText: `${formatCurrency(row.cost)}`,
           };
 
           return (

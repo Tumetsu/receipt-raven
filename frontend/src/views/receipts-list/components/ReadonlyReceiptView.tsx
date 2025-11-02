@@ -4,6 +4,7 @@ import { DisplayField } from '../../../common/components/DisplayField.tsx';
 import { ReadonlyReceiptItems } from './ReadonlyReceiptItems.tsx';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
 import { Receipt } from './receiptPanel.tsx';
+import { formatCurrency } from '../../../common/utils.ts';
 
 interface ReceiptItem {
   id?: number;
@@ -20,10 +21,6 @@ interface ReadonlyReceiptViewProps {
 const formatDate = (dateString: string): string => {
   const date = DateTime.fromISO(dateString);
   return date.isValid ? date.toLocaleString(DateTime.DATE_SHORT) : dateString;
-};
-
-const formatCurrency = (amount: number): string => {
-  return `${amount.toFixed(2)}€`;
 };
 
 export const ReadonlyReceiptView = ({

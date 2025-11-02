@@ -1,5 +1,6 @@
 import { Box, Typography, Stack, styled } from '@mui/material';
 import { grey } from '@mui/material/colors';
+import { formatCurrency } from '../../../common/utils.ts';
 
 interface ReceiptItem {
   id?: number;
@@ -59,7 +60,7 @@ export const ReadonlyReceiptItems = ({ items }: ReadonlyReceiptItemsProps) => {
                 variant="body1"
                 sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}
               >
-                {item.price.toFixed(2)}€
+                {formatCurrency(item.price)}
               </Typography>
             </ItemRow>
             <Typography
