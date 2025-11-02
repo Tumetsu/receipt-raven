@@ -15,9 +15,9 @@ export function ReceiptImage({ url }: ReceiptImageProps) {
       <Box
         sx={{
           aspectRatio: '3/4',
-          backgroundColor: '#f3f4f6',
+          backgroundColor: 'grey.100',
           borderRadius: 2,
-          border: '1px solid #e5e7eb',
+          border: theme => `1px solid ${theme.palette.divider}`,
           overflow: 'hidden',
           cursor: 'pointer',
           '&:hover': {

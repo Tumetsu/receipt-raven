@@ -30,8 +30,8 @@ const StyledUploadArea = styled(Box, {
         border: 'none',
       }
     : {
-        border: '2px dashed #cbd5e0',
-        backgroundColor: '#f8fafc',
+        border: `2px dashed ${theme.palette.grey[300]}`,
+        backgroundColor: theme.palette.background.default,
         cursor: 'pointer',
       }),
 }));
@@ -54,11 +54,11 @@ const StyledImg = styled('img')({
   display: 'block',
 });
 
-const SuccessBadge = styled(Chip)({
+const SuccessBadge = styled(Chip)(({ theme }) => ({
   position: 'absolute',
   top: '16px',
   right: '16px',
-  backgroundColor: '#48bb78',
+  backgroundColor: theme.palette.success.light,
   color: 'white',
   fontWeight: 500,
   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -73,7 +73,7 @@ const SuccessBadge = styled(Chip)({
       transform: 'translateY(0)',
     },
   },
-});
+}));
 
 const PdfPreview = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -81,7 +81,7 @@ const PdfPreview = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   padding: theme.spacing(4),
-  backgroundColor: '#f8fafc',
+  backgroundColor: theme.palette.background.default,
   borderRadius: theme.shape.borderRadius,
   minHeight: '400px',
 }));
@@ -136,7 +136,7 @@ function UploadImageArea(props: {
               <PictureAsPdfIcon
                 sx={{
                   fontSize: '80px',
-                  color: '#e53e3e',
+                  color: 'error.dark',
                   mb: 2,
                 }}
               />
@@ -145,7 +145,7 @@ function UploadImageArea(props: {
                 sx={{
                   fontWeight: 600,
                   mb: 1,
-                  color: '#2d3748',
+                  color: 'text.primary',
                 }}
               >
                 PDF Receipt
@@ -153,7 +153,7 @@ function UploadImageArea(props: {
               <Typography
                 variant="body2"
                 sx={{
-                  color: '#718096',
+                  color: 'text.secondary',
                   mb: 2,
                 }}
               >
@@ -164,7 +164,7 @@ function UploadImageArea(props: {
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
-                  color: '#3182ce',
+                  color: 'primary.main',
                   textDecoration: 'none',
                   '&:hover': {
                     textDecoration: 'underline',
@@ -203,12 +203,12 @@ function UploadImageArea(props: {
               fontWeight: 500,
               mt: 2,
               mb: 1,
-              color: '#2d3748',
+              color: 'text.primary',
             }}
           >
             Take a photo or upload PDF
           </Typography>
-          <Typography sx={{ fontSize: '12px', color: '#718096', mb: 2 }}>
+          <Typography sx={{ fontSize: '12px', color: 'text.secondary', mb: 2 }}>
             Ensure receipt is flat and well-lit
           </Typography>
 

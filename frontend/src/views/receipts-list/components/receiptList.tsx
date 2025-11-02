@@ -43,9 +43,9 @@ export function ReceiptList(props: {
       renderCell: params => (
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           {params.value === GetApiReceipts200ReceiptsItemStatus.approved ? (
-            <CheckCircleIcon sx={{ color: '#10b981' }} />
+            <CheckCircleIcon sx={{ color: 'success.main' }} />
           ) : (
-            <RadioButtonUncheckedIcon sx={{ color: '#d1d5db' }} />
+            <RadioButtonUncheckedIcon sx={{ color: 'grey.300' }} />
           )}
         </div>
       ),
@@ -75,7 +75,7 @@ export function ReceiptList(props: {
             justifyContent: 'flex-end',
           }}
         >
-          <ChevronRightIcon sx={{ color: '#9ca3af' }} />
+          <ChevronRightIcon sx={{ color: 'grey.400' }} />
         </div>
       ),
     },
@@ -99,10 +99,10 @@ export function ReceiptList(props: {
         {rows.map(row => {
           const icon =
             row.status === GetApiReceipts200ReceiptsItemStatus.approved ? (
-              <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />
+              <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
             ) : (
               <RadioButtonUncheckedIcon
-                sx={{ color: '#d1d5db', fontSize: 20 }}
+                sx={{ color: 'grey.300', fontSize: 20 }}
               />
             );
 
@@ -159,13 +159,13 @@ export function ReceiptList(props: {
         sx={{
           border: 0,
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#f9fafb',
-            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: 'background.default',
+            borderBottom: theme => `1px solid ${theme.palette.divider}`,
           },
           '& .MuiDataGrid-row': {
             cursor: 'pointer',
             '&:hover': {
-              backgroundColor: '#eff6ff',
+              backgroundColor: 'info.light',
             },
           },
         }}

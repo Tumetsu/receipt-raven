@@ -23,8 +23,8 @@ const SlidingPanel = styled(Box, {
   zIndex: 1200, // Higher than AppBar (1100) to appear above sticky header
   height: '100dvh',
   width: `${PANEL_WIDTH}px`,
-  backgroundColor: '#ffffff',
-  borderLeft: '1px solid #e5e7eb',
+  backgroundColor: theme.palette.background.paper,
+  borderLeft: `1px solid ${theme.palette.divider}`,
   boxShadow:
     '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   display: 'flex',
@@ -56,7 +56,7 @@ const SlidingPanel = styled(Box, {
 
 const PanelHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
-  borderBottom: '1px solid #e5e7eb',
+  borderBottom: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',

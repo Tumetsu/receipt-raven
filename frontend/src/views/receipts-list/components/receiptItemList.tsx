@@ -6,7 +6,6 @@ import {
   styled,
   Button,
 } from '@mui/material';
-import { blue, grey, purple } from '@mui/material/colors';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import MergeIcon from '@mui/icons-material/MergeType';
@@ -25,12 +24,12 @@ import { useExpenseAccounts } from '../hooks/useExpenseAccounts.ts';
 import { ActionType } from './receiptPanel.tsx';
 
 const ProductCard = styled(Box)(({ theme }) => ({
-  border: '1px solid #e5e7eb',
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1),
   padding: theme.spacing(2),
   marginBottom: theme.spacing(2),
   position: 'relative',
-  backgroundColor: grey[50],
+  backgroundColor: theme.palette.grey[50],
 }));
 
 type ProductItemProps<
@@ -69,10 +68,10 @@ function ProductItem<
       key={field.id}
       onClick={() => mergeMode && onSelect(field.id)}
       sx={{
-        border:
+        border: theme =>
           mergeMode && isSelected
-            ? `2px solid ${purple[500]}`
-            : '1px solid #e5e7eb',
+            ? `2px solid ${theme.palette.secondary.main}`
+            : `1px solid ${theme.palette.divider}`,
       }}
     >
       {!mergeMode && (
@@ -165,11 +164,11 @@ const NormalModeActions = ({
       onClick={onMergeActivate}
       disabled={disabled || !hasMultipleFields}
       sx={{
-        color: purple[600],
+        color: 'secondary.dark',
         fontWeight: 500,
-        '&:hover': { backgroundColor: purple[50] },
+        '&:hover': { backgroundColor: 'secondary.light' },
         '&.Mui-disabled': {
-          color: grey[400],
+          color: 'grey.400',
         },
       }}
     >
@@ -180,8 +179,8 @@ const NormalModeActions = ({
       disabled={disabled}
       size="small"
       sx={{
-        color: blue[600],
-        '&:hover': { backgroundColor: blue[50] },
+        color: 'primary.main',
+        '&:hover': { backgroundColor: 'primary.light' },
       }}
     >
       <AddIcon />

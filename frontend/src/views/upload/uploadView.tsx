@@ -92,11 +92,11 @@ export function UploadView(): ReactElement {
         <Box sx={{ textAlign: 'center', mb: 3 }}>
           <Typography
             variant="h5"
-            sx={{ fontWeight: 600, mb: 1, color: '#1a202c' }}
+            sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}
           >
             Upload Receipt
           </Typography>
-          <Typography variant="body2" sx={{ color: '#718096' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Take a clear photo of your receipt
           </Typography>
         </Box>
@@ -119,7 +119,7 @@ export function UploadView(): ReactElement {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: '#718096',
+                    color: 'text.secondary',
                     textAlign: 'center',
                     display: 'block',
                     mt: 1,

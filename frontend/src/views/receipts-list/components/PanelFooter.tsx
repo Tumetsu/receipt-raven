@@ -6,9 +6,9 @@ import MergeIcon from '@mui/icons-material/MergeType';
 const FooterContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2, 3),
   paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
-  borderTop: '1px solid #e5e7eb',
+  borderTop: `1px solid ${theme.palette.divider}`,
   flexShrink: 0,
-  backgroundColor: '#ffffff',
+  backgroundColor: theme.palette.background.paper,
 }));
 
 interface ReceiptActionsProps {

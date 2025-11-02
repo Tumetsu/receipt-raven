@@ -5,7 +5,10 @@ export function FullscreenSpinner(props: { open: boolean }): ReactElement {
   const { open } = props;
   return (
     <Backdrop
-      sx={theme => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+      sx={theme => ({
+        color: theme.palette.common.white,
+        zIndex: theme.zIndex.drawer + 1,
+      })}
       open={open}
     >
       <CircularProgress />

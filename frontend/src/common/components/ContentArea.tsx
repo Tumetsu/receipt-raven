@@ -4,7 +4,7 @@ export const ContentArea = styled(Box)(({ theme }) => ({
   flex: 1,
   padding: theme.spacing(2, 3),
   paddingBottom: theme.spacing(12),
-  backgroundColor: '#f9fafb',
+  backgroundColor: theme.palette.background.default,
   [theme.breakpoints.up('md')]: {
     marginBottom: 6,
   },

@@ -21,11 +21,12 @@ import { Box, useMediaQuery, useTheme, Pagination } from '@mui/material';
 
 type JobStatus = GetApiJobs200JobsItemStatus;
 
-// TODO: Use colors from theme
 const jobStatusIcons: Record<JobStatus, ReactElement> = {
-  waiting: <IncompleteCircleIcon sx={{ color: '#f8a335', fontSize: 20 }} />,
-  processed: <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />,
-  failed: <HighlightOffIcon sx={{ color: '#fc6868', fontSize: 20 }} />,
+  waiting: (
+    <IncompleteCircleIcon sx={{ color: 'warning.main', fontSize: 20 }} />
+  ),
+  processed: <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />,
+  failed: <HighlightOffIcon sx={{ color: 'error.main', fontSize: 20 }} />,
 };
 
 type JobRow = {
@@ -149,23 +150,23 @@ export function JobList(props: {
         sx={{
           border: 0,
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#f9fafb',
-            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: 'background.default',
+            borderBottom: theme => `1px solid ${theme.palette.divider}`,
           },
           '& .MuiDataGrid-row': {
             cursor: 'pointer',
             '&:hover': {
-              backgroundColor: '#eff6ff',
+              backgroundColor: 'info.light',
             },
             '&.selected-row': {
-              backgroundColor: '#eff6ff',
+              backgroundColor: 'info.light',
               '&:hover': {
-                backgroundColor: '#dbeafe',
+                backgroundColor: theme => theme.palette.info.light,
               },
             },
           },
           '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid #f3f4f6',
+            borderBottom: theme => `1px solid ${theme.palette.grey[100]}`,
           },
         }}
       />

@@ -1,26 +1,36 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, ThemeOptions } from '@mui/material/styles';
 import { responsiveFontSizes } from '@mui/material';
 
-const base = createTheme({
-  palette: { mode: 'light' },
+// Base theme options shared by both variants
+const baseThemeOptions: ThemeOptions = {
   components: {
     MuiTableCell: {
       styleOverrides: {
         root: {
-          padding: '8px', // or theme.spacing(1)
+          padding: '8px',
         },
       },
     },
   },
-});
+};
 
-// Overwrite typography variants
-const customTypography = createTheme(base, {
+// Material theme - uses Material UI default colors
+const materialThemeOptions: ThemeOptions = {
+  ...baseThemeOptions,
+  palette: {
+    mode: 'light',
+    // Uses Material UI defaults for all colors
+  },
+};
+
+const materialThemeBase = createTheme(materialThemeOptions);
+const materialThemeWithTypography = createTheme(materialThemeBase, {
   typography: {
     h1: {
-      ...base.typography.h2,
+      ...materialThemeBase.typography.h2,
     },
   },
 });
 
-export const theme = responsiveFontSizes(customTypography);
+const materialTheme = responsiveFontSizes(materialThemeWithTypography);
+export const theme = materialTheme;

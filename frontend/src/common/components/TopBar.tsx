@@ -113,8 +113,8 @@ export default function TopBar() {
                     sx={{
                       marginTop: 'auto',
                       padding: 2,
-                      borderTop: '1px solid #e0e0e0',
-                      backgroundColor: '#f5f5f5',
+                      borderTop: theme => `1px solid ${theme.palette.divider}`,
+                      backgroundColor: 'background.default',
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">

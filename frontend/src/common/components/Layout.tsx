@@ -4,18 +4,18 @@ import { ReactElement } from 'react';
 export const PageContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  backgroundColor: '#f9fafb',
+  backgroundColor: theme.palette.background.default,
   [theme.breakpoints.down('md')]: {
     minHeight: '100vh',
   },
 }));
 
-export const TableCard = styled(Card)({
+export const TableCard = styled(Card)(({ theme }) => ({
   width: '100%',
   borderRadius: '8px',
-  border: '1px solid #e5e7eb',
+  border: `1px solid ${theme.palette.divider}`,
   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-});
+}));
 
 export interface MobileCardRow {
   icon: ReactElement;
@@ -35,11 +35,11 @@ export function MobileCard(props: {
         p: 2,
         mb: 1,
         borderRadius: 1,
-        border: '1px solid #f3f4f6',
+        border: theme => `1px solid ${theme.palette.grey[100]}`,
         cursor: 'pointer',
-        backgroundColor: 'white',
+        backgroundColor: 'background.paper',
         '&:hover': {
-          backgroundColor: '#eff6ff',
+          backgroundColor: 'info.light',
         },
       }}
     >
@@ -52,7 +52,7 @@ export function MobileCard(props: {
         }}
       >
         {props.row.icon}
-        <Typography variant="body2" sx={{ color: '#6b7280' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {props.row.primaryText}
         </Typography>
       </Box>
@@ -66,14 +66,14 @@ export function MobileCard(props: {
         >
           <Typography
             variant="body1"
-            sx={{ color: '#111827', fontWeight: 500, ml: '28px' }}
+            sx={{ color: 'text.primary', fontWeight: 500, ml: '28px' }}
           >
             {props.row.secondaryText}
           </Typography>
           {props.row.tertiaryText && (
             <Typography
               variant="body1"
-              sx={{ fontWeight: 600, color: '#111827' }}
+              sx={{ fontWeight: 600, color: 'text.primary' }}
             >
               {props.row.tertiaryText}
             </Typography>
