@@ -7,6 +7,7 @@ import { useImageCapture } from './hooks/useImageCapture.ts';
 import { useSharedImage } from './hooks/useSharedImage.ts';
 import { useSnackbar } from 'notistack';
 import { ContentArea } from '../../common/components/ContentArea.tsx';
+import { CheckmarkAnimation } from '../../common/components/CheckmarkAnimation.tsx';
 import UploadIcon from '@mui/icons-material/Upload';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -21,6 +22,7 @@ export function UploadView(): ReactElement {
   const sharedImage = useSharedImage();
   const { enqueueSnackbar } = useSnackbar();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCheckmarkAnimation, setShowCheckmarkAnimation] = useState(false);
 
   // Use manual tanstack-query mutation instead of Orval generated since seems like
   // multipart + Axios + generated hooks cause problems.
@@ -42,7 +44,7 @@ export function UploadView(): ReactElement {
       });
     },
     onSuccess: () => {
-      enqueueSnackbar('Receipt uploaded successfully', { variant: 'success' });
+      setShowCheckmarkAnimation(true);
       clearImage();
     },
     onError: error => {
@@ -166,6 +168,12 @@ export function UploadView(): ReactElement {
           </Box>
         )}
       </Card>
+
+      <CheckmarkAnimation
+        show={showCheckmarkAnimation}
+        size={128}
+        onComplete={() => setShowCheckmarkAnimation(false)}
+      />
     </ContentArea>
   );
 }
