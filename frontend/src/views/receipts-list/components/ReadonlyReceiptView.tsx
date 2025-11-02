@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
+import { DateTime } from 'luxon';
 import { DisplayField } from '../../../common/components/DisplayField.tsx';
 import { ReadonlyReceiptItems } from './ReadonlyReceiptItems.tsx';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
@@ -17,16 +18,8 @@ interface ReadonlyReceiptViewProps {
 }
 
 const formatDate = (dateString: string): string => {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
+  const date = DateTime.fromISO(dateString).setLocale('en');
+  return date.isValid ? date.toLocaleString(DateTime.DATE_FULL) : dateString;
 };
 
 const formatCurrency = (amount: number): string => {
