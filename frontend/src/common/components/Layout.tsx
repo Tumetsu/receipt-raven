@@ -5,22 +5,15 @@ export const PageContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   backgroundColor: '#f9fafb',
-  // Desktop: fixed viewport height with overflow hidden for DataGrid
-  [theme.breakpoints.up('md')]: {
-    overflow: 'hidden',
-  },
-  // Mobile: natural flow, body scroll
   [theme.breakpoints.down('md')]: {
     minHeight: '100vh',
   },
 }));
 
 export const TableCard = styled(Card)({
-  height: '100%',
   width: '100%',
   borderRadius: '8px',
   border: '1px solid #e5e7eb',
-  overflow: 'hidden',
   boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
 });
 

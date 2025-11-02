@@ -3,14 +3,11 @@ import { Box, styled } from '@mui/material';
 export const ContentArea = styled(Box)(({ theme }) => ({
   flex: 1,
   padding: theme.spacing(2, 3),
+  paddingBottom: theme.spacing(12),
   backgroundColor: '#f9fafb',
-  // Desktop: scrollable container for DataGrid
   [theme.breakpoints.up('md')]: {
-    overflow: 'auto',
-    overflowX: 'hidden',
     marginBottom: 6,
   },
-  // Mobile: no overflow, use body scroll
   [theme.breakpoints.down('md')]: {
     padding: theme.spacing(1, 1),
   },
