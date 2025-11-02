@@ -155,18 +155,21 @@ export function JobList(props: {
           },
           '& .MuiDataGrid-row': {
             cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: 'info.light',
-            },
-            '&.selected-row': {
-              backgroundColor: 'info.light',
+            '&.Mui-selected': {
+              backgroundColor: 'transparent',
               '&:hover': {
-                backgroundColor: theme => theme.palette.info.light,
+                backgroundColor: 'transparent',
               },
             },
           },
           '& .MuiDataGrid-cell': {
             borderBottom: theme => `1px solid ${theme.palette.grey[100]}`,
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-cell:focus-within': {
+            outline: 'none',
           },
         }}
       />

@@ -164,9 +164,18 @@ export function ReceiptList(props: {
           },
           '& .MuiDataGrid-row': {
             cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: 'info.light',
+            '&.Mui-selected': {
+              backgroundColor: 'transparent',
+              '&:hover': {
+                backgroundColor: 'transparent',
+              },
             },
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-cell:focus-within': {
+            outline: 'none',
           },
         }}
       />
