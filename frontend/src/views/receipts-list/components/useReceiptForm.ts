@@ -8,7 +8,6 @@ import {
   usePostApiReceipts,
   usePostApiReceiptsReceiptId,
 } from '../../../api/generated/api.ts';
-import { GetApiReceipts200ReceiptsItemStatus } from '../../../api/generated/model';
 import { Receipt } from './receiptPanel.tsx';
 
 const receiptItemSchema = z.object({
@@ -57,7 +56,6 @@ export function useReceiptForm(receipt: Receipt, onApprove: () => void) {
 
   const formMethods = useForm<IReceiptInputs>({
     resolver: zodResolver(receiptFormSchema),
-    disabled: receipt.status === GetApiReceipts200ReceiptsItemStatus.approved,
     values: {
       sourceAccount: receipt.sourceAccount ?? '',
       description: receipt.description ?? '',

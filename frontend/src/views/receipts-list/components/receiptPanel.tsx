@@ -19,7 +19,10 @@ import {
   PanelRef,
 } from '../../../common/components/Panel.tsx';
 import { DeleteDialog } from '../../../common/components/DeleteDialog.tsx';
-import { useDeleteApiReceiptsReceiptId } from '../../../api/generated/api.ts';
+import {
+  useDeleteApiReceiptsReceiptId,
+  useGetApiReceiptsReceiptIdItems,
+} from '../../../api/generated/api.ts';
 import { useQueryClient } from '@tanstack/react-query';
 import { ReceiptImage } from '../../../common/components/receipt-image/ReceiptImage.tsx';
 import {
@@ -28,6 +31,7 @@ import {
 } from '../../../api/generated/model';
 import { PanelFooter } from './PanelFooter.tsx';
 import { useMergeReceiptItems } from '../hooks/useMergeReceiptItems.ts';
+import { ReadonlyReceiptView } from './ReadonlyReceiptView.tsx';
 
 export type ActionType = 'save' | 'approve' | 'merge';
 
@@ -146,6 +150,46 @@ function ReceiptPanelContent({
   receipt,
   onApprove,
 }: Omit<ReceiptPanelProps, 'onClosePanel'>) {
+  const isApproved =
+    receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
+
+  if (isApproved) {
+    return <ReadonlyReceiptContent receipt={receipt} />;
+  }
+
+  return <EditableReceiptContent receipt={receipt} onApprove={onApprove} />;
+}
+
+function ReadonlyReceiptContent({ receipt }: { receipt: Receipt }) {
+  const {
+    isPending: isItemsPending,
+    isSuccess: isItemsSuccess,
+    data: items,
+  } = useGetApiReceiptsReceiptIdItems(receipt.id ?? 0, {
+    query: {
+      queryKey: ['receipt', receipt.id, 'receiptItems'],
+      enabled: receipt.id != null,
+    },
+  });
+
+  return (
+    <PanelContent>
+      {isItemsPending && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {isItemsSuccess && (
+        <ReadonlyReceiptView receipt={receipt} items={items ?? []} />
+      )}
+    </PanelContent>
+  );
+}
+
+function EditableReceiptContent({
+  receipt,
+  onApprove,
+}: Omit<ReceiptPanelProps, 'onClosePanel'>) {
   const [actionMode, setActionMode] = useState<ActionType>(
     receipt.id ? 'approve' : 'save'
   );
@@ -160,10 +204,8 @@ function ReceiptPanelContent({
 
   const { handleSubmit, control, formState } = formMethods;
   const { isValid } = formState;
-  const isApproved =
-    receipt.status === GetApiReceipts200ReceiptsItemStatus.approved;
 
-  const isApproveDisabled = isSavePending || isApproved || !isValid;
+  const isApproveDisabled = isSavePending || !isValid;
 
   const { fields, append, remove, replace } = useFieldArray({
     control,
@@ -207,6 +249,7 @@ function ReceiptPanelContent({
     return false;
   }
 
+  // Otherwise, show editable form
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -247,7 +290,7 @@ function ReceiptPanelContent({
                 onSelectItem={onSelectItem}
                 actionMode={actionMode}
                 control={control}
-                disabled={isApproved}
+                disabled={false}
                 onMergeActivate={() => setActionMode('merge')}
               />
             </Box>
