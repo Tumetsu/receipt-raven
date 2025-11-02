@@ -51,7 +51,7 @@ function ReceiptFormHeader({ control }: ReceiptHeaderProps) {
           name="sourceAccount"
           control={control}
           options={accounts.data}
-          label="Expense account"
+          label="Source account"
           required
         />
       )}
