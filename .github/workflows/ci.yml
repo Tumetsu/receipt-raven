@@ -53,6 +53,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test
+        run: npm run test
+
   backend-ci:
     name: Backend CI
     runs-on: self-hosted
