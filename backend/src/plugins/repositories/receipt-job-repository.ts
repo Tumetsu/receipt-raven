@@ -135,7 +135,6 @@ export class SQLiteReceiptJoqbQueueRepository
       .updateTable('receipt_jobs')
       .set({
         status: ReceiptJobStatus.WAITING,
-        processed_at: null,
         analysis_error: null,
       })
       .where('id', '=', jobId)
