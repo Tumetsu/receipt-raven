@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { PostApiReceiptsBodyDescription } from './postApiReceiptsBodyDescription';
-import type { PostApiReceiptsBodySourceAccount } from './postApiReceiptsBodySourceAccount';
 import type { PostApiReceiptsBodyItemsItem } from './postApiReceiptsBodyItemsItem';
 
 /**
@@ -18,7 +17,7 @@ export type PostApiReceiptsBody = {
   /** Description or summary of the receipt */
   description: PostApiReceiptsBodyDescription;
   /** Source account for the payment (optional) */
-  sourceAccount: PostApiReceiptsBodySourceAccount;
+  sourceAccount: string;
   /** Date of the receipt (ISO 8601 format) */
   date: string;
   /** Total amount of the receipt */

@@ -68,6 +68,35 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
       };
     },
   });
+
+  fastify.withTypeProvider<ZodTypeProvider>().post('/jobs/:jobId/retry', {
+    schema: {
+      tags: ['jobs'],
+      description: 'Retry a failed job by resetting its status to waiting',
+      params: z.object({
+        jobId: z.coerce.number().describe('ID of the job to retry'),
+      }),
+      response: {
+        200: z.object({
+          message: z.string(),
+        }),
+        404: z.object({
+          message: z.string(),
+        }),
+      },
+    },
+    handler: async (request, reply) => {
+      const { jobId } = request.params;
+
+      try {
+        await fastify.receiptJobQueueRepository.retryJob(jobId);
+        return { message: 'Job queued for retry' };
+      } catch (error) {
+        reply.code(404);
+        return { message: 'Job not found or not in failed status' };
+      }
+    },
+  });
 };
 
 export default jobRoutes;

@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Source account for the payment (optional)
- */
-export type PostApiReceiptsBodySourceAccount = string | null;
+export type PostApiJobsJobIdRetry200 = {
+  message: string;
+};

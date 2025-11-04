@@ -32,6 +32,8 @@ import type {
   GetApiReceiptsParams,
   GetApiReceiptsReceiptIdItems200Item,
   GetHealth200,
+  PostApiJobsJobIdRetry200,
+  PostApiJobsJobIdRetry404,
   PostApiReceipts201,
   PostApiReceipts400,
   PostApiReceipts500,
@@ -1107,6 +1109,84 @@ export function useGetApiJobs<
 
   return query;
 }
+
+/**
+ * Retry a failed job by resetting its status to waiting
+ */
+export const postApiJobsJobIdRetry = (jobId: number, signal?: AbortSignal) => {
+  return apiClient<PostApiJobsJobIdRetry200>({
+    url: `/api/jobs/${jobId}/retry`,
+    method: 'POST',
+    signal,
+  });
+};
+
+export const getPostApiJobsJobIdRetryMutationOptions = <
+  TError = PostApiJobsJobIdRetry404,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiJobsJobIdRetry>>,
+    TError,
+    { jobId: number },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiJobsJobIdRetry>>,
+  TError,
+  { jobId: number },
+  TContext
+> => {
+  const mutationKey = ['postApiJobsJobIdRetry'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiJobsJobIdRetry>>,
+    { jobId: number }
+  > = props => {
+    const { jobId } = props ?? {};
+
+    return postApiJobsJobIdRetry(jobId);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiJobsJobIdRetryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiJobsJobIdRetry>>
+>;
+
+export type PostApiJobsJobIdRetryMutationError = PostApiJobsJobIdRetry404;
+
+export const usePostApiJobsJobIdRetry = <
+  TError = PostApiJobsJobIdRetry404,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiJobsJobIdRetry>>,
+      TError,
+      { jobId: number },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiJobsJobIdRetry>>,
+  TError,
+  { jobId: number },
+  TContext
+> => {
+  const mutationOptions = getPostApiJobsJobIdRetryMutationOptions(options);
+
+  return useMutation(mutationOptions, queryClient);
+};
 
 /**
  * Health check endpoint

@@ -31,6 +31,8 @@ export interface IReceiptJobQueueRepository {
   markJobProcessed(jobId: number): Promise<void>;
 
   increaseJobRetryCount(jobId: number, error?: string): Promise<void>;
+
+  retryJob(jobId: number): Promise<void>;
 }
 
 /**
@@ -125,6 +127,19 @@ export class SQLiteReceiptJoqbQueueRepository
         analysis_error: null,
       })
       .where('id', '=', jobId)
+      .executeTakeFirstOrThrow();
+  }
+
+  async retryJob(jobId: number): Promise<void> {
+    await this.db
+      .updateTable('receipt_jobs')
+      .set({
+        status: ReceiptJobStatus.WAITING,
+        processed_at: null,
+        analysis_error: null,
+      })
+      .where('id', '=', jobId)
+      .where('status', '=', ReceiptJobStatus.FAILED)
       .executeTakeFirstOrThrow();
   }
 }
