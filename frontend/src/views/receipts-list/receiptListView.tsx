@@ -1,4 +1,4 @@
-import { Box, Fab, Typography } from '@mui/material';
+import { Box, CircularProgress, Fab } from '@mui/material';
 import { ReactElement, useState } from 'react';
 import { ReceiptList } from './components/receiptList.tsx';
 import { useGetApiReceipts } from '../../api/generated/api.ts';
@@ -46,7 +46,18 @@ export function ReceiptListView(): ReactElement {
   return (
     <PageContainer>
       <ContentArea>
-        {isPending && <Typography>Loading...</Typography>}
+        {isPending && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '200px',
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
         {isSuccess && result && (
           <Box sx={{ marginBottom: 8 }}>
             <ReceiptList
