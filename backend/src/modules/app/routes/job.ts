@@ -91,7 +91,7 @@ const jobRoutes: FastifyPluginAsync = async fastify => {
       try {
         await fastify.receiptJobQueueRepository.retryJob(jobId);
         return { message: 'Job queued for retry' };
-      } catch (error) {
+      } catch (_error) {
         reply.code(404);
         return { message: 'Job not found or not in failed status' };
       }
