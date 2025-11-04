@@ -59,18 +59,30 @@ export function MobileCard(props: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            gap: 1,
           }}
         >
           <Typography
             variant="body1"
-            sx={{ color: 'text.primary', fontWeight: 500, ml: '28px' }}
+            sx={{
+              color: 'text.primary',
+              fontWeight: 500,
+              ml: '28px',
+              flex: 1,
+              minWidth: 0,
+            }}
           >
             {props.row.secondaryText}
           </Typography>
           {props.row.tertiaryText && (
             <Typography
               variant="body1"
-              sx={{ fontWeight: 600, color: 'text.primary' }}
+              sx={{
+                fontWeight: 600,
+                color: 'text.primary',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
             >
               {props.row.tertiaryText}
             </Typography>
