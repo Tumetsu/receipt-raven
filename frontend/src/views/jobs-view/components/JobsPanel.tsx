@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, Chip, Divider } from '@mui/material';
+import { Box, Stack, Typography, Chip, Divider, Button } from '@mui/material';
 import { useRef } from 'react';
 import {
   Panel,
@@ -11,13 +11,21 @@ import {
   GetApiJobs200JobsItemStatus,
 } from '../../../api/generated/model';
 import { formatDate } from '../../../common/utils.ts';
+import { usePostApiJobsJobIdRetry } from '../../../api/generated/api.ts';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface JobPanelProps {
   job: GetApiJobs200JobsItem;
   onClosePanel: () => void;
 }
 
-function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
+interface JobPanelContentProps {
+  job: GetApiJobs200JobsItem;
+  onRetry: () => void;
+  isRetrying: boolean;
+}
+
+function JobPanelContent({ job, onRetry, isRetrying }: JobPanelContentProps) {
   const getStatusColor = (
     status: string
   ): 'success' | 'error' | 'warning' | 'default' => {
@@ -118,6 +126,20 @@ function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
               </Box>
             </Box>
           )}
+
+          {job.status === GetApiJobs200JobsItemStatus.failed && (
+            <Box>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={onRetry}
+                disabled={isRetrying}
+                fullWidth
+              >
+                {isRetrying ? 'Retrying...' : 'Retry Job'}
+              </Button>
+            </Box>
+          )}
         </Stack>
       </Stack>
     </PanelContent>
@@ -126,11 +148,34 @@ function JobPanelContent({ job }: Omit<JobPanelProps, 'onClosePanel'>) {
 
 export function JobPanel(props: JobPanelProps) {
   const panelRef = useRef<PanelRef>(null);
+  const queryClient = useQueryClient();
+
+  const { mutate: retryJob, isPending: isRetrying } = usePostApiJobsJobIdRetry({
+    mutation: {
+      onSuccess: () => {
+        // Close the panel
+        props.onClosePanel();
+        // Invalidate jobs query to refetch the updated list
+        queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      },
+      onError: error => {
+        console.error('Failed to retry job:', error);
+      },
+    },
+  });
+
+  const handleRetry = () => {
+    retryJob({ jobId: props.job.id });
+  };
 
   return (
     <>
       <Panel ref={panelRef} title="Job Details" onClose={props.onClosePanel}>
-        <JobPanelContent job={props.job} />
+        <JobPanelContent
+          job={props.job}
+          onRetry={handleRetry}
+          isRetrying={isRetrying}
+        />
       </Panel>
     </>
   );
