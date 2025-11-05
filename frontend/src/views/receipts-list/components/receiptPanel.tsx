@@ -12,8 +12,8 @@ import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
-import { ControlledDatePicker } from '../../../common/components/ControlledDatePicker.tsx';
 import { useReceiptForm, IReceiptInputs } from './useReceiptForm.ts';
+import { ReceiptDatePicker } from './ReceiptDatePicker.tsx';
 import {
   Panel,
   PanelContent,
@@ -77,13 +77,7 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
         label="Payee"
         required
       />
-      <ControlledDatePicker
-        name="date"
-        control={control}
-        label="Date"
-        required
-        showDateWarnings
-      />
+      <ReceiptDatePicker name="date" control={control} label="Date" required />
       <ControlledTextField
         name="totalSum"
         control={control}
