@@ -3,11 +3,15 @@ import { createWriteStream } from 'fs';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { config } from '../../config';
+import { config } from '../../config/index.js';
 import {
   uploadSuccessResponseSchema,
   uploadErrorResponseSchema,
 } from './schemas.js';
+import {
+  cleanupUploadsDirectoryAsync,
+  parseDiskSize,
+} from '../../services/cleanup-service.js';
 
 const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.withTypeProvider<ZodTypeProvider>().post('/upload', {
@@ -37,6 +41,19 @@ const analyzeRoutes: FastifyPluginAsync = async fastify => {
         filename,
         data.mimetype
       );
+
+      // Trigger cleanup in background if disk limit is configured
+      if (config.storage.maxUploadsDiskSize) {
+        const maxSizeBytes = parseDiskSize(config.storage.maxUploadsDiskSize);
+        if (maxSizeBytes) {
+          // Async cleanup - doesn't block the response
+          cleanupUploadsDirectoryAsync({
+            uploadsDir: config.storage.uploadsDir,
+            maxSizeBytes,
+            logger: fastify.log,
+          });
+        }
+      }
 
       return {
         success: true,
