@@ -82,6 +82,7 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
         control={control}
         label="Date"
         required
+        showDateWarnings
       />
       <ControlledTextField
         name="totalSum"
