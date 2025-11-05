@@ -13,31 +13,12 @@ The app processes receipt images, extracts structured data (shop, date, items, p
 
 ## Quick Commands
 
-### Full Stack Development
-```bash
-# Docker Compose (Recommended - runs everything)
-docker-compose up -d
-docker-compose logs -f
-docker-compose down
-
-# Services available:
-# - Frontend & API: http://localhost:3001
-# - Beancount Service: http://localhost:8100
-# - API Docs: http://localhost:3001/docs
-```
-
 ### Backend Development
 ```bash
 cd backend
 
-# Development with hot-reload
-npm run dev
-
 # Build full application (frontend + backend)
 npm run build:full
-
-# Production start
-npm start
 
 # Linting & Formatting
 npm run lint
@@ -55,9 +36,6 @@ npm run openapi:export
 ### Frontend Development
 ```bash
 cd frontend
-
-# Development server (http://localhost:5173)
-npm run dev
 
 # Build for production
 npm run build
@@ -223,30 +201,11 @@ See `LEDGER_INTEGRATION.md` for detailed architecture documentation.
 - All imports use `.js` extension (ES modules)
 - `package.json` has `"type": "module"`
 
-### Configuration
-
-**Backend Environment Variables:**
-```bash
-# Required
-OPENAI_API_KEY=sk-...                     # OpenAI API key
-BEANCOUNT_SERVICE_URL=http://localhost:8000  # Ledger service URL
-
-# Optional
-USE_MOCK_OPENAI=false                     # Use mock for testing
-PORT=3001                                 # Server port
-UPLOADS_DIR=./uploads                     # Upload directory
-DATABASE_PATH=./data/receipts.db          # SQLite database
-```
-
-**Frontend:**
-- API base URL configured in axios instance
-- Environment-specific config in Vite
-
-**Docker Compose:**
-- `.env` in project root for compose variables
-- Service-specific `.env` files for backend
-
 ## Code Conventions
+
+**Style:**
+- Prefer functional programming style utilizing map, filter, reduce and lodash utilities
+- Always run `npm run format` before committing
 
 **Naming:**
 - Files: kebab-case (`receipt-extraction.ts`)
