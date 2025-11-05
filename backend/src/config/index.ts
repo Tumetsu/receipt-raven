@@ -25,6 +25,11 @@ export const config = {
   },
   storage: {
     uploadsDir: process.env.UPLOADS_DIR || './uploads',
+    maxUploadsDiskSize: process.env.MAX_UPLOADS_DISK_SIZE || null, // e.g., "1GB", "500MB"
+    cleanupIntervalHours: parseInt(
+      process.env.CLEANUP_INTERVAL_HOURS || '24',
+      10
+    ), // Default: run daily
   },
   database: {
     path: process.env.DATABASE_PATH || './data/receipts.db',
