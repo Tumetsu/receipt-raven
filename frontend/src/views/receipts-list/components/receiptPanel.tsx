@@ -12,8 +12,8 @@ import { ReceiptItemList } from './receiptItemList.tsx';
 import { useAccounts } from '../hooks/useGetAccounts.ts';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
-import { ControlledDatePicker } from '../../../common/components/ControlledDatePicker.tsx';
 import { useReceiptForm, IReceiptInputs } from './useReceiptForm.ts';
+import { ReceiptDatePicker } from './ReceiptDatePicker.tsx';
 import {
   Panel,
   PanelContent,
@@ -77,12 +77,7 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
         label="Payee"
         required
       />
-      <ControlledDatePicker
-        name="date"
-        control={control}
-        label="Date"
-        required
-      />
+      <ReceiptDatePicker name="date" control={control} label="Date" required />
       <ControlledTextField
         name="totalSum"
         control={control}
@@ -106,9 +101,22 @@ function SumComparison({ control }: SumComparisonProps) {
     : 0;
   const totalSumNumber = Number(totalSum) || 0;
   const isMatch = Math.abs(itemsSum - totalSumNumber) < 0.01;
+  const difference = itemsSum - totalSumNumber;
 
   return (
     <Stack spacing={1} sx={{ mb: 2 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="body2" color="text.secondary">
+          Items sum:
+        </Typography>
+        <Typography
+          variant="body1"
+          fontWeight={500}
+          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+        >
+          {itemsSum.toFixed(2)} €
+        </Typography>
+      </Stack>
       {!isMatch && (
         <Stack
           direction="row"
@@ -123,18 +131,25 @@ function SumComparison({ control }: SumComparisonProps) {
           </Typography>
         </Stack>
       )}
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="body2" color="text.secondary">
-          Items sum:
-        </Typography>
-        <Typography
-          variant="body1"
-          fontWeight={500}
-          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+      {!isMatch && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
         >
-          {itemsSum.toFixed(2)} €
-        </Typography>
-      </Stack>
+          <Typography variant="body2" color="text.secondary">
+            Difference:
+          </Typography>
+          <Typography
+            variant="body1"
+            fontWeight={500}
+            sx={{ color: 'warning.main' }}
+          >
+            {difference > 0 ? '+' : ''}
+            {difference.toFixed(2)} €
+          </Typography>
+        </Stack>
+      )}
     </Stack>
   );
 }
