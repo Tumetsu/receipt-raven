@@ -48,7 +48,7 @@ const AnimationContainer = styled(Box, {
   justifyContent: 'center',
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   zIndex: 9999,
-  animation: `${shouldFadeOut ? fadeOut : fadeIn} ${shouldFadeOut ? '0.2s' : '0.3s'} ease-in-out`,
+  animation: `${shouldFadeOut ? fadeOut : fadeIn} ${shouldFadeOut ? '0.6s' : '0.5s'} ease-in-out`,
 }));
 
 const createFillAnimation = (size: number) => keyframes`
@@ -111,15 +111,18 @@ export function CheckmarkAnimation({
       // Start fade out after animation + duration
       const fadeOutTimer = setTimeout(() => {
         setShouldFadeOut(true);
-      }, duration);
+      }, duration + 800);
 
       // Remove from DOM after fade out completes
-      const removeTimer = setTimeout(() => {
-        setIsVisible(false);
-        if (onComplete) {
-          onComplete();
-        }
-      }, duration + 200); // 200ms for fade out animation
+      const removeTimer = setTimeout(
+        () => {
+          setIsVisible(false);
+          if (onComplete) {
+            onComplete();
+          }
+        },
+        duration + 800 + 500 // Duration + wait for a bit + fade out time
+      );
 
       return () => {
         clearTimeout(fadeOutTimer);
