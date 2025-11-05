@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import type { FastifyBaseLogger } from 'fastify';
+import { config } from '../config/index.js';
 
 export interface CleanupOptions {
   uploadsDir: string;
@@ -215,4 +216,34 @@ export function cleanupUploadsDirectoryAsync(
 
   // Return immediately
   return Promise.resolve();
+}
+
+/**
+ * Trigger cleanup after upload if configured
+ * Checks config for disk limit and triggers async cleanup if needed
+ * This is a convenience function for use in upload routes
+ */
+export function triggerCleanupAfterUpload(
+  logger?: FastifyBaseLogger
+): Promise<void> {
+  // Check if cleanup is configured
+  if (!config.storage.maxUploadsDiskSize) {
+    return Promise.resolve();
+  }
+
+  // Parse disk size limit
+  const maxSizeBytes = parseDiskSize(config.storage.maxUploadsDiskSize);
+  if (!maxSizeBytes) {
+    logger?.warn(
+      `Invalid MAX_UPLOADS_DISK_SIZE format: ${config.storage.maxUploadsDiskSize}`
+    );
+    return Promise.resolve();
+  }
+
+  // Trigger async cleanup
+  return cleanupUploadsDirectoryAsync({
+    uploadsDir: config.storage.uploadsDir,
+    maxSizeBytes,
+    logger,
+  });
 }

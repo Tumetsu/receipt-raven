@@ -8,10 +8,7 @@ import {
   uploadSuccessResponseSchema,
   uploadErrorResponseSchema,
 } from './schemas.js';
-import {
-  cleanupUploadsDirectoryAsync,
-  parseDiskSize,
-} from '../../services/cleanup-service.js';
+import { triggerCleanupAfterUpload } from '../../services/cleanup-service.js';
 
 const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.withTypeProvider<ZodTypeProvider>().post('/upload', {
@@ -42,18 +39,8 @@ const analyzeRoutes: FastifyPluginAsync = async fastify => {
         data.mimetype
       );
 
-      // Trigger cleanup in background if disk limit is configured
-      if (config.storage.maxUploadsDiskSize) {
-        const maxSizeBytes = parseDiskSize(config.storage.maxUploadsDiskSize);
-        if (maxSizeBytes) {
-          // Async cleanup - doesn't block the response
-          cleanupUploadsDirectoryAsync({
-            uploadsDir: config.storage.uploadsDir,
-            maxSizeBytes,
-            logger: fastify.log,
-          });
-        }
-      }
+      // Trigger cleanup in background if configured
+      triggerCleanupAfterUpload(fastify.log);
 
       return {
         success: true,
