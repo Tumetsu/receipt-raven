@@ -16,6 +16,7 @@ import path from 'path';
 import { config } from '../config/index.js';
 import databasePlugin from './database/database';
 import { ledgerPlugin } from './ledger/index.js';
+import { cleanupPlugin } from './cleanup.js';
 import cleanupSchedulerPlugin from './cleanup-scheduler.js';
 
 export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
@@ -26,7 +27,10 @@ export async function registerPlugins(fastify: FastifyInstance): Promise<void> {
   // Database (must be first so it's available to other plugins/modules)
   await fastify.register(databasePlugin);
 
-  // Cleanup scheduler for uploads directory
+  // Cleanup service for uploads directory
+  await fastify.register(cleanupPlugin);
+
+  // Cleanup scheduler for uploads directory (depends on cleanupPlugin)
   await fastify.register(cleanupSchedulerPlugin);
 
   // Swagger/OpenAPI documentation
