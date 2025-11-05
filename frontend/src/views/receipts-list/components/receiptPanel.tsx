@@ -106,9 +106,22 @@ function SumComparison({ control }: SumComparisonProps) {
     : 0;
   const totalSumNumber = Number(totalSum) || 0;
   const isMatch = Math.abs(itemsSum - totalSumNumber) < 0.01;
+  const difference = itemsSum - totalSumNumber;
 
   return (
     <Stack spacing={1} sx={{ mb: 2 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="body2" color="text.secondary">
+          Items sum:
+        </Typography>
+        <Typography
+          variant="body1"
+          fontWeight={500}
+          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+        >
+          {itemsSum.toFixed(2)} €
+        </Typography>
+      </Stack>
       {!isMatch && (
         <Stack
           direction="row"
@@ -123,18 +136,25 @@ function SumComparison({ control }: SumComparisonProps) {
           </Typography>
         </Stack>
       )}
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="body2" color="text.secondary">
-          Items sum:
-        </Typography>
-        <Typography
-          variant="body1"
-          fontWeight={500}
-          sx={{ color: isMatch ? 'text.primary' : 'error.main' }}
+      {!isMatch && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
         >
-          {itemsSum.toFixed(2)} €
-        </Typography>
-      </Stack>
+          <Typography variant="body2" color="text.secondary">
+            Difference:
+          </Typography>
+          <Typography
+            variant="body1"
+            fontWeight={500}
+            sx={{ color: 'warning.main' }}
+          >
+            {difference > 0 ? '+' : ''}
+            {difference.toFixed(2)} €
+          </Typography>
+        </Stack>
+      )}
     </Stack>
   );
 }
