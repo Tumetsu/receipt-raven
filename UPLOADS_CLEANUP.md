@@ -228,18 +228,6 @@ volumes:
 - Your host has sufficient disk space
 - Disk limit matches your host capacity
 
-## Future Enhancements
-
-Potential improvements for future versions:
-
-- [ ] Database reference cleanup (mark receipts as "file deleted")
-- [ ] Configurable cleanup strategy (by age, by usage, etc.)
-- [ ] Cleanup metrics endpoint (`/api/cleanup/stats`)
-- [ ] Manual cleanup trigger endpoint (`POST /api/cleanup/run`)
-- [ ] Notification on cleanup (webhook, email)
-- [ ] Graduated retention (delete old files more aggressively)
-- [ ] Archive to S3/object storage before deletion
-
 ## FAQ
 
 **Q: Will my receipts be deleted?**
@@ -255,7 +243,7 @@ A: Generally no - cleanup prevents disk space issues. Set a high limit if you ne
 A: Currently, database records remain unchanged. They may reference non-existent files.
 
 **Q: Can I manually clean up old files?**
-A: Yes, you can delete files from the uploads directory manually. The database cleanup feature is planned for a future release.
+A: Yes, you can delete files from the uploads directory manually.
 
 **Q: How do I disable cleanup temporarily?**
 A: Comment out or remove `MAX_UPLOADS_DISK_SIZE` from your `.env` file and restart the server.
