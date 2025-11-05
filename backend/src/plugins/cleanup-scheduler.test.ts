@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance } from 'fastify';
+import { cleanupPlugin } from './cleanup.js';
 import cleanupSchedulerPlugin from './cleanup-scheduler.js';
 
 // Mock the config module with a valid configuration
@@ -32,6 +33,7 @@ describe('cleanup-scheduler plugin', () => {
   });
 
   it('should register plugin successfully', async () => {
+    await fastify.register(cleanupPlugin);
     await expect(
       fastify.register(cleanupSchedulerPlugin)
     ).resolves.not.toThrow();
@@ -40,6 +42,7 @@ describe('cleanup-scheduler plugin', () => {
   it('should log when cleanup scheduler is enabled', async () => {
     const infoSpy = vi.spyOn(fastify.log, 'info');
 
+    await fastify.register(cleanupPlugin);
     await fastify.register(cleanupSchedulerPlugin);
     await fastify.ready();
 
@@ -52,6 +55,7 @@ describe('cleanup-scheduler plugin', () => {
   it('should run initial cleanup on startup', async () => {
     const infoSpy = vi.spyOn(fastify.log, 'info');
 
+    await fastify.register(cleanupPlugin);
     await fastify.register(cleanupSchedulerPlugin);
     await fastify.ready();
 
@@ -64,6 +68,7 @@ describe('cleanup-scheduler plugin', () => {
   it('should clean up interval on server close', async () => {
     const infoSpy = vi.spyOn(fastify.log, 'info');
 
+    await fastify.register(cleanupPlugin);
     await fastify.register(cleanupSchedulerPlugin);
     await fastify.ready();
     await fastify.close();

@@ -1,15 +1,13 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import { config } from '../config/index.js';
-import {
-  cleanupUploadsDirectory,
-  parseDiskSize,
-} from '../services/cleanup-service.js';
+import { parseDiskSize } from '../plugins/cleanup.js';
 
 /**
  * Cleanup scheduler plugin
  * - Runs cleanup on server startup
  * - Runs cleanup periodically based on configured interval
+ * - Depends on cleanupService plugin being registered first
  */
 const cleanupSchedulerPlugin: FastifyPluginAsync = async fastify => {
   const { maxUploadsDiskSize, uploadsDir, cleanupIntervalHours } =
@@ -38,7 +36,7 @@ const cleanupSchedulerPlugin: FastifyPluginAsync = async fastify => {
   // Function to run cleanup
   const runCleanup = async () => {
     try {
-      const result = await cleanupUploadsDirectory({
+      const result = await fastify.cleanupService.run({
         uploadsDir,
         maxSizeBytes,
         logger: fastify.log,
@@ -71,4 +69,5 @@ const cleanupSchedulerPlugin: FastifyPluginAsync = async fastify => {
 
 export default fp(cleanupSchedulerPlugin, {
   name: 'cleanup-scheduler',
+  dependencies: ['cleanupService'], // Ensure cleanup plugin is loaded first
 });

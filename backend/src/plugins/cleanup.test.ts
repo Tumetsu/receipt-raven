@@ -3,12 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import type { FastifyBaseLogger } from 'fastify';
-import {
-  parseDiskSize,
-  formatBytes,
-  cleanupUploadsDirectory,
-  cleanupUploadsDirectoryAsync,
-} from './cleanup-service.js';
+import { parseDiskSize, formatBytes, CleanupService } from './cleanup.js';
 
 describe('parseDiskSize', () => {
   it('should parse GB correctly', () => {
@@ -94,12 +89,14 @@ describe('formatBytes', () => {
   });
 });
 
-describe('cleanupUploadsDirectory', () => {
+describe('CleanupService', () => {
   let testDir: string;
+  let cleanupService: CleanupService;
 
   beforeEach(async () => {
     // Create a temporary test directory
     testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cleanup-test-'));
+    cleanupService = new CleanupService();
   });
 
   afterEach(async () => {
@@ -133,7 +130,7 @@ describe('cleanupUploadsDirectory', () => {
   };
 
   it('should do nothing if directory does not exist', async () => {
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: '/nonexistent/directory',
       maxSizeBytes: 1000,
     });
@@ -145,7 +142,7 @@ describe('cleanupUploadsDirectory', () => {
   });
 
   it('should do nothing if directory is empty', async () => {
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 1000,
     });
@@ -161,7 +158,7 @@ describe('cleanupUploadsDirectory', () => {
     await createTestFile('file1.txt', 200);
     await createTestFile('file2.txt', 300);
 
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 1000, // Limit is 1000 bytes
     });
@@ -181,7 +178,7 @@ describe('cleanupUploadsDirectory', () => {
 
     // Total: 900 bytes, limit: 500 bytes
     // Should delete old.txt and medium.txt
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 500,
     });
@@ -208,7 +205,7 @@ describe('cleanupUploadsDirectory', () => {
 
     // Total: 400 bytes, limit: 250 bytes
     // Should delete file1 and file2 (200 bytes), leaving 200 bytes
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 250,
     });
@@ -231,7 +228,7 @@ describe('cleanupUploadsDirectory', () => {
 
     // Total: 1110 bytes, limit: 200 bytes
     // Should delete large.txt (1000 bytes), leaving 110 bytes which is under 200
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 200,
     });
@@ -256,7 +253,7 @@ describe('cleanupUploadsDirectory', () => {
     await fs.mkdir(subDir);
     await fs.writeFile(path.join(subDir, 'nested.txt'), 'content');
 
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 600,
     });
@@ -286,7 +283,7 @@ describe('cleanupUploadsDirectory', () => {
     await createTestFile('file1.txt', 600, -2000);
     await createTestFile('file2.txt', 600, -1000);
 
-    await cleanupUploadsDirectory({
+    await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 700,
       logger: mockLogger as unknown as FastifyBaseLogger,
@@ -301,7 +298,7 @@ describe('cleanupUploadsDirectory', () => {
     await createTestFile('file2.txt', 50, -2000);
     await createTestFile('file3.txt', 50, -1000);
 
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 10, // Very small limit
     });
@@ -316,7 +313,7 @@ describe('cleanupUploadsDirectory', () => {
     await createTestFile('file1.txt', 300, -2000);
     await createTestFile('file2.txt', 200, -1000);
 
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 500, // Exact match
     });
@@ -347,7 +344,7 @@ describe('cleanupUploadsDirectory', () => {
       debug: vi.fn(),
     };
 
-    const result = await cleanupUploadsDirectory({
+    const result = await cleanupService.run({
       uploadsDir: testDir,
       maxSizeBytes: 400,
       logger: mockLogger as unknown as FastifyBaseLogger,
@@ -366,12 +363,18 @@ describe('cleanupUploadsDirectory', () => {
   });
 });
 
-describe('cleanupUploadsDirectoryAsync', () => {
+describe('CleanupService.runAsync', () => {
+  let cleanupService: CleanupService;
+
+  beforeEach(() => {
+    cleanupService = new CleanupService();
+  });
+
   it('should return immediately without waiting for cleanup', async () => {
     const startTime = Date.now();
 
     // This should return immediately even though cleanup would take time
-    await cleanupUploadsDirectoryAsync({
+    await cleanupService.runAsync({
       uploadsDir: '/some/path',
       maxSizeBytes: 1000,
     });
@@ -385,7 +388,7 @@ describe('cleanupUploadsDirectoryAsync', () => {
   it('should not throw errors even if cleanup fails', async () => {
     // Should not throw even with invalid path
     await expect(
-      cleanupUploadsDirectoryAsync({
+      cleanupService.runAsync({
         uploadsDir: '/invalid/path',
         maxSizeBytes: 1000,
       })

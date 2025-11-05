@@ -3,6 +3,7 @@ import { Database } from '../plugins/database/schema.js';
 import { IReceiptRepository } from '../plugins/repositories/receipt-repository.js';
 import { IReceiptJobQueueRepository } from '../plugins/repositories/receipt-job-repository.js';
 import { ILedgerService } from '../plugins/ledger/ledger-service.js';
+import { CleanupService } from '../plugins/cleanup.js';
 
 /**
  * Extend Fastify types to include our custom decorators
@@ -14,5 +15,6 @@ declare module 'fastify' {
     receiptJobQueueRepository: IReceiptJobQueueRepository;
     uploadReceiptJobQueueRepository: IReceiptJobQueueRepository;
     ledgerService: ILedgerService;
+    cleanupService: CleanupService;
   }
 }

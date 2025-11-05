@@ -8,7 +8,6 @@ import {
   uploadSuccessResponseSchema,
   uploadErrorResponseSchema,
 } from './schemas.js';
-import { triggerCleanupAfterUpload } from '../../services/cleanup-service.js';
 
 const analyzeRoutes: FastifyPluginAsync = async fastify => {
   fastify.withTypeProvider<ZodTypeProvider>().post('/upload', {
@@ -40,7 +39,7 @@ const analyzeRoutes: FastifyPluginAsync = async fastify => {
       );
 
       // Trigger cleanup in background if configured
-      triggerCleanupAfterUpload(fastify.log);
+      fastify.cleanupService.triggerAfterUpload();
 
       return {
         success: true,
