@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import type { FastifyBaseLogger } from 'fastify';
+import _ from 'lodash';
 import { config } from '../config/index.js';
 
 export interface CleanupOptions {
@@ -62,45 +63,42 @@ export function formatBytes(bytes: number): string {
 
 /**
  * Get all files in directory with their stats
+ * Uses functional approach with map and compact
  */
 async function getFilesWithStats(dirPath: string): Promise<FileInfo[]> {
   try {
     const entries = await fs.readdir(dirPath);
-    const fileInfos: FileInfo[] = [];
 
-    for (const filename of entries) {
+    // Map each entry to a promise that returns FileInfo or null
+    const fileInfoPromises = entries.map(async filename => {
       const filepath = path.join(dirPath, filename);
 
       try {
         const stats = await fs.stat(filepath);
 
-        // Only process files, not directories
-        if (stats.isFile()) {
-          fileInfos.push({
-            filename,
-            filepath,
-            size: stats.size,
-            mtime: stats.mtime,
-          });
-        }
+        // Only return file info for actual files (not directories)
+        return stats.isFile()
+          ? { filename, filepath, size: stats.size, mtime: stats.mtime }
+          : null;
       } catch {
-        // Skip files that can't be accessed
-        continue;
+        // Return null for files that can't be accessed
+        return null;
       }
-    }
+    });
 
-    return fileInfos;
+    // Wait for all promises and filter out nulls
+    const results = await Promise.all(fileInfoPromises);
+    return _.compact(results);
   } catch (err) {
     throw new Error(`Failed to read directory ${dirPath}: ${err}`);
   }
 }
 
 /**
- * Calculate total size of all files
+ * Calculate total size of all files using lodash sumBy
  */
-function calculateTotalSize(files: FileInfo[]): number {
-  return files.reduce((sum, file) => sum + file.size, 0);
-}
+const calculateTotalSize = (files: FileInfo[]): number =>
+  _.sumBy(files, 'size');
 
 /**
  * Main cleanup function - deletes oldest files until size is under limit
@@ -153,32 +151,45 @@ export async function cleanupUploadsDirectory(
       `Total size ${formatBytes(totalSize)} exceeds limit ${formatBytes(maxSizeBytes)}, starting cleanup`
     );
 
-    // Sort files by modification time (oldest first)
-    files.sort((a, b) => a.mtime.getTime() - b.mtime.getTime());
+    // Sort files by modification time (oldest first) using lodash
+    const sortedFiles = _.sortBy(files, file => file.mtime.getTime());
 
-    // Delete files until we're under the limit
-    let currentSize = totalSize;
+    // Delete files until under limit using functional reduce pattern
+    const deletionResult = await sortedFiles.reduce(
+      async (accPromise, file) => {
+        const acc = await accPromise;
 
-    for (const file of files) {
-      if (currentSize <= maxSizeBytes) {
-        break;
-      }
+        // Stop if already under limit
+        if (acc.currentSize <= maxSizeBytes) {
+          return acc;
+        }
 
-      try {
-        await fs.unlink(file.filepath);
-        currentSize -= file.size;
-        result.deletedFiles++;
-        result.freedBytes += file.size;
+        try {
+          await fs.unlink(file.filepath);
+          logger?.info(
+            `Deleted old file: ${file.filename} (${formatBytes(file.size)})`
+          );
 
-        logger?.info(
-          `Deleted old file: ${file.filename} (${formatBytes(file.size)})`
-        );
-      } catch (err) {
-        logger?.warn(`Failed to delete file ${file.filename}: ${err}`);
-      }
-    }
+          return {
+            currentSize: acc.currentSize - file.size,
+            deletedFiles: acc.deletedFiles + 1,
+            freedBytes: acc.freedBytes + file.size,
+          };
+        } catch (err) {
+          logger?.warn(`Failed to delete file ${file.filename}: ${err}`);
+          return acc; // Return unchanged if deletion fails
+        }
+      },
+      Promise.resolve({
+        currentSize: totalSize,
+        deletedFiles: 0,
+        freedBytes: 0,
+      })
+    );
 
-    result.totalSizeAfter = currentSize;
+    result.deletedFiles = deletionResult.deletedFiles;
+    result.freedBytes = deletionResult.freedBytes;
+    result.totalSizeAfter = deletionResult.currentSize;
 
     logger?.info(
       `Cleanup complete: deleted ${result.deletedFiles} files, freed ${formatBytes(result.freedBytes)}, ` +
