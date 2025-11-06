@@ -10,7 +10,7 @@ import {
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import MergeIcon from '@mui/icons-material/MergeType';
-import CallMadeIcon from '@mui/icons-material/CallMade';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import {
   ArrayPath,
@@ -55,6 +55,18 @@ type ProductItemProps<
   onAssign: (index: number) => void;
 };
 
+const ReceiptItemCardButtonContainer = styled(Box)(() => ({
+  position: 'absolute',
+  right: 4,
+  top: 4,
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
+const ReceiptItemCardButton = styled(IconButton)(() => ({
+  height: `40px`,
+}));
+
 function ProductItem<
   TFieldValues extends FieldValues,
   TFieldArrayName extends ArrayPath<TFieldValues>,
@@ -84,24 +96,24 @@ function ProductItem<
       }}
     >
       {!mergeMode && (
-        <>
-          <RemoveItemButton
+        <ReceiptItemCardButtonContainer>
+          <ReceiptItemCardButton
             onClick={() => onRemove(index)}
             disabled={disabled}
-          />
+          >
+            <ClearIcon />
+          </ReceiptItemCardButton>
           {hasPriceMismatch && (
-            <IconButton
-              sx={{ position: 'absolute', right: 4, top: 40 }}
+            <ReceiptItemCardButton
               onClick={() => onAssign(index)}
               disabled={disabled}
               title="Assign price difference to this item"
               size="small"
-              color="primary"
             >
-              <CallMadeIcon fontSize="small" />
-            </IconButton>
+              <KeyboardReturnIcon fontSize="small" />
+            </ReceiptItemCardButton>
           )}
-        </>
+        </ReceiptItemCardButtonContainer>
       )}
       <Box sx={{ paddingRight: 4, pointerEvents: mergeMode ? 'none' : 'auto' }}>
         <Stack gap={2}>
@@ -153,24 +165,6 @@ type ReceiptItemListProps<
   onSelectItem: (id: string) => void;
   setValue: UseFormSetValue<TFieldValues>;
 };
-
-function RemoveItemButton({
-  onClick,
-  disabled,
-}: {
-  onClick?: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <IconButton
-      sx={{ position: 'absolute', right: 4, top: 0 }}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      <ClearIcon />
-    </IconButton>
-  );
-}
 
 type NormalModeActionsProps = {
   onMergeActivate: () => void;
