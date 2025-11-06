@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { useForm } from 'react-hook-form';
+import type {
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFormSetValue,
+  FieldArrayWithId,
+} from 'react-hook-form';
 import { renderWithProviders } from '../../../test/utils.tsx';
 import { ReceiptItemList } from './receiptItemList.tsx';
 import { createMockReceiptItems } from '../../../test/mocks.ts';
@@ -10,28 +17,35 @@ import { createMockReceiptItems } from '../../../test/mocks.ts';
 vi.mock('../hooks/useExpenseAccounts.ts', () => ({
   useExpenseAccounts: () => ({
     isSuccess: true,
-    data: ['Expenses:Groceries', 'Expenses:Transport', 'Expenses:Entertainment'],
+    data: [
+      'Expenses:Groceries',
+      'Expenses:Transport',
+      'Expenses:Entertainment',
+    ],
   }),
 }));
+
+// Type for form values
+type TestFormValues = {
+  items: Array<{ name: string; price: number; expenseAccount: string }>;
+  totalSum: number;
+};
 
 // Test wrapper component that sets up react-hook-form
 function TestWrapper({
   defaultValues,
   children,
 }: {
-  defaultValues: {
-    items: Array<{ name: string; price: number; expenseAccount: string }>;
-    totalSum: number;
-  };
+  defaultValues: TestFormValues;
   children: (props: {
-    control: ReturnType<typeof useForm>['control'];
-    fields: Array<{ id: string; name: string; price: number; expenseAccount: string }>;
-    append: ReturnType<typeof useForm>['formState']['submitCount'];
-    remove: (index: number) => void;
-    setValue: ReturnType<typeof useForm>['setValue'];
+    control: ReturnType<typeof useForm<TestFormValues>>['control'];
+    fields: FieldArrayWithId<TestFormValues, 'items'>[];
+    append: UseFieldArrayAppend<TestFormValues, 'items'>;
+    remove: UseFieldArrayRemove;
+    setValue: UseFormSetValue<TestFormValues>;
   }) => React.ReactElement;
 }) {
-  const { control, setValue } = useForm({
+  const { control, setValue } = useForm<TestFormValues>({
     defaultValues,
     mode: 'onChange',
   });
@@ -40,10 +54,13 @@ function TestWrapper({
   const fields = defaultValues.items.map((item, index) => ({
     ...item,
     id: `field-${index}`,
-  }));
+  })) as FieldArrayWithId<TestFormValues, 'items'>[];
 
-  const append = vi.fn();
-  const remove = vi.fn();
+  const append = vi.fn() as unknown as UseFieldArrayAppend<
+    TestFormValues,
+    'items'
+  >;
+  const remove = vi.fn() as unknown as UseFieldArrayRemove;
 
   return children({ control, fields, append, remove, setValue });
 }
@@ -239,9 +256,7 @@ describe('ReceiptItemList - Price Assignment Feature', () => {
 
       // Modal should appear
       await waitFor(() => {
-        expect(
-          screen.getByText('Assign Price Difference')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Assign Price Difference')).toBeInTheDocument();
       });
     });
 
@@ -249,7 +264,13 @@ describe('ReceiptItemList - Price Assignment Feature', () => {
       const user = userEvent.setup();
 
       const defaultValues = {
-        items: [{ name: 'Specific Item', price: 10.0, expenseAccount: 'Expenses:Test' }],
+        items: [
+          {
+            name: 'Specific Item',
+            price: 10.0,
+            expenseAccount: 'Expenses:Test',
+          },
+        ],
         totalSum: 15.0,
       };
 
@@ -318,9 +339,7 @@ describe('ReceiptItemList - Price Assignment Feature', () => {
       await user.click(assignButtons[0]);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Assign Price Difference')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Assign Price Difference')).toBeInTheDocument();
       });
 
       // Click Cancel

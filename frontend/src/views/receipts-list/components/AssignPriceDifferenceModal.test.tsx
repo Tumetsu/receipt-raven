@@ -18,9 +18,7 @@ describe('AssignPriceDifferenceModal', () => {
     it('should render modal when open is true', () => {
       renderWithProviders(<AssignPriceDifferenceModal {...defaultProps} />);
 
-      expect(
-        screen.getByText('Assign Price Difference')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Assign Price Difference')).toBeInTheDocument();
       expect(screen.getByText(/Test Item/)).toBeInTheDocument();
     });
 
@@ -210,9 +208,7 @@ describe('AssignPriceDifferenceModal', () => {
       );
 
       // Should still render without crashing
-      expect(
-        screen.getByText('Assign Price Difference')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Assign Price Difference')).toBeInTheDocument();
     });
 
     it('should handle very long item names', () => {
