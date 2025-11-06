@@ -309,6 +309,7 @@ function EditableReceiptContent({
                 control={control}
                 disabled={false}
                 onMergeActivate={() => setActionMode('merge')}
+                setValue={formMethods.setValue}
               />
             </Box>
           )}
