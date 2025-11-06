@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Typography,
   IconButton,
@@ -9,6 +10,7 @@ import {
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import MergeIcon from '@mui/icons-material/MergeType';
+import CallMadeIcon from '@mui/icons-material/CallMade';
 import { ControlledComboBox } from '../../../common/components/ComboBox.tsx';
 import {
   ArrayPath,
@@ -18,10 +20,13 @@ import {
   Path,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
+  useWatch,
+  UseFormSetValue,
 } from 'react-hook-form';
 import { ControlledTextField } from '../../../common/components/ControlledTextField.tsx';
 import { useExpenseAccounts } from '../hooks/useExpenseAccounts.ts';
 import { ActionType } from './receiptPanel.tsx';
+import { AssignPriceDifferenceModal } from './AssignPriceDifferenceModal.tsx';
 
 const ProductCard = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -46,6 +51,8 @@ type ProductItemProps<
   mergeMode: boolean;
   isSelected: boolean;
   onSelect: (id: string) => void;
+  hasPriceMismatch: boolean;
+  onAssign: (index: number) => void;
 };
 
 function ProductItem<
@@ -62,6 +69,8 @@ function ProductItem<
   mergeMode,
   isSelected,
   onSelect,
+  hasPriceMismatch,
+  onAssign,
 }: ProductItemProps<TFieldValues, TFieldArrayName>) {
   return (
     <ProductCard
@@ -75,7 +84,24 @@ function ProductItem<
       }}
     >
       {!mergeMode && (
-        <RemoveItemButton onClick={() => onRemove(index)} disabled={disabled} />
+        <>
+          <RemoveItemButton
+            onClick={() => onRemove(index)}
+            disabled={disabled}
+          />
+          {hasPriceMismatch && (
+            <IconButton
+              sx={{ position: 'absolute', right: 4, top: 40 }}
+              onClick={() => onAssign(index)}
+              disabled={disabled}
+              title="Assign price difference to this item"
+              size="small"
+              color="primary"
+            >
+              <CallMadeIcon fontSize="small" />
+            </IconButton>
+          )}
+        </>
       )}
       <Box sx={{ paddingRight: 4, pointerEvents: mergeMode ? 'none' : 'auto' }}>
         <Stack gap={2}>
@@ -125,6 +151,7 @@ type ReceiptItemListProps<
   onMergeActivate: () => void;
   selectedReceiptItems: Record<string, boolean>;
   onSelectItem: (id: string) => void;
+  setValue: UseFormSetValue<TFieldValues>;
 };
 
 function RemoveItemButton({
@@ -202,8 +229,30 @@ export function ReceiptItemList<
   onMergeActivate,
   selectedReceiptItems,
   onSelectItem,
+  setValue,
 }: ReceiptItemListProps<TFieldValues, TFieldArrayName>) {
   const expenseAccounts = useExpenseAccounts();
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [assignTargetIndex, setAssignTargetIndex] = useState<number | null>(
+    null
+  );
+
+  // Watch form values to calculate price difference
+  const items = useWatch({ control, name: name as Path<TFieldValues> }) as
+    | Array<{ price: number; name: string }>
+    | undefined;
+  const totalSum = useWatch({
+    control,
+    name: 'totalSum' as Path<TFieldValues>,
+  }) as number | undefined;
+
+  // Calculate price difference
+  const itemsSum = Array.isArray(items)
+    ? items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
+    : 0;
+  const totalSumNumber = Number(totalSum) || 0;
+  const hasPriceMismatch = Math.abs(itemsSum - totalSumNumber) >= 0.01;
+  const priceDifference = totalSumNumber - itemsSum;
 
   const onAddItem = () => {
     append({ name: '', price: '', expenseAccount: '' } as never);
@@ -211,6 +260,34 @@ export function ReceiptItemList<
 
   const onRemoveItem = (idx: number) => {
     remove(idx);
+  };
+
+  const onAssignClick = (index: number) => {
+    setAssignTargetIndex(index);
+    setAssignModalOpen(true);
+  };
+
+  const handleAssignConfirm = () => {
+    if (assignTargetIndex !== null && items && items[assignTargetIndex]) {
+      const currentItem = items[assignTargetIndex];
+      const currentPrice = Number(currentItem.price) || 0;
+      const newPrice = currentPrice + priceDifference;
+
+      // Update the price of the target item
+      setValue(
+        `${name}.${assignTargetIndex}.price` as Path<TFieldValues>,
+        newPrice as never,
+        { shouldValidate: true, shouldDirty: true }
+      );
+    }
+
+    setAssignModalOpen(false);
+    setAssignTargetIndex(null);
+  };
+
+  const handleAssignCancel = () => {
+    setAssignModalOpen(false);
+    setAssignTargetIndex(null);
   };
 
   return (
@@ -252,8 +329,21 @@ export function ReceiptItemList<
             mergeMode={actionMode === 'merge'}
             isSelected={selectedReceiptItems[field.id]}
             onSelect={onSelectItem}
+            hasPriceMismatch={hasPriceMismatch}
+            onAssign={onAssignClick}
           />
         ))}
+
+      {assignTargetIndex !== null && items && items[assignTargetIndex] && (
+        <AssignPriceDifferenceModal
+          open={assignModalOpen}
+          onClose={handleAssignCancel}
+          onConfirm={handleAssignConfirm}
+          itemName={items[assignTargetIndex].name}
+          currentPrice={Number(items[assignTargetIndex].price) || 0}
+          difference={priceDifference}
+        />
+      )}
     </>
   );
 }
