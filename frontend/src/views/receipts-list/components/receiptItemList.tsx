@@ -265,7 +265,7 @@ export function ReceiptItemList<
     if (assignTargetIndex !== null && items && items[assignTargetIndex]) {
       const currentItem = items[assignTargetIndex];
       const currentPrice = Number(currentItem.price) || 0;
-      const newPrice = currentPrice + priceDifference;
+      const newPrice = Number(currentPrice + priceDifference).toFixed(2);
 
       // Update the price of the target item
       setValue(
