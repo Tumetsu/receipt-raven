@@ -13,14 +13,19 @@ import { appModule } from './modules/app/index.js';
 const fastify = Fastify({
   logger: {
     level: config.nodeEnv === 'production' ? 'info' : 'debug',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
-        colorize: false, // Disable colors for Docker logs
-      },
-    },
+    ...(config.nodeEnv === 'production'
+      ? {} // Raw JSON output in production
+      : {
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+              colorize: true,
+              singleLine: false,
+            },
+          },
+        }),
   },
 });
 
