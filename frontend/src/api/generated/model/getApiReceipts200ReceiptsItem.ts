@@ -8,6 +8,7 @@
 import type { GetApiReceipts200ReceiptsItemDescription } from './getApiReceipts200ReceiptsItemDescription';
 import type { GetApiReceipts200ReceiptsItemSourceAccount } from './getApiReceipts200ReceiptsItemSourceAccount';
 import type { GetApiReceipts200ReceiptsItemStatus } from './getApiReceipts200ReceiptsItemStatus';
+import type { GetApiReceipts200ReceiptsItemOcrNotes } from './getApiReceipts200ReceiptsItemOcrNotes';
 import type { GetApiReceipts200ReceiptsItemFilename } from './getApiReceipts200ReceiptsItemFilename';
 import type { GetApiReceipts200ReceiptsItemFileUrl } from './getApiReceipts200ReceiptsItemFileUrl';
 
@@ -29,6 +30,8 @@ export type GetApiReceipts200ReceiptsItem = {
   totalSum: number;
   /** Status of the receipt (pending, approved, rejected, or error) */
   status: GetApiReceipts200ReceiptsItemStatus;
+  /** OCR validation notes from heuristic checks (null for manual receipts) */
+  ocrNotes: GetApiReceipts200ReceiptsItemOcrNotes;
   /** Filename of the receipt image */
   filename: GetApiReceipts200ReceiptsItemFilename;
   /** URL to access the receipt image */
