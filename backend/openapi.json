@@ -270,6 +270,41 @@
                               "unapproved"
                             ]
                           },
+                          "ocrNotes": {
+                            "description": "OCR validation notes from heuristic checks (null for manual receipts)",
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "suspiciousDate": {
+                                    "type": "object",
+                                    "properties": {
+                                      "level": {
+                                        "type": "string",
+                                        "enum": [
+                                          "WARN",
+                                          "SEVERE",
+                                          "ERROR"
+                                        ]
+                                      },
+                                      "message": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "level",
+                                      "message"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "filename": {
                             "description": "Filename of the receipt image",
                             "anyOf": [
@@ -300,6 +335,7 @@
                           "date",
                           "totalSum",
                           "status",
+                          "ocrNotes",
                           "filename",
                           "fileUrl"
                         ],
