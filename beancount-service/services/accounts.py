@@ -5,6 +5,9 @@ from typing import List, Optional
 from beancount import loader
 from beancount.core import getters
 from models import Account, AccountType
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_account_type(account_name: str) -> AccountType:
@@ -53,7 +56,7 @@ def get_accounts(
 
     if errors:
         # Log errors but continue
-        print(f"Beancount loader errors: {errors}")
+        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
 
     # Get all account names from the ledger
     all_accounts = getters.get_accounts(entries)
