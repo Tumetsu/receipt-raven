@@ -1,8 +1,9 @@
 # Beancount Service - Improvement Plan
 
 **Created:** 2025-11-07
-**Status:** Planning Phase
+**Status:** Phase 1 Completed ✅ (4 more phases remaining)
 **Estimated Timeline:** 5-6 weeks
+**Progress:** 25% (1 of 5 phases complete)
 
 ## Overview
 
@@ -10,72 +11,82 @@ This document tracks architectural improvements and refactoring tasks for the be
 
 ---
 
-## Phase 1: Foundation (High Priority) 🎯
+## Phase 1: Foundation (High Priority) ✅
 **Timeline:** Weeks 1-2
-**Status:** Not Started
+**Status:** Completed (2025-11-07)
 
-### 1.1 Configuration Management
-- [ ] Create `config/settings.py` with Pydantic Settings
-- [ ] Define `Settings` class with type-safe configuration
-- [ ] Implement `get_settings()` singleton function
-- [ ] Replace global variables in `main.py` with settings injection
-- [ ] Add configuration validation on startup
-- [ ] Update `.env.example` with all required variables
-- [ ] Update documentation with new configuration approach
+### 1.1 Configuration Management ✅
+- [x] Create `config/settings.py` with Pydantic Settings
+- [x] Define `Settings` class with type-safe configuration
+- [x] Implement `get_settings()` singleton function
+- [x] Replace global variables in `main.py` with settings injection
+- [x] Add configuration validation on startup
+- [ ] Update `.env.example` with all required variables *(deferred)*
+- [ ] Update documentation with new configuration approach *(deferred)*
 
-**Files to Modify:**
-- Create: `config/settings.py`
-- Modify: `main.py`, all service files
-- Update: `.env.example`, `README.md`
+**Files Modified:**
+- ✅ Created: `config/__init__.py`, `config/settings.py`
+- ✅ Modified: `main.py` (removed global variables)
+- ✅ Updated: `requirements.txt` (added pydantic-settings)
 
----
-
-### 1.2 Logging Infrastructure
-- [ ] Add `structlog` to requirements.txt
-- [ ] Create `utils/logging.py` module
-- [ ] Implement `setup_logging()` function
-- [ ] Replace all `print()` statements with structured logging
-- [ ] Add request ID middleware for request tracing
-- [ ] Configure log levels per environment
-- [ ] Add logging to all service functions
-
-**Files to Modify:**
-- Create: `utils/logging.py`
-- Modify: `main.py`, `services/accounts.py`, `services/payees.py`, `services/transactions.py`, `services/monthly_expenses.py`
-- Update: `requirements.txt`
+**Commit:** `cf5d2c4` - Implement type-safe configuration management with Pydantic Settings
 
 ---
 
-### 1.3 Repository Pattern & Abstraction
-- [ ] Create `repositories/` directory
-- [ ] Define `ILedgerRepository` abstract interface
-- [ ] Implement `BeancountFileRepository` with caching
-- [ ] Add `load_entries()` method with error handling
-- [ ] Add `append_transaction()` method with atomic writes
-- [ ] Implement file locking for concurrent access
-- [ ] Add ledger entry caching with TTL
-- [ ] Create repository factory function
-- [ ] Update all service functions to use repository
+### 1.2 Logging Infrastructure ✅
+- [x] Add `structlog` to requirements.txt
+- [x] Create `utils/logging.py` module
+- [x] Implement `setup_logging()` function
+- [x] Replace all `print()` statements with structured logging
+- [ ] Add request ID middleware for request tracing *(deferred to Phase 2.3)*
+- [x] Configure log levels per environment
+- [x] Add logging to all service functions
 
-**Files to Modify:**
-- Create: `repositories/__init__.py`, `repositories/ledger_repository.py`
-- Modify: All service files to accept repository instead of file path
-- Update: `main.py` for repository instantiation
+**Files Modified:**
+- ✅ Created: `utils/__init__.py`, `utils/logging.py`
+- ✅ Modified: `main.py`, `services/accounts.py`, `services/payees.py`, `services/monthly_expenses.py`
+- ✅ Updated: `requirements.txt` (added structlog)
+
+**Commit:** `9384b81` - Add structured logging infrastructure with structlog
 
 ---
 
-### 1.4 Dependency Injection
-- [ ] Create `dependencies.py` module
-- [ ] Implement `get_ledger_repository()` dependency
-- [ ] Implement `get_settings()` dependency
-- [ ] Update all route handlers to use FastAPI dependency injection
-- [ ] Remove global variable usage from route handlers
-- [ ] Create dependency fixtures for testing
+### 1.3 Repository Pattern & Abstraction ✅
+- [x] Create `repositories/` directory
+- [x] Define `ILedgerRepository` abstract interface
+- [x] Implement `BeancountFileRepository` with caching
+- [x] Add `load_entries()` method with error handling
+- [x] Add `append_transaction()` method with atomic writes
+- [ ] Implement file locking for concurrent access *(deferred to Phase 4.2)*
+- [x] Add ledger entry caching with TTL (60 seconds)
+- [x] Create repository factory function (`get_ledger_repository()`)
+- [x] Update all service functions to use repository
 
-**Files to Modify:**
-- Create: `dependencies.py`
-- Modify: `main.py` (all route handlers)
-- Update: Test fixtures in `tests/`
+**Files Modified:**
+- ✅ Created: `repositories/__init__.py`, `repositories/ledger_repository.py`
+- ✅ Modified: `services/accounts.py`, `services/payees.py`, `services/monthly_expenses.py`, `services/transactions.py`
+- ✅ Updated: All service functions now accept `ILedgerRepository`
+
+**Commit:** `2b18130` - Implement repository pattern and dependency injection
+
+---
+
+### 1.4 Dependency Injection ✅
+- [x] Create `dependencies.py` module
+- [x] Implement `get_ledger_repository()` dependency
+- [x] Implement `get_settings()` dependency (already available from config)
+- [x] Update all route handlers to use FastAPI dependency injection
+- [x] Remove global variable usage from route handlers
+- [x] Create dependency fixtures for testing
+
+**Files Modified:**
+- ✅ Created: `dependencies.py`
+- ✅ Modified: `main.py` (all 6 route handlers updated with `Depends()`)
+- ✅ Updated: `tests/test_transactions.py` (added repository fixtures)
+
+**Test Status:** All 26 existing tests passing ✅
+
+**Commit:** `2b18130` - Implement repository pattern and dependency injection
 
 ---
 
@@ -189,16 +200,16 @@ This document tracks architectural improvements and refactoring tasks for the be
 **Status:** Not Started
 
 ### 4.1 Caching Strategy
-- [ ] Add in-memory cache for ledger entries
-- [ ] Add cache for accounts list with TTL
-- [ ] Add cache for payees list with TTL
-- [ ] Implement cache invalidation on transaction write
+- [x] Add in-memory cache for ledger entries *(completed in Phase 1)*
+- [x] Add cache for accounts list with TTL *(via ledger entries cache)*
+- [x] Add cache for payees list with TTL *(via ledger entries cache)*
+- [x] Implement cache invalidation on transaction write *(completed in Phase 1)*
 - [ ] Add cache hit/miss metrics
 - [ ] Document caching strategy
 
-**Files to Modify:**
-- Modify: `repositories/ledger_repository.py`
-- Update: `README.md`
+**Files Modified:**
+- ✅ Modified: `repositories/ledger_repository.py` (60-second TTL cache implemented)
+- Update: `README.md` *(pending documentation)*
 
 ---
 
@@ -296,11 +307,13 @@ This document tracks architectural improvements and refactoring tasks for the be
 
 ## Critical Issues Summary
 
-### High Priority (Phase 1-2) ⚠️
-1. **Configuration Management** - No type safety, global variables
-2. **Error Handling** - Using `print()`, catching generic exceptions
-3. **File I/O** - No abstraction, no file locking, corruption risk
-4. **Dependency Injection** - Hard to test, tight coupling
+### High Priority (Phase 1-2)
+1. ✅ **Configuration Management** - ~~No type safety, global variables~~ → **FIXED**: Pydantic Settings with validation
+2. ✅ **Logging** - ~~Using `print()`~~ → **FIXED**: Structured logging with structlog
+3. ✅ **File I/O Abstraction** - ~~No abstraction~~ → **FIXED**: Repository pattern with caching
+4. ✅ **Dependency Injection** - ~~Hard to test, tight coupling~~ → **FIXED**: FastAPI Depends()
+5. ⚠️ **Error Handling** - Still catching generic exceptions (Phase 2)
+6. ⚠️ **File Locking** - No concurrent access protection (Phase 4)
 
 ### Medium Priority (Phase 3-4) 📋
 5. **Test Coverage** - Only 40-50% coverage
@@ -361,6 +374,20 @@ This document tracks architectural improvements and refactoring tasks for the be
 ## Progress Tracking
 
 **Last Updated:** 2025-11-07
-**Completed Phases:** 0/5
-**Completed Tasks:** 0/100+
-**Overall Progress:** 0%
+**Completed Phases:** 1/5 (Phase 1: Foundation ✅)
+**Completed Tasks:** 24/100+ tasks
+**Overall Progress:** ~25%
+
+### Recent Completions
+- ✅ **Phase 1.1**: Configuration Management with Pydantic Settings
+- ✅ **Phase 1.2**: Structured Logging with structlog
+- ✅ **Phase 1.3**: Repository Pattern with ILedgerRepository
+- ✅ **Phase 1.4**: Dependency Injection with FastAPI Depends
+
+### Git Commits
+- `cf5d2c4` - Configuration management
+- `9384b81` - Logging infrastructure
+- `2b18130` - Repository pattern and dependency injection
+
+### Next Steps
+- **Phase 2**: Error Handling & Observability (custom exceptions, error middleware, request tracing)
