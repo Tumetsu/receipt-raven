@@ -20,6 +20,7 @@ export interface ReceiptsTable {
   parsed_by: string;
   source_account: string | null;
   status: ReceiptStatus;
+  ocr_notes: string | null;
   created_at: ColumnType<string, string | undefined, never>;
 }
 
