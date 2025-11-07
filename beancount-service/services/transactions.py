@@ -6,9 +6,9 @@ from datetime import datetime
 from decimal import Decimal
 from beancount.core import data, amount
 from beancount.parser import printer
-from beancount.loader import load_file
 from beancount.core.getters import get_accounts
 from models import Transaction, ReceiptTransactionData, TransactionSubmitResponse
+from repositories import ILedgerRepository
 
 
 def create_beancount_transaction(txn: Transaction) -> data.Transaction:
@@ -114,25 +114,20 @@ def validate_transaction(bean_txn: data.Transaction) -> tuple[bool, Optional[str
 
 
 def validate_accounts_exist(
-    bean_txn: data.Transaction, ledger_path: str
+    bean_txn: data.Transaction, repository: ILedgerRepository
 ) -> tuple[bool, Optional[str]]:
     """
     Validate that all accounts referenced in the transaction exist in the ledger
 
     Args:
         bean_txn: beancount Transaction object
-        ledger_path: Path to the ledger file
+        repository: Ledger repository instance
 
     Returns:
         Tuple of (is_valid, error_message)
     """
     # Load the ledger to get all defined accounts
-    entries, errors, options = load_file(ledger_path)
-
-    if errors:
-        # If there are parse errors in the ledger, we should still try to validate
-        # but log this for debugging
-        pass
+    entries, errors, options = repository.load_entries()
 
     # Get all account names that have been opened in the ledger
     valid_accounts = get_accounts(entries)
@@ -197,14 +192,14 @@ def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transact
 
 
 def submit_transaction(
-    transaction: Transaction, ledger_path: str, dry_run: bool = False
+    transaction: Transaction, repository: ILedgerRepository, dry_run: bool = False
 ) -> TransactionSubmitResponse:
     """
     Submit a transaction to the beancount ledger
 
     Args:
         transaction: Transaction to submit
-        ledger_path: Path to the ledger file
+        repository: Ledger repository instance
         dry_run: If True, only validate without writing
 
     Returns:
@@ -222,7 +217,7 @@ def submit_transaction(
             )
 
         # Validate that all accounts exist in the ledger
-        is_valid, error_message = validate_accounts_exist(bean_txn, ledger_path)
+        is_valid, error_message = validate_accounts_exist(bean_txn, repository)
         if not is_valid:
             return TransactionSubmitResponse(
                 success=False, message=f"Account validation failed: {error_message}"
@@ -239,11 +234,8 @@ def submit_transaction(
                 transaction_id=None,
             )
 
-        # Append to ledger file
-        with open(ledger_path, "a", encoding="utf-8") as f:
-            f.write("\n")
-            f.write(formatted_txn)
-            f.write("\n")
+        # Append to ledger file via repository
+        repository.append_transaction(formatted_txn)
 
         # Generate transaction ID (using date + payee as identifier)
         transaction_id = f"{transaction.date}_{transaction.payee}"
@@ -261,14 +253,14 @@ def submit_transaction(
 
 
 def submit_receipt_transaction(
-    receipt_data: ReceiptTransactionData, ledger_path: str, dry_run: bool = False
+    receipt_data: ReceiptTransactionData, repository: ILedgerRepository, dry_run: bool = False
 ) -> TransactionSubmitResponse:
     """
     Convert receipt data to transaction and submit to ledger
 
     Args:
         receipt_data: Receipt transaction data
-        ledger_path: Path to the ledger file
+        repository: Ledger repository instance
         dry_run: If True, only validate without writing
 
     Returns:
@@ -279,7 +271,7 @@ def submit_receipt_transaction(
         transaction = create_receipt_transaction(receipt_data)
 
         # Submit the transaction
-        return submit_transaction(transaction, ledger_path, dry_run)
+        return submit_transaction(transaction, repository, dry_run)
     except Exception as e:
         return TransactionSubmitResponse(
             success=False, message=f"Failed to process receipt: {str(e)}"

@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from models import Transaction, TransactionPosting, ReceiptTransactionData, ReceiptTransactionItem
+from repositories import BeancountFileRepository
 from services.transactions import (
     create_beancount_transaction,
     validate_transaction,
@@ -43,6 +44,18 @@ def temp_ledger_path(test_ledger_path):
     # Cleanup
     if os.path.exists(temp_path):
         os.remove(temp_path)
+
+
+@pytest.fixture
+def test_repository(test_ledger_path):
+    """Repository for reading test ledger"""
+    return BeancountFileRepository(test_ledger_path, cache_ttl_seconds=0)
+
+
+@pytest.fixture
+def temp_repository(temp_ledger_path):
+    """Repository for write tests with temporary ledger"""
+    return BeancountFileRepository(temp_ledger_path, cache_ttl_seconds=0)
 
 
 @pytest.fixture
@@ -324,19 +337,19 @@ def test_validate_transaction_with_rounding():
 
 # Tests for validate_accounts_exist
 
-def test_validate_accounts_exist_valid(valid_transaction, test_ledger_path):
+def test_validate_accounts_exist_valid(valid_transaction, test_repository):
     """Test that validation passes for existing accounts"""
     bean_txn = create_beancount_transaction(valid_transaction)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_ledger_path)
+    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
 
     assert is_valid is True
     assert error_message is None
 
 
-def test_validate_accounts_exist_invalid(invalid_account_transaction, test_ledger_path):
+def test_validate_accounts_exist_invalid(invalid_account_transaction, test_repository):
     """Test that validation fails for non-existent accounts"""
     bean_txn = create_beancount_transaction(invalid_account_transaction)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_ledger_path)
+    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
 
     assert is_valid is False
     assert error_message is not None
@@ -344,7 +357,7 @@ def test_validate_accounts_exist_invalid(invalid_account_transaction, test_ledge
     assert "do not exist" in error_message
 
 
-def test_validate_accounts_exist_multiple_invalid(test_ledger_path):
+def test_validate_accounts_exist_multiple_invalid(test_repository):
     """Test validation with multiple invalid accounts"""
     txn = Transaction(
         date="2024-01-20",
@@ -358,7 +371,7 @@ def test_validate_accounts_exist_multiple_invalid(test_ledger_path):
     )
 
     bean_txn = create_beancount_transaction(txn)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_ledger_path)
+    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
 
     assert is_valid is False
     assert "Expenses:Fake1" in error_message
@@ -409,9 +422,9 @@ def test_create_receipt_transaction_item_comments(valid_receipt_data):
 
 # Tests for submit_transaction
 
-def test_submit_transaction_valid(valid_transaction, temp_ledger_path):
+def test_submit_transaction_valid(valid_transaction, temp_repository, temp_ledger_path):
     """Test submitting a valid transaction"""
-    result = submit_transaction(valid_transaction, temp_ledger_path, dry_run=False)
+    result = submit_transaction(valid_transaction, temp_repository, dry_run=False)
 
     assert result.success is True
     assert result.transaction_id is not None
@@ -424,12 +437,12 @@ def test_submit_transaction_valid(valid_transaction, temp_ledger_path):
         assert "Test purchase" in content
 
 
-def test_submit_transaction_dry_run(valid_transaction, temp_ledger_path):
+def test_submit_transaction_dry_run(valid_transaction, temp_repository, temp_ledger_path):
     """Test dry run doesn't write to file"""
     # Read initial file size
     initial_content = open(temp_ledger_path, 'r').read()
 
-    result = submit_transaction(valid_transaction, temp_ledger_path, dry_run=True)
+    result = submit_transaction(valid_transaction, temp_repository, dry_run=True)
 
     assert result.success is True
     assert "validated" in result.message.lower()
@@ -440,31 +453,31 @@ def test_submit_transaction_dry_run(valid_transaction, temp_ledger_path):
     assert initial_content == final_content
 
 
-def test_submit_transaction_unbalanced(unbalanced_transaction, temp_ledger_path):
+def test_submit_transaction_unbalanced(unbalanced_transaction, temp_repository):
     """Test that unbalanced transactions are rejected"""
-    result = submit_transaction(unbalanced_transaction, temp_ledger_path, dry_run=False)
+    result = submit_transaction(unbalanced_transaction, temp_repository, dry_run=False)
 
     assert result.success is False
     assert "validation failed" in result.message.lower()
     assert "does not balance" in result.message
 
 
-def test_submit_transaction_invalid_account(invalid_account_transaction, temp_ledger_path):
+def test_submit_transaction_invalid_account(invalid_account_transaction, temp_repository):
     """Test that transactions with invalid accounts are rejected"""
-    result = submit_transaction(invalid_account_transaction, temp_ledger_path, dry_run=False)
+    result = submit_transaction(invalid_account_transaction, temp_repository, dry_run=False)
 
     assert result.success is False
     assert "account validation failed" in result.message.lower()
     assert "NonExistent" in result.message
 
 
-def test_submit_transaction_preserves_existing_content(valid_transaction, temp_ledger_path):
+def test_submit_transaction_preserves_existing_content(valid_transaction, temp_repository, temp_ledger_path):
     """Test that submitting a transaction preserves existing ledger content"""
     # Read initial content
     with open(temp_ledger_path, 'r') as f:
         initial_content = f.read()
 
-    result = submit_transaction(valid_transaction, temp_ledger_path, dry_run=False)
+    result = submit_transaction(valid_transaction, temp_repository, dry_run=False)
     assert result.success is True
 
     # Read final content
@@ -479,9 +492,9 @@ def test_submit_transaction_preserves_existing_content(valid_transaction, temp_l
 
 # Tests for submit_receipt_transaction
 
-def test_submit_receipt_transaction_valid(valid_receipt_data, temp_ledger_path):
+def test_submit_receipt_transaction_valid(valid_receipt_data, temp_repository, temp_ledger_path):
     """Test submitting a valid receipt transaction"""
-    result = submit_receipt_transaction(valid_receipt_data, temp_ledger_path, dry_run=False)
+    result = submit_receipt_transaction(valid_receipt_data, temp_repository, dry_run=False)
 
     assert result.success is True
     assert result.transaction_id is not None
@@ -492,11 +505,11 @@ def test_submit_receipt_transaction_valid(valid_receipt_data, temp_ledger_path):
         assert "Test Grocery Store" in content
 
 
-def test_submit_receipt_transaction_dry_run(valid_receipt_data, temp_ledger_path):
+def test_submit_receipt_transaction_dry_run(valid_receipt_data, temp_repository, temp_ledger_path):
     """Test receipt transaction dry run"""
     initial_content = open(temp_ledger_path, 'r').read()
 
-    result = submit_receipt_transaction(valid_receipt_data, temp_ledger_path, dry_run=True)
+    result = submit_receipt_transaction(valid_receipt_data, temp_repository, dry_run=True)
 
     assert result.success is True
     assert result.transaction_id is None
@@ -506,7 +519,7 @@ def test_submit_receipt_transaction_dry_run(valid_receipt_data, temp_ledger_path
     assert initial_content == final_content
 
 
-def test_submit_receipt_transaction_invalid_account(test_ledger_path):
+def test_submit_receipt_transaction_invalid_account(test_repository):
     """Test that receipt with invalid account is rejected"""
     receipt_data = ReceiptTransactionData(
         receipt_id=1,
@@ -523,7 +536,7 @@ def test_submit_receipt_transaction_invalid_account(test_ledger_path):
         source_account="Assets:Checking",
     )
 
-    result = submit_receipt_transaction(receipt_data, test_ledger_path, dry_run=False)
+    result = submit_receipt_transaction(receipt_data, test_repository, dry_run=False)
 
     assert result.success is False
     assert "account validation failed" in result.message.lower()

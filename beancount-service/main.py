@@ -2,12 +2,13 @@
 Beancount Ledger Service
 FastAPI application that provides REST API access to beancount ledger
 """
-import os
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
+from dependencies import get_ledger_repository
+from repositories import ILedgerRepository
 from models import (
     AccountsResponse,
     PayeesResponse,
@@ -50,12 +51,14 @@ app.add_middleware(
 
 
 @app.get("/health")
-async def health_check():
+async def health_check(
+    repository: ILedgerRepository = Depends(get_ledger_repository)
+):
     """
     Health check endpoint
     """
     # Check if ledger file exists
-    if not os.path.exists(settings.beancount_ledger_path):
+    if not repository.ledger_exists():
         raise HTTPException(status_code=503, detail="Ledger file not found")
 
     return {"status": "ok"}
@@ -63,7 +66,8 @@ async def health_check():
 
 @app.get("/accounts", response_model=AccountsResponse)
 async def get_accounts_endpoint(
-    type: Optional[str] = Query(None, description="Filter by account type")
+    type: Optional[str] = Query(None, description="Filter by account type"),
+    repository: ILedgerRepository = Depends(get_ledger_repository)
 ):
     """
     Get all accounts from the ledger
@@ -76,7 +80,7 @@ async def get_accounts_endpoint(
     """
     try:
         logger.debug("fetching_accounts", account_type_filter=type)
-        accounts = get_accounts(settings.beancount_ledger_path, type)
+        accounts = get_accounts(repository, type)
         logger.info("accounts_fetched", count=len(accounts), account_type_filter=type)
         return AccountsResponse(accounts=accounts)
     except Exception as e:
@@ -85,7 +89,9 @@ async def get_accounts_endpoint(
 
 
 @app.get("/payees", response_model=PayeesResponse)
-async def get_payees_endpoint():
+async def get_payees_endpoint(
+    repository: ILedgerRepository = Depends(get_ledger_repository)
+):
     """
     Get list of payees (shops, vendors) from the ledger
 
@@ -94,7 +100,7 @@ async def get_payees_endpoint():
     """
     try:
         logger.debug("fetching_payees")
-        payees = get_payees(settings.beancount_ledger_path)
+        payees = get_payees(repository)
         logger.info("payees_fetched", count=len(payees))
         return PayeesResponse(payees=payees)
     except Exception as e:
@@ -103,7 +109,9 @@ async def get_payees_endpoint():
 
 
 @app.get("/monthly-expenses", response_model=MonthlyExpensesResponse)
-async def get_monthly_expenses_endpoint():
+async def get_monthly_expenses_endpoint(
+    repository: ILedgerRepository = Depends(get_ledger_repository)
+):
     """
     Get total expenses for the current month
 
@@ -114,7 +122,7 @@ async def get_monthly_expenses_endpoint():
         from datetime import datetime
         now = datetime.now()
         logger.debug("fetching_monthly_expenses", year=now.year, month=now.month)
-        expenses = get_current_month_expenses(settings.beancount_ledger_path)
+        expenses = get_current_month_expenses(repository)
         logger.info("monthly_expenses_fetched", expenses=expenses, year=now.year, month=now.month)
         return MonthlyExpensesResponse(
             expenses_by_currency=expenses,
@@ -128,7 +136,9 @@ async def get_monthly_expenses_endpoint():
 
 @app.post("/transactions", response_model=TransactionSubmitResponse)
 async def submit_transaction_endpoint(
-    transaction: Transaction, dry_run: bool = Query(False)
+    transaction: Transaction,
+    dry_run: bool = Query(False),
+    repository: ILedgerRepository = Depends(get_ledger_repository)
 ):
     """
     Submit a transaction to the ledger
@@ -142,7 +152,7 @@ async def submit_transaction_endpoint(
     """
     try:
         logger.info("submitting_transaction", payee=transaction.payee, dry_run=dry_run, date=transaction.date)
-        result = submit_transaction(transaction, settings.beancount_ledger_path, dry_run)
+        result = submit_transaction(transaction, repository, dry_run)
         if not result.success:
             logger.warning("transaction_validation_failed", message=result.message, payee=transaction.payee)
             raise HTTPException(status_code=400, detail=result.message)
@@ -159,7 +169,9 @@ async def submit_transaction_endpoint(
 
 @app.post("/transactions/receipt", response_model=TransactionSubmitResponse)
 async def submit_receipt_transaction_endpoint(
-    receipt_data: ReceiptTransactionData, dry_run: bool = Query(False)
+    receipt_data: ReceiptTransactionData,
+    dry_run: bool = Query(False),
+    repository: ILedgerRepository = Depends(get_ledger_repository)
 ):
     """
     Convert receipt data to transaction and submit to ledger
@@ -174,7 +186,7 @@ async def submit_receipt_transaction_endpoint(
     try:
         logger.info("submitting_receipt_transaction", receipt_id=receipt_data.receipt_id, payee=receipt_data.payee, dry_run=dry_run)
         result = submit_receipt_transaction(
-            receipt_data, settings.beancount_ledger_path, dry_run
+            receipt_data, repository, dry_run
         )
         if result.success:
             logger.info("receipt_transaction_submitted", receipt_id=receipt_data.receipt_id, transaction_id=result.transaction_id, dry_run=dry_run)
