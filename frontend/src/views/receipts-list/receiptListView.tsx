@@ -70,8 +70,7 @@ export function ReceiptListView(): ReactElement {
               onPageSizeChange={setPageSize}
               onRowClick={id => {
                 const receipt = result.receipts.find(r => r.id === id);
-                // Cast to Receipt type - API client will be regenerated later
-                setSelectedReceipt((receipt as Receipt) || null);
+                setSelectedReceipt(receipt || null);
               }}
             />
             <Fab

@@ -3,18 +3,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorIcon from '@mui/icons-material/Error';
 import { ControlledDatePicker } from '../../../common/components/ControlledDatePicker.tsx';
-
-// Type definitions for OCR notes (from backend)
-type HeuristicLevel = 'WARN' | 'SEVERE' | 'ERROR';
-
-interface HeuristicIssue {
-  level: HeuristicLevel;
-  message: string;
-}
-
-interface OcrNotes {
-  suspiciousDate?: HeuristicIssue;
-}
+import type { GetApiReceipts200ReceiptsItemOcrNotes } from '../../../api/generated/model/index.ts';
 
 type ReceiptDatePickerProps<T extends FieldValues> = {
   name: Path<T>;
@@ -22,7 +11,7 @@ type ReceiptDatePickerProps<T extends FieldValues> = {
   required?: boolean;
   label?: string;
   helperText?: string;
-  ocrNotes?: OcrNotes | null;
+  ocrNotes?: GetApiReceipts200ReceiptsItemOcrNotes;
 };
 
 export function ReceiptDatePicker<T extends FieldValues>(
