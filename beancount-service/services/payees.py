@@ -5,6 +5,9 @@ from typing import List
 from beancount import loader
 from beancount.core.data import Transaction
 from models import Payee
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_payees(ledger_path: str) -> List[Payee]:
@@ -20,7 +23,7 @@ def get_payees(ledger_path: str) -> List[Payee]:
     entries, errors, options = loader.load_file(ledger_path)
 
     if errors:
-        print(f"Beancount loader errors: {errors}")
+        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
 
     # Extract unique payees from transactions
     payees = set()

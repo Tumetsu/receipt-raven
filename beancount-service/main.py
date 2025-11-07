@@ -23,9 +23,14 @@ from services.transactions import (
     submit_receipt_transaction,
 )
 from services.monthly_expenses import get_current_month_expenses
+from utils.logging import setup_logging, get_logger
 
 # Load settings (validates configuration on startup)
 settings = get_settings()
+
+# Configure logging
+setup_logging(settings.log_level)
+logger = get_logger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
@@ -70,9 +75,12 @@ async def get_accounts_endpoint(
         List of accounts
     """
     try:
+        logger.debug("fetching_accounts", account_type_filter=type)
         accounts = get_accounts(settings.beancount_ledger_path, type)
+        logger.info("accounts_fetched", count=len(accounts), account_type_filter=type)
         return AccountsResponse(accounts=accounts)
     except Exception as e:
+        logger.error("failed_to_fetch_accounts", error=str(e), account_type_filter=type)
         raise HTTPException(status_code=500, detail=f"Failed to fetch accounts: {e}")
 
 
@@ -85,9 +93,12 @@ async def get_payees_endpoint():
         List of payees
     """
     try:
+        logger.debug("fetching_payees")
         payees = get_payees(settings.beancount_ledger_path)
+        logger.info("payees_fetched", count=len(payees))
         return PayeesResponse(payees=payees)
     except Exception as e:
+        logger.error("failed_to_fetch_payees", error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to fetch payees: {e}")
 
 
@@ -102,13 +113,16 @@ async def get_monthly_expenses_endpoint():
     try:
         from datetime import datetime
         now = datetime.now()
+        logger.debug("fetching_monthly_expenses", year=now.year, month=now.month)
         expenses = get_current_month_expenses(settings.beancount_ledger_path)
+        logger.info("monthly_expenses_fetched", expenses=expenses, year=now.year, month=now.month)
         return MonthlyExpensesResponse(
             expenses_by_currency=expenses,
             year=now.year,
             month=now.month
         )
     except Exception as e:
+        logger.error("failed_to_fetch_monthly_expenses", error=str(e))
         raise HTTPException(status_code=500, detail=f"Failed to fetch monthly expenses: {e}")
 
 
@@ -127,13 +141,17 @@ async def submit_transaction_endpoint(
         Success status and transaction ID
     """
     try:
+        logger.info("submitting_transaction", payee=transaction.payee, dry_run=dry_run, date=transaction.date)
         result = submit_transaction(transaction, settings.beancount_ledger_path, dry_run)
         if not result.success:
+            logger.warning("transaction_validation_failed", message=result.message, payee=transaction.payee)
             raise HTTPException(status_code=400, detail=result.message)
+        logger.info("transaction_submitted", transaction_id=result.transaction_id, payee=transaction.payee, dry_run=dry_run)
         return result
     except HTTPException:
         raise
     except Exception as e:
+        logger.error("failed_to_submit_transaction", error=str(e), payee=transaction.payee)
         raise HTTPException(
             status_code=500, detail=f"Failed to submit transaction: {e}"
         )
@@ -154,11 +172,17 @@ async def submit_receipt_transaction_endpoint(
         Success status and transaction ID
     """
     try:
+        logger.info("submitting_receipt_transaction", receipt_id=receipt_data.receipt_id, payee=receipt_data.payee, dry_run=dry_run)
         result = submit_receipt_transaction(
             receipt_data, settings.beancount_ledger_path, dry_run
         )
+        if result.success:
+            logger.info("receipt_transaction_submitted", receipt_id=receipt_data.receipt_id, transaction_id=result.transaction_id, dry_run=dry_run)
+        else:
+            logger.warning("receipt_transaction_failed", receipt_id=receipt_data.receipt_id, message=result.message)
         return result
     except Exception as e:
+        logger.error("failed_to_submit_receipt_transaction", error=str(e), receipt_id=receipt_data.receipt_id)
         raise HTTPException(
             status_code=500, detail=f"Failed to submit receipt transaction: {e}"
         )

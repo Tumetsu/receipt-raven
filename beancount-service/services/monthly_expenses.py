@@ -7,6 +7,9 @@ from typing import Dict
 from beancount import loader
 from beancount.core import amount
 from beancount.core.data import Transaction, TxnPosting
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_current_month_expenses(ledger_path: str) -> Dict[str, float]:
@@ -23,7 +26,7 @@ def get_current_month_expenses(ledger_path: str) -> Dict[str, float]:
 
     if errors:
         # Log errors but continue
-        print(f"Beancount loader errors: {errors}")
+        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
 
     # Get current month's start and end dates
     now = datetime.now()
