@@ -42,6 +42,7 @@ export const processReceiptJobFromQueue = async (
     await receiptRepository.saveReceipt(
       job.id,
       analysisResult.result,
+      analysisResult.ocrNotes,
       analysisResult.model
     );
     fastify.log.info(
