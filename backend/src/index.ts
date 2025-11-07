@@ -14,7 +14,14 @@ const fastify = Fastify({
   logger: {
     level: config.nodeEnv === 'production' ? 'info' : 'debug',
     ...(config.nodeEnv === 'production'
-      ? {} // Raw JSON output in production
+      ? {
+          formatters: {
+            level: (label) => {
+              return { level: label };
+            },
+          },
+          timestamp: () => `,"time":"${new Date().toISOString()}"`,
+        }
       : {
           transport: {
             target: 'pino-pretty',
@@ -49,6 +56,7 @@ const start = async () => {
 
     // Register health check route
     fastify.withTypeProvider<ZodTypeProvider>().get('/health', {
+      logLevel: 'silent',
       schema: {
         tags: ['health'],
         description: 'Health check endpoint',
