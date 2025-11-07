@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { DateTime } from 'luxon';
 import { aiClient } from './ai-client.js';
-import { ILedgerService } from '../../../plugins/ledger/ledger-service';
+import { ILedgerService } from '../../../plugins/ledger/ledger-service.js';
+import { OcrNotes } from '../../../domain/types.js';
+import { runHeuristics } from './heuristics/index.js';
 
 const ProductSchema = z.object({
   name: z.string(),
@@ -23,6 +25,7 @@ const ReceiptAnalysisSchema = z.object({
 export type ReceiptAnalysis = z.infer<typeof ReceiptAnalysisSchema>;
 export interface ReceiptAnalysisResponse {
   result: ReceiptAnalysis;
+  ocrNotes: OcrNotes;
   model: string;
   usage: {
     promptTokens: number;
@@ -102,8 +105,12 @@ export const analyzeReceipt = async (
     // Validate the response against our schema
     const validatedResult = ReceiptAnalysisSchema.parse(jsonResult);
 
+    // Run heuristics on the validated result
+    const ocrNotes = runHeuristics(validatedResult);
+
     return {
       result: validatedResult,
+      ocrNotes,
       model: aiResponse.model,
       usage: aiResponse.usage,
     };
