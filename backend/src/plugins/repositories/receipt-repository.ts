@@ -1,8 +1,8 @@
 import { InsertObject, Kysely, Nullable, Selectable } from 'kysely';
-import { Database } from '../database/schema';
-import { ReceiptJob } from './receipt-job-repository';
-import { config } from '../../config';
-import { ReceiptStatus } from '../../domain/types';
+import { Database } from '../database/schema.js';
+import { ReceiptJob } from './receipt-job-repository.js';
+import { config } from '../../config/index.js';
+import { OcrNotes, ReceiptStatus } from '../../domain/types.js';
 
 export type Receipt = Selectable<Database['receipts']>;
 export type ReceiptItem = Selectable<Database['receipt_items']>;
@@ -33,6 +33,7 @@ export interface IReceiptRepository {
   saveReceipt(
     jobId: number,
     analysis: ReceiptAnalysisResult,
+    ocrNotes: OcrNotes,
     parsedBy?: string
   ): Promise<void>;
 
@@ -81,6 +82,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
   async saveReceipt(
     jobId: number,
     analysis: ReceiptAnalysisResult,
+    ocrNotes: OcrNotes,
     parsedBy?: string
   ): Promise<void> {
     const receipt = await this.db
@@ -94,6 +96,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
         status: ReceiptStatus.UNAPPROVED,
         description: analysis.description,
         source_account: config.analyze.defaultSourceAccount,
+        ocr_notes: JSON.stringify(ocrNotes),
       })
       .executeTakeFirstOrThrow();
 
@@ -137,6 +140,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
         status: ReceiptStatus.UNAPPROVED,
         description: data.description,
         source_account: data.sourceAccount,
+        ocr_notes: null, // Manual receipts don't have OCR analysis
       })
       .executeTakeFirstOrThrow();
 
