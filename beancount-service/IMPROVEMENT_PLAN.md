@@ -1,9 +1,9 @@
 # Beancount Service - Improvement Plan
 
 **Created:** 2025-11-07
-**Status:** Phase 1 Completed ✅ (4 more phases remaining)
+**Status:** Phase 2 Completed ✅ (3 more phases remaining)
 **Estimated Timeline:** 5-6 weeks
-**Progress:** 25% (1 of 5 phases complete)
+**Progress:** 40% (2 of 5 phases complete)
 
 ## Overview
 
@@ -90,41 +90,50 @@ This document tracks architectural improvements and refactoring tasks for the be
 
 ---
 
-## Phase 2: Error Handling & Observability
+## Phase 2: Error Handling & Observability ✅
 **Timeline:** Week 3
-**Status:** Not Started
+**Status:** Completed (2025-11-07)
 
-### 2.1 Custom Exception Hierarchy
-- [ ] Create `exceptions.py` module
-- [ ] Define `BeancountServiceError` base exception
-- [ ] Define `LedgerNotFoundError` exception
-- [ ] Define `LedgerParseError` exception
-- [ ] Define `TransactionValidationError` with error details
-- [ ] Define `AccountNotFoundError` exception
-- [ ] Update all service functions to raise typed exceptions
-- [ ] Remove generic `Exception` catches
+### 2.1 Custom Exception Hierarchy ✅
+- [x] Create `exceptions.py` module
+- [x] Define `BeancountServiceError` base exception
+- [x] Define `LedgerNotFoundError` exception
+- [x] Define `LedgerParseError` exception
+- [x] Define `TransactionValidationError` with error details
+- [x] Define `AccountNotFoundError` exception
+- [x] Define `RepositoryError` exception
+- [x] Update all service functions to raise typed exceptions
+- [x] Remove generic `Exception` catches
 
-**Files to Modify:**
-- Create: `exceptions.py`
-- Modify: All service files to raise custom exceptions
+**Files Modified:**
+- ✅ Created: `exceptions.py`
+- ✅ Modified: `services/transactions.py`, `repositories/ledger_repository.py`
+
+**Commit:** `677c4c5` - Implement custom exception hierarchy and error handling middleware
 
 ---
 
-### 2.2 Error Handler Middleware
-- [ ] Create `middleware/error_handler.py`
-- [ ] Implement exception handler for `LedgerNotFoundError`
-- [ ] Implement exception handler for `LedgerParseError`
-- [ ] Implement exception handler for `TransactionValidationError`
-- [ ] Implement exception handler for `AccountNotFoundError`
-- [ ] Add structured error responses with error codes
-- [ ] Register all exception handlers in `main.py`
-- [ ] Remove try-except blocks from route handlers
-- [ ] Add error response examples to OpenAPI schema
+### 2.2 Error Handler Middleware ✅
+- [x] Create `middleware/error_handler.py`
+- [x] Implement exception handler for `LedgerNotFoundError`
+- [x] Implement exception handler for `LedgerParseError`
+- [x] Implement exception handler for `TransactionValidationError`
+- [x] Implement exception handler for `AccountNotFoundError`
+- [x] Implement exception handler for `RepositoryError`
+- [x] Add structured error responses with error codes
+- [x] Register all exception handlers in `main.py`
+- [x] Remove try-except blocks from route handlers
+- [x] Update all tests to work with exception-based validation
+- [ ] Add error response examples to OpenAPI schema *(deferred)*
 
-**Files to Modify:**
-- Create: `middleware/__init__.py`, `middleware/error_handler.py`
-- Modify: `main.py` (remove route-level error handling)
-- Update: OpenAPI response models
+**Files Modified:**
+- ✅ Created: `middleware/__init__.py`, `middleware/error_handler.py`
+- ✅ Modified: `main.py` (registered exception handlers, removed route-level error handling)
+- ✅ Updated: `tests/test_transactions.py` (all 26 tests passing with pytest.raises())
+
+**Test Status:** All 26 tests passing ✅
+
+**Commit:** `677c4c5` - Implement custom exception hierarchy and error handling middleware
 
 ---
 
@@ -312,7 +321,7 @@ This document tracks architectural improvements and refactoring tasks for the be
 2. ✅ **Logging** - ~~Using `print()`~~ → **FIXED**: Structured logging with structlog
 3. ✅ **File I/O Abstraction** - ~~No abstraction~~ → **FIXED**: Repository pattern with caching
 4. ✅ **Dependency Injection** - ~~Hard to test, tight coupling~~ → **FIXED**: FastAPI Depends()
-5. ⚠️ **Error Handling** - Still catching generic exceptions (Phase 2)
+5. ✅ **Error Handling** - ~~Generic exceptions~~ → **FIXED**: Custom exception hierarchy with middleware handlers
 6. ⚠️ **File Locking** - No concurrent access protection (Phase 4)
 
 ### Medium Priority (Phase 3-4) 📋
@@ -374,20 +383,24 @@ This document tracks architectural improvements and refactoring tasks for the be
 ## Progress Tracking
 
 **Last Updated:** 2025-11-07
-**Completed Phases:** 1/5 (Phase 1: Foundation ✅)
-**Completed Tasks:** 24/100+ tasks
-**Overall Progress:** ~25%
+**Completed Phases:** 2/5 (Phase 1: Foundation ✅, Phase 2: Error Handling ✅)
+**Completed Tasks:** 42/100+ tasks
+**Overall Progress:** ~40%
 
 ### Recent Completions
 - ✅ **Phase 1.1**: Configuration Management with Pydantic Settings
 - ✅ **Phase 1.2**: Structured Logging with structlog
 - ✅ **Phase 1.3**: Repository Pattern with ILedgerRepository
 - ✅ **Phase 1.4**: Dependency Injection with FastAPI Depends
+- ✅ **Phase 2.1**: Custom Exception Hierarchy
+- ✅ **Phase 2.2**: Error Handler Middleware
 
 ### Git Commits
 - `cf5d2c4` - Configuration management
 - `9384b81` - Logging infrastructure
 - `2b18130` - Repository pattern and dependency injection
+- `677c4c5` - Custom exception hierarchy and error handling middleware
 
 ### Next Steps
-- **Phase 2**: Error Handling & Observability (custom exceptions, error middleware, request tracing)
+- **Phase 2.3**: Observability (request timing, correlation IDs) - Optional
+- **Phase 3**: Testing & Validation (expand test coverage, testing infrastructure)
