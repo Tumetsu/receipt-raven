@@ -40,6 +40,7 @@ export function ReceiptListView(): ReactElement {
       status: 'unapproved',
       filename: null,
       fileUrl: null,
+      ocrNotes: null, // Manual receipts don't have OCR notes
     });
   };
 
@@ -68,8 +69,9 @@ export function ReceiptListView(): ReactElement {
               onPageChange={setPage}
               onPageSizeChange={setPageSize}
               onRowClick={id => {
-                const receipt = result.receipts.find(r => r.id === id) || null;
-                setSelectedReceipt(receipt);
+                const receipt = result.receipts.find(r => r.id === id);
+                // Cast to Receipt type - API client will be regenerated later
+                setSelectedReceipt((receipt as Receipt) || null);
               }}
             />
             <Fab
