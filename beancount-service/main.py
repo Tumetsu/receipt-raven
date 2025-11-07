@@ -6,8 +6,8 @@ import os
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 
+from config import get_settings
 from models import (
     AccountsResponse,
     PayeesResponse,
@@ -24,17 +24,8 @@ from services.transactions import (
 )
 from services.monthly_expenses import get_current_month_expenses
 
-# Load environment variables
-load_dotenv()
-
-# Configuration
-BEANCOUNT_LEDGER_PATH = os.getenv("BEANCOUNT_LEDGER_PATH")
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8000"))
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",")
-
-if not BEANCOUNT_LEDGER_PATH:
-    raise ValueError("BEANCOUNT_LEDGER_PATH environment variable must be set")
+# Load settings (validates configuration on startup)
+settings = get_settings()
 
 # Create FastAPI app
 app = FastAPI(
@@ -46,7 +37,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS if ALLOWED_ORIGINS[0] else ["*"],
+    allow_origins=settings.allowed_origins if settings.allowed_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,7 +50,7 @@ async def health_check():
     Health check endpoint
     """
     # Check if ledger file exists
-    if not os.path.exists(BEANCOUNT_LEDGER_PATH):
+    if not os.path.exists(settings.beancount_ledger_path):
         raise HTTPException(status_code=503, detail="Ledger file not found")
 
     return {"status": "ok"}
@@ -79,7 +70,7 @@ async def get_accounts_endpoint(
         List of accounts
     """
     try:
-        accounts = get_accounts(BEANCOUNT_LEDGER_PATH, type)
+        accounts = get_accounts(settings.beancount_ledger_path, type)
         return AccountsResponse(accounts=accounts)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch accounts: {e}")
@@ -94,7 +85,7 @@ async def get_payees_endpoint():
         List of payees
     """
     try:
-        payees = get_payees(BEANCOUNT_LEDGER_PATH)
+        payees = get_payees(settings.beancount_ledger_path)
         return PayeesResponse(payees=payees)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch payees: {e}")
@@ -111,7 +102,7 @@ async def get_monthly_expenses_endpoint():
     try:
         from datetime import datetime
         now = datetime.now()
-        expenses = get_current_month_expenses(BEANCOUNT_LEDGER_PATH)
+        expenses = get_current_month_expenses(settings.beancount_ledger_path)
         return MonthlyExpensesResponse(
             expenses_by_currency=expenses,
             year=now.year,
@@ -136,7 +127,7 @@ async def submit_transaction_endpoint(
         Success status and transaction ID
     """
     try:
-        result = submit_transaction(transaction, BEANCOUNT_LEDGER_PATH, dry_run)
+        result = submit_transaction(transaction, settings.beancount_ledger_path, dry_run)
         if not result.success:
             raise HTTPException(status_code=400, detail=result.message)
         return result
@@ -164,7 +155,7 @@ async def submit_receipt_transaction_endpoint(
     """
     try:
         result = submit_receipt_transaction(
-            receipt_data, BEANCOUNT_LEDGER_PATH, dry_run
+            receipt_data, settings.beancount_ledger_path, dry_run
         )
         return result
     except Exception as e:
@@ -176,4 +167,4 @@ async def submit_receipt_transaction_endpoint(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host=settings.host, port=settings.port)
