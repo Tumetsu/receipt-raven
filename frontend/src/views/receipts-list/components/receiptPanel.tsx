@@ -61,9 +61,10 @@ function ReceiptFormHeader({ control }: ReceiptHeaderProps) {
 
 interface ReceiptDetailsFormProps {
   control: Control<IReceiptInputs>;
+  receipt: Receipt;
 }
 
-function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
+function ReceiptDetailsForm({ control, receipt }: ReceiptDetailsFormProps) {
   return (
     <Stack spacing={2} useFlexGap>
       <ControlledTextField
@@ -77,7 +78,13 @@ function ReceiptDetailsForm({ control }: ReceiptDetailsFormProps) {
         label="Payee"
         required
       />
-      <ReceiptDatePicker name="date" control={control} label="Date" required />
+      <ReceiptDatePicker
+        name="date"
+        control={control}
+        label="Date"
+        required
+        ocrNotes={receipt.ocrNotes}
+      />
       <ControlledTextField
         name="totalSum"
         control={control}
@@ -154,8 +161,21 @@ function SumComparison({ control }: SumComparisonProps) {
   );
 }
 
+// Type definitions for OCR notes (from backend)
+type HeuristicLevel = 'WARN' | 'SEVERE' | 'ERROR';
+
+interface HeuristicIssue {
+  level: HeuristicLevel;
+  message: string;
+}
+
+interface OcrNotes {
+  suspiciousDate?: HeuristicIssue;
+}
+
 export type Receipt = Omit<GetApiReceipts200ReceiptsItem, 'id'> & {
   id: number | null;
+  ocrNotes?: OcrNotes | null;
 };
 interface ReceiptPanelProps {
   receipt: Receipt;
@@ -288,7 +308,7 @@ function EditableReceiptContent({
 
           {/* Receipt Information */}
           <ReceiptFormHeader control={control} />
-          <ReceiptDetailsForm control={control} />
+          <ReceiptDetailsForm control={control} receipt={receipt} />
 
           {/* Products/Items */}
           {isItemsPending && (
