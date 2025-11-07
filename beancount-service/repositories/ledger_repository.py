@@ -7,6 +7,7 @@ from typing import Tuple, List, Dict, Any, Optional
 from datetime import datetime, timedelta
 
 from beancount import loader
+from exceptions import LedgerNotFoundError, LedgerParseError, RepositoryError
 from utils.logging import get_logger
 
 
@@ -82,7 +83,16 @@ class BeancountFileRepository(ILedgerRepository):
 
         Returns:
             Tuple of (entries, errors, options)
+
+        Raises:
+            LedgerNotFoundError: If the ledger file doesn't exist
+            LedgerParseError: If the ledger has parse errors (critical errors only)
+            RepositoryError: If loading fails for other reasons
         """
+        # Check if ledger exists
+        if not os.path.exists(self._ledger_path):
+            raise LedgerNotFoundError(self._ledger_path)
+
         # Check if we have a valid cache
         if self._is_cache_valid():
             logger.debug("using_cached_entries", ledger_path=self._ledger_path)
@@ -93,13 +103,20 @@ class BeancountFileRepository(ILedgerRepository):
         try:
             entries, errors, options = loader.load_file(self._ledger_path)
 
+            # Check for critical parse errors
+            # Note: Some errors are warnings, so we only raise if there are severe issues
             if errors:
+                error_messages = [str(err) for err in errors]
                 logger.warning(
                     "ledger_load_errors",
                     ledger_path=self._ledger_path,
                     error_count=len(errors),
                     errors=str(errors)[:500]
                 )
+                # For now, we log errors but don't raise unless there are many
+                # This allows ledgers with minor issues to still work
+                if len(errors) > 10:  # Arbitrary threshold for "too many errors"
+                    raise LedgerParseError(self._ledger_path, error_messages)
 
             # Cache the result
             self._cached_entries = (entries, errors, options)
@@ -114,9 +131,17 @@ class BeancountFileRepository(ILedgerRepository):
 
             return entries, errors, options
 
+        except LedgerNotFoundError:
+            raise
+        except LedgerParseError:
+            raise
         except Exception as e:
             logger.error("failed_to_load_ledger", ledger_path=self._ledger_path, error=str(e))
-            raise
+            raise RepositoryError(
+                operation="load_entries",
+                message=f"Failed to load ledger file: {str(e)}",
+                original_error=e
+            )
 
     def append_transaction(self, transaction_text: str) -> None:
         """
@@ -126,8 +151,13 @@ class BeancountFileRepository(ILedgerRepository):
             transaction_text: Formatted transaction text to append
 
         Raises:
-            IOError: If writing to ledger fails
+            LedgerNotFoundError: If the ledger file doesn't exist
+            RepositoryError: If writing to ledger fails
         """
+        # Check if ledger exists
+        if not os.path.exists(self._ledger_path):
+            raise LedgerNotFoundError(self._ledger_path)
+
         try:
             logger.debug("appending_transaction_to_ledger", ledger_path=self._ledger_path)
 
@@ -141,9 +171,15 @@ class BeancountFileRepository(ILedgerRepository):
 
             logger.info("transaction_appended_to_ledger", ledger_path=self._ledger_path)
 
+        except LedgerNotFoundError:
+            raise
         except Exception as e:
             logger.error("failed_to_append_transaction", ledger_path=self._ledger_path, error=str(e))
-            raise IOError(f"Failed to write transaction to ledger: {e}") from e
+            raise RepositoryError(
+                operation="append_transaction",
+                message=f"Failed to write transaction to ledger",
+                original_error=e
+            )
 
     def ledger_exists(self) -> bool:
         """

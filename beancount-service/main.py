@@ -25,6 +25,7 @@ from services.transactions import (
 )
 from services.monthly_expenses import get_current_month_expenses
 from utils.logging import setup_logging, get_logger
+from middleware.error_handler import register_exception_handlers
 
 # Load settings (validates configuration on startup)
 settings = get_settings()
@@ -39,6 +40,9 @@ app = FastAPI(
     description="REST API for beancount ledger operations",
     version="1.0.0",
 )
+
+# Register exception handlers
+register_exception_handlers(app)
 
 # Add CORS middleware
 app.add_middleware(
@@ -78,14 +82,10 @@ async def get_accounts_endpoint(
     Returns:
         List of accounts
     """
-    try:
-        logger.debug("fetching_accounts", account_type_filter=type)
-        accounts = get_accounts(repository, type)
-        logger.info("accounts_fetched", count=len(accounts), account_type_filter=type)
-        return AccountsResponse(accounts=accounts)
-    except Exception as e:
-        logger.error("failed_to_fetch_accounts", error=str(e), account_type_filter=type)
-        raise HTTPException(status_code=500, detail=f"Failed to fetch accounts: {e}")
+    logger.debug("fetching_accounts", account_type_filter=type)
+    accounts = get_accounts(repository, type)
+    logger.info("accounts_fetched", count=len(accounts), account_type_filter=type)
+    return AccountsResponse(accounts=accounts)
 
 
 @app.get("/payees", response_model=PayeesResponse)
@@ -98,14 +98,10 @@ async def get_payees_endpoint(
     Returns:
         List of payees
     """
-    try:
-        logger.debug("fetching_payees")
-        payees = get_payees(repository)
-        logger.info("payees_fetched", count=len(payees))
-        return PayeesResponse(payees=payees)
-    except Exception as e:
-        logger.error("failed_to_fetch_payees", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to fetch payees: {e}")
+    logger.debug("fetching_payees")
+    payees = get_payees(repository)
+    logger.info("payees_fetched", count=len(payees))
+    return PayeesResponse(payees=payees)
 
 
 @app.get("/monthly-expenses", response_model=MonthlyExpensesResponse)
@@ -118,20 +114,16 @@ async def get_monthly_expenses_endpoint(
     Returns:
         Total expenses by currency for the ongoing month
     """
-    try:
-        from datetime import datetime
-        now = datetime.now()
-        logger.debug("fetching_monthly_expenses", year=now.year, month=now.month)
-        expenses = get_current_month_expenses(repository)
-        logger.info("monthly_expenses_fetched", expenses=expenses, year=now.year, month=now.month)
-        return MonthlyExpensesResponse(
-            expenses_by_currency=expenses,
-            year=now.year,
-            month=now.month
-        )
-    except Exception as e:
-        logger.error("failed_to_fetch_monthly_expenses", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to fetch monthly expenses: {e}")
+    from datetime import datetime
+    now = datetime.now()
+    logger.debug("fetching_monthly_expenses", year=now.year, month=now.month)
+    expenses = get_current_month_expenses(repository)
+    logger.info("monthly_expenses_fetched", expenses=expenses, year=now.year, month=now.month)
+    return MonthlyExpensesResponse(
+        expenses_by_currency=expenses,
+        year=now.year,
+        month=now.month
+    )
 
 
 @app.post("/transactions", response_model=TransactionSubmitResponse)
@@ -150,21 +142,10 @@ async def submit_transaction_endpoint(
     Returns:
         Success status and transaction ID
     """
-    try:
-        logger.info("submitting_transaction", payee=transaction.payee, dry_run=dry_run, date=transaction.date)
-        result = submit_transaction(transaction, repository, dry_run)
-        if not result.success:
-            logger.warning("transaction_validation_failed", message=result.message, payee=transaction.payee)
-            raise HTTPException(status_code=400, detail=result.message)
-        logger.info("transaction_submitted", transaction_id=result.transaction_id, payee=transaction.payee, dry_run=dry_run)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error("failed_to_submit_transaction", error=str(e), payee=transaction.payee)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to submit transaction: {e}"
-        )
+    logger.info("submitting_transaction", payee=transaction.payee, dry_run=dry_run, date=transaction.date)
+    result = submit_transaction(transaction, repository, dry_run)
+    logger.info("transaction_submitted", transaction_id=result.transaction_id, payee=transaction.payee, dry_run=dry_run)
+    return result
 
 
 @app.post("/transactions/receipt", response_model=TransactionSubmitResponse)
@@ -183,21 +164,10 @@ async def submit_receipt_transaction_endpoint(
     Returns:
         Success status and transaction ID
     """
-    try:
-        logger.info("submitting_receipt_transaction", receipt_id=receipt_data.receipt_id, payee=receipt_data.payee, dry_run=dry_run)
-        result = submit_receipt_transaction(
-            receipt_data, repository, dry_run
-        )
-        if result.success:
-            logger.info("receipt_transaction_submitted", receipt_id=receipt_data.receipt_id, transaction_id=result.transaction_id, dry_run=dry_run)
-        else:
-            logger.warning("receipt_transaction_failed", receipt_id=receipt_data.receipt_id, message=result.message)
-        return result
-    except Exception as e:
-        logger.error("failed_to_submit_receipt_transaction", error=str(e), receipt_id=receipt_data.receipt_id)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to submit receipt transaction: {e}"
-        )
+    logger.info("submitting_receipt_transaction", receipt_id=receipt_data.receipt_id, payee=receipt_data.payee, dry_run=dry_run)
+    result = submit_receipt_transaction(receipt_data, repository, dry_run)
+    logger.info("receipt_transaction_submitted", receipt_id=receipt_data.receipt_id, transaction_id=result.transaction_id, dry_run=dry_run)
+    return result
 
 
 if __name__ == "__main__":
