@@ -7,7 +7,7 @@ import {
   receiptSubmissionSchema,
   receiptCreationSchema,
 } from '../schemas/receipts.js';
-import { ReceiptStatus } from '../../../domain/types';
+import { OcrNotesSchema, ReceiptStatus } from '../../../domain/types.js';
 
 // Reusable schemas
 const receiptIdParamSchema = z
@@ -76,6 +76,19 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
 
       return {
         receipts: result.receipts.map(r => {
+          // Parse OCR notes JSON string to object
+          let ocrNotes = null;
+          if (r.ocr_notes) {
+            try {
+              const parsed = JSON.parse(r.ocr_notes);
+              ocrNotes = OcrNotesSchema.parse(parsed);
+            } catch (error) {
+              fastify.log.warn(
+                `Failed to parse ocr_notes for receipt ${r.id}: ${error instanceof Error ? error.message : String(error)}`
+              );
+            }
+          }
+
           return {
             id: r.id,
             description: r.description,
@@ -84,6 +97,7 @@ const receiptRoutes: FastifyPluginAsync = async fastify => {
             date: r.receipt_date,
             totalSum: r.total_sum,
             status: r.status,
+            ocrNotes,
             filename: r.filepath ? `${r.filepath}` : null,
             fileUrl: r.filepath ? `uploads/${r.filepath}` : null,
           };
