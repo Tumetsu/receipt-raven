@@ -1,7 +1,7 @@
 """
 Service for creating and submitting transactions to beancount ledger
 """
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
 from beancount.core import data, amount
@@ -9,6 +9,7 @@ from beancount.parser import printer
 from beancount.core.getters import get_accounts
 from models import Transaction, ReceiptTransactionData, TransactionSubmitResponse
 from repositories import ILedgerRepository
+from exceptions import TransactionValidationError, AccountNotFoundError
 
 
 def create_beancount_transaction(txn: Transaction) -> data.Transaction:
@@ -75,15 +76,15 @@ def create_beancount_transaction(txn: Transaction) -> data.Transaction:
     return bean_txn
 
 
-def validate_transaction(bean_txn: data.Transaction) -> tuple[bool, Optional[str]]:
+def validate_transaction(bean_txn: data.Transaction) -> None:
     """
     Validate that a transaction balances correctly
 
     Args:
         bean_txn: beancount Transaction object
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        TransactionValidationError: If the transaction doesn't balance
     """
     # Group postings by currency
     currency_totals = {}
@@ -103,19 +104,28 @@ def validate_transaction(bean_txn: data.Transaction) -> tuple[bool, Optional[str
     # Allow a small tolerance for rounding errors
     tolerance = Decimal("0.005")
 
+    validation_errors = []
     for currency, total in currency_totals.items():
         if abs(total) > tolerance:
-            return False, f"Transaction does not balance for {currency}: sum is {total} (should be 0)"
+            validation_errors.append(
+                f"Transaction does not balance for {currency}: sum is {total} (should be 0)"
+            )
 
-    # If there's an empty posting, that's fine - it will be auto-balanced
-    # If there's no empty posting, all currencies should sum to zero (which we checked above)
-
-    return True, None
+    if validation_errors:
+        raise TransactionValidationError(
+            message="Transaction does not balance",
+            transaction_data={
+                "payee": bean_txn.payee,
+                "date": str(bean_txn.date),
+                "narration": bean_txn.narration
+            },
+            validation_errors=validation_errors
+        )
 
 
 def validate_accounts_exist(
     bean_txn: data.Transaction, repository: ILedgerRepository
-) -> tuple[bool, Optional[str]]:
+) -> None:
     """
     Validate that all accounts referenced in the transaction exist in the ledger
 
@@ -123,8 +133,8 @@ def validate_accounts_exist(
         bean_txn: beancount Transaction object
         repository: Ledger repository instance
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        AccountNotFoundError: If any accounts don't exist in the ledger
     """
     # Load the ledger to get all defined accounts
     entries, errors, options = repository.load_entries()
@@ -139,9 +149,7 @@ def validate_accounts_exist(
             invalid_accounts.append(posting.account)
 
     if invalid_accounts:
-        return False, f"Invalid account(s): {', '.join(invalid_accounts)}. These accounts do not exist in the ledger."
-
-    return True, None
+        raise AccountNotFoundError(accounts=invalid_accounts)
 
 
 def create_receipt_transaction(receipt_data: ReceiptTransactionData) -> Transaction:
@@ -204,52 +212,43 @@ def submit_transaction(
 
     Returns:
         TransactionSubmitResponse with success status
+
+    Raises:
+        TransactionValidationError: If the transaction doesn't balance
+        AccountNotFoundError: If referenced accounts don't exist
+        RepositoryError: If there's an error writing to the ledger
     """
-    try:
-        # Create beancount transaction object
-        bean_txn = create_beancount_transaction(transaction)
+    # Create beancount transaction object
+    bean_txn = create_beancount_transaction(transaction)
 
-        # Validate that the transaction balances
-        is_valid, error_message = validate_transaction(bean_txn)
-        if not is_valid:
-            return TransactionSubmitResponse(
-                success=False, message=f"Transaction validation failed: {error_message}"
-            )
+    # Validate that the transaction balances (raises TransactionValidationError if not)
+    validate_transaction(bean_txn)
 
-        # Validate that all accounts exist in the ledger
-        is_valid, error_message = validate_accounts_exist(bean_txn, repository)
-        if not is_valid:
-            return TransactionSubmitResponse(
-                success=False, message=f"Account validation failed: {error_message}"
-            )
+    # Validate that all accounts exist in the ledger (raises AccountNotFoundError if not)
+    validate_accounts_exist(bean_txn, repository)
 
-        # Format using beancount's printer for proper formatting
-        formatted_txn = printer.format_entry(bean_txn)
+    # Format using beancount's printer for proper formatting
+    formatted_txn = printer.format_entry(bean_txn)
 
-        if dry_run:
-            # Just return the formatted transaction for validation
-            return TransactionSubmitResponse(
-                success=True,
-                message="Dry run - transaction validated and balances correctly",
-                transaction_id=None,
-            )
-
-        # Append to ledger file via repository
-        repository.append_transaction(formatted_txn)
-
-        # Generate transaction ID (using date + payee as identifier)
-        transaction_id = f"{transaction.date}_{transaction.payee}"
-
+    if dry_run:
+        # Just return the formatted transaction for validation
         return TransactionSubmitResponse(
             success=True,
-            message="Transaction submitted successfully",
-            transaction_id=transaction_id,
+            message="Dry run - transaction validated and balances correctly",
+            transaction_id=None,
         )
 
-    except Exception as e:
-        return TransactionSubmitResponse(
-            success=False, message=f"Failed to submit transaction: {str(e)}"
-        )
+    # Append to ledger file via repository (raises RepositoryError if it fails)
+    repository.append_transaction(formatted_txn)
+
+    # Generate transaction ID (using date + payee as identifier)
+    transaction_id = f"{transaction.date}_{transaction.payee}"
+
+    return TransactionSubmitResponse(
+        success=True,
+        message="Transaction submitted successfully",
+        transaction_id=transaction_id,
+    )
 
 
 def submit_receipt_transaction(
@@ -265,14 +264,14 @@ def submit_receipt_transaction(
 
     Returns:
         TransactionSubmitResponse with success status
-    """
-    try:
-        # Create transaction from receipt data
-        transaction = create_receipt_transaction(receipt_data)
 
-        # Submit the transaction
-        return submit_transaction(transaction, repository, dry_run)
-    except Exception as e:
-        return TransactionSubmitResponse(
-            success=False, message=f"Failed to process receipt: {str(e)}"
-        )
+    Raises:
+        TransactionValidationError: If the transaction doesn't balance
+        AccountNotFoundError: If referenced accounts don't exist
+        RepositoryError: If there's an error writing to the ledger
+    """
+    # Create transaction from receipt data
+    transaction = create_receipt_transaction(receipt_data)
+
+    # Submit the transaction (exceptions will propagate)
+    return submit_transaction(transaction, repository, dry_run)

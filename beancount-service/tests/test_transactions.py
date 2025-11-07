@@ -21,6 +21,7 @@ from services.transactions import (
     submit_transaction,
     submit_receipt_transaction,
 )
+from exceptions import TransactionValidationError, AccountNotFoundError
 
 
 # Fixtures
@@ -257,21 +258,19 @@ def test_create_beancount_transaction_posting_comment():
 def test_validate_transaction_balanced(valid_transaction):
     """Test that a balanced transaction passes validation"""
     bean_txn = create_beancount_transaction(valid_transaction)
-    is_valid, error_message = validate_transaction(bean_txn)
-
-    assert is_valid is True
-    assert error_message is None
+    # Should not raise any exception
+    validate_transaction(bean_txn)
 
 
 def test_validate_transaction_unbalanced(unbalanced_transaction):
     """Test that an unbalanced transaction fails validation"""
     bean_txn = create_beancount_transaction(unbalanced_transaction)
-    is_valid, error_message = validate_transaction(bean_txn)
 
-    assert is_valid is False
-    assert error_message is not None
-    assert "does not balance" in error_message
-    assert "EUR" in error_message
+    with pytest.raises(TransactionValidationError) as exc_info:
+        validate_transaction(bean_txn)
+
+    assert "does not balance" in str(exc_info.value)
+    assert "EUR" in str(exc_info.value.details)
 
 
 def test_validate_transaction_multiple_currencies():
@@ -289,10 +288,8 @@ def test_validate_transaction_multiple_currencies():
     )
 
     bean_txn = create_beancount_transaction(txn)
-    is_valid, error_message = validate_transaction(bean_txn)
-
-    assert is_valid is True
-    assert error_message is None
+    # Should not raise any exception
+    validate_transaction(bean_txn)
 
 
 def test_validate_transaction_multiple_currencies_unbalanced():
@@ -310,10 +307,13 @@ def test_validate_transaction_multiple_currencies_unbalanced():
     )
 
     bean_txn = create_beancount_transaction(txn)
-    is_valid, error_message = validate_transaction(bean_txn)
 
-    assert is_valid is False
-    assert "USD" in error_message
+    with pytest.raises(TransactionValidationError) as exc_info:
+        validate_transaction(bean_txn)
+
+    # Check that USD is mentioned in the validation errors
+    validation_errors = exc_info.value.details.get("validation_errors", [])
+    assert any("USD" in error for error in validation_errors)
 
 
 def test_validate_transaction_with_rounding():
@@ -329,10 +329,8 @@ def test_validate_transaction_with_rounding():
     )
 
     bean_txn = create_beancount_transaction(txn)
-    is_valid, error_message = validate_transaction(bean_txn)
-
-    # Should pass due to tolerance of 0.005
-    assert is_valid is True
+    # Should not raise any exception due to tolerance of 0.005
+    validate_transaction(bean_txn)
 
 
 # Tests for validate_accounts_exist
@@ -340,21 +338,19 @@ def test_validate_transaction_with_rounding():
 def test_validate_accounts_exist_valid(valid_transaction, test_repository):
     """Test that validation passes for existing accounts"""
     bean_txn = create_beancount_transaction(valid_transaction)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
-
-    assert is_valid is True
-    assert error_message is None
+    # Should not raise any exception
+    validate_accounts_exist(bean_txn, test_repository)
 
 
 def test_validate_accounts_exist_invalid(invalid_account_transaction, test_repository):
     """Test that validation fails for non-existent accounts"""
     bean_txn = create_beancount_transaction(invalid_account_transaction)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
 
-    assert is_valid is False
-    assert error_message is not None
-    assert "Expenses:NonExistent" in error_message
-    assert "do not exist" in error_message
+    with pytest.raises(AccountNotFoundError) as exc_info:
+        validate_accounts_exist(bean_txn, test_repository)
+
+    assert "Expenses:NonExistent" in str(exc_info.value)
+    assert "Expenses:NonExistent" in exc_info.value.accounts
 
 
 def test_validate_accounts_exist_multiple_invalid(test_repository):
@@ -371,11 +367,12 @@ def test_validate_accounts_exist_multiple_invalid(test_repository):
     )
 
     bean_txn = create_beancount_transaction(txn)
-    is_valid, error_message = validate_accounts_exist(bean_txn, test_repository)
 
-    assert is_valid is False
-    assert "Expenses:Fake1" in error_message
-    assert "Expenses:Fake2" in error_message
+    with pytest.raises(AccountNotFoundError) as exc_info:
+        validate_accounts_exist(bean_txn, test_repository)
+
+    assert "Expenses:Fake1" in exc_info.value.accounts
+    assert "Expenses:Fake2" in exc_info.value.accounts
 
 
 # Tests for create_receipt_transaction
@@ -455,20 +452,18 @@ def test_submit_transaction_dry_run(valid_transaction, temp_repository, temp_led
 
 def test_submit_transaction_unbalanced(unbalanced_transaction, temp_repository):
     """Test that unbalanced transactions are rejected"""
-    result = submit_transaction(unbalanced_transaction, temp_repository, dry_run=False)
+    with pytest.raises(TransactionValidationError) as exc_info:
+        submit_transaction(unbalanced_transaction, temp_repository, dry_run=False)
 
-    assert result.success is False
-    assert "validation failed" in result.message.lower()
-    assert "does not balance" in result.message
+    assert "does not balance" in str(exc_info.value)
 
 
 def test_submit_transaction_invalid_account(invalid_account_transaction, temp_repository):
     """Test that transactions with invalid accounts are rejected"""
-    result = submit_transaction(invalid_account_transaction, temp_repository, dry_run=False)
+    with pytest.raises(AccountNotFoundError) as exc_info:
+        submit_transaction(invalid_account_transaction, temp_repository, dry_run=False)
 
-    assert result.success is False
-    assert "account validation failed" in result.message.lower()
-    assert "NonExistent" in result.message
+    assert "Expenses:NonExistent" in exc_info.value.accounts
 
 
 def test_submit_transaction_preserves_existing_content(valid_transaction, temp_repository, temp_ledger_path):
@@ -536,10 +531,10 @@ def test_submit_receipt_transaction_invalid_account(test_repository):
         source_account="Assets:Checking",
     )
 
-    result = submit_receipt_transaction(receipt_data, test_repository, dry_run=False)
+    with pytest.raises(AccountNotFoundError) as exc_info:
+        submit_receipt_transaction(receipt_data, test_repository, dry_run=False)
 
-    assert result.success is False
-    assert "account validation failed" in result.message.lower()
+    assert "Expenses:InvalidCategory" in exc_info.value.accounts
 
 
 def test_submit_receipt_transaction_balances(valid_receipt_data):
@@ -547,6 +542,5 @@ def test_submit_receipt_transaction_balances(valid_receipt_data):
     txn = create_receipt_transaction(valid_receipt_data)
     bean_txn = create_beancount_transaction(txn)
 
-    is_valid, error = validate_transaction(bean_txn)
-    assert is_valid is True
-    assert error is None
+    # Should not raise any exception
+    validate_transaction(bean_txn)
