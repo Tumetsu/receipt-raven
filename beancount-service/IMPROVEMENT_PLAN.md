@@ -1,0 +1,366 @@
+# Beancount Service - Improvement Plan
+
+**Created:** 2025-11-07
+**Status:** Planning Phase
+**Estimated Timeline:** 5-6 weeks
+
+## Overview
+
+This document tracks architectural improvements and refactoring tasks for the beancount-service microservice. The plan addresses critical pain points in configuration management, error handling, testing, and code maintainability.
+
+---
+
+## Phase 1: Foundation (High Priority) 🎯
+**Timeline:** Weeks 1-2
+**Status:** Not Started
+
+### 1.1 Configuration Management
+- [ ] Create `config/settings.py` with Pydantic Settings
+- [ ] Define `Settings` class with type-safe configuration
+- [ ] Implement `get_settings()` singleton function
+- [ ] Replace global variables in `main.py` with settings injection
+- [ ] Add configuration validation on startup
+- [ ] Update `.env.example` with all required variables
+- [ ] Update documentation with new configuration approach
+
+**Files to Modify:**
+- Create: `config/settings.py`
+- Modify: `main.py`, all service files
+- Update: `.env.example`, `README.md`
+
+---
+
+### 1.2 Logging Infrastructure
+- [ ] Add `structlog` to requirements.txt
+- [ ] Create `utils/logging.py` module
+- [ ] Implement `setup_logging()` function
+- [ ] Replace all `print()` statements with structured logging
+- [ ] Add request ID middleware for request tracing
+- [ ] Configure log levels per environment
+- [ ] Add logging to all service functions
+
+**Files to Modify:**
+- Create: `utils/logging.py`
+- Modify: `main.py`, `services/accounts.py`, `services/payees.py`, `services/transactions.py`, `services/monthly_expenses.py`
+- Update: `requirements.txt`
+
+---
+
+### 1.3 Repository Pattern & Abstraction
+- [ ] Create `repositories/` directory
+- [ ] Define `ILedgerRepository` abstract interface
+- [ ] Implement `BeancountFileRepository` with caching
+- [ ] Add `load_entries()` method with error handling
+- [ ] Add `append_transaction()` method with atomic writes
+- [ ] Implement file locking for concurrent access
+- [ ] Add ledger entry caching with TTL
+- [ ] Create repository factory function
+- [ ] Update all service functions to use repository
+
+**Files to Modify:**
+- Create: `repositories/__init__.py`, `repositories/ledger_repository.py`
+- Modify: All service files to accept repository instead of file path
+- Update: `main.py` for repository instantiation
+
+---
+
+### 1.4 Dependency Injection
+- [ ] Create `dependencies.py` module
+- [ ] Implement `get_ledger_repository()` dependency
+- [ ] Implement `get_settings()` dependency
+- [ ] Update all route handlers to use FastAPI dependency injection
+- [ ] Remove global variable usage from route handlers
+- [ ] Create dependency fixtures for testing
+
+**Files to Modify:**
+- Create: `dependencies.py`
+- Modify: `main.py` (all route handlers)
+- Update: Test fixtures in `tests/`
+
+---
+
+## Phase 2: Error Handling & Observability
+**Timeline:** Week 3
+**Status:** Not Started
+
+### 2.1 Custom Exception Hierarchy
+- [ ] Create `exceptions.py` module
+- [ ] Define `BeancountServiceError` base exception
+- [ ] Define `LedgerNotFoundError` exception
+- [ ] Define `LedgerParseError` exception
+- [ ] Define `TransactionValidationError` with error details
+- [ ] Define `AccountNotFoundError` exception
+- [ ] Update all service functions to raise typed exceptions
+- [ ] Remove generic `Exception` catches
+
+**Files to Modify:**
+- Create: `exceptions.py`
+- Modify: All service files to raise custom exceptions
+
+---
+
+### 2.2 Error Handler Middleware
+- [ ] Create `middleware/error_handler.py`
+- [ ] Implement exception handler for `LedgerNotFoundError`
+- [ ] Implement exception handler for `LedgerParseError`
+- [ ] Implement exception handler for `TransactionValidationError`
+- [ ] Implement exception handler for `AccountNotFoundError`
+- [ ] Add structured error responses with error codes
+- [ ] Register all exception handlers in `main.py`
+- [ ] Remove try-except blocks from route handlers
+- [ ] Add error response examples to OpenAPI schema
+
+**Files to Modify:**
+- Create: `middleware/__init__.py`, `middleware/error_handler.py`
+- Modify: `main.py` (remove route-level error handling)
+- Update: OpenAPI response models
+
+---
+
+### 2.3 Observability
+- [ ] Add request timing middleware
+- [ ] Add structured logging for all requests
+- [ ] Log all errors with full context
+- [ ] Add correlation IDs to requests
+- [ ] Add health check for ledger file accessibility
+- [ ] Add metrics endpoint for monitoring (optional)
+
+**Files to Modify:**
+- Create: `middleware/observability.py`
+- Modify: `main.py`
+
+---
+
+## Phase 3: Testing & Validation
+**Timeline:** Week 4
+**Status:** Not Started
+
+### 3.1 Expand Test Coverage
+- [ ] Create `tests/unit/` directory structure
+- [ ] Write unit tests for `services/accounts.py` (100% coverage)
+- [ ] Write unit tests for `services/payees.py` (100% coverage)
+- [ ] Write unit tests for `services/monthly_expenses.py` (100% coverage)
+- [ ] Create `tests/integration/` directory
+- [ ] Write integration tests for all API endpoints
+- [ ] Write integration tests for repository with real files
+- [ ] Add test for concurrent transaction writes
+- [ ] Add test for cache invalidation
+
+**Files to Create:**
+- `tests/unit/test_accounts.py`
+- `tests/unit/test_payees.py`
+- `tests/unit/test_monthly_expenses.py`
+- `tests/integration/test_api_endpoints.py`
+- `tests/integration/test_ledger_repository.py`
+
+---
+
+### 3.2 Testing Infrastructure
+- [ ] Add pytest fixtures for repository mocking
+- [ ] Add fixtures for settings configuration
+- [ ] Create factory functions for test data
+- [ ] Add test helpers for API client
+- [ ] Configure pytest-cov for coverage reporting
+- [ ] Set up CI/CD test pipeline (if applicable)
+- [ ] Add coverage badge to README
+
+**Files to Modify:**
+- Create: `tests/conftest.py` (shared fixtures)
+- Update: `pytest.ini`, `requirements-dev.txt`
+
+---
+
+### 3.3 Validation Improvements
+- [ ] Extract magic numbers to constants
+- [ ] Create `constants.py` for business rules
+- [ ] Add validation for transaction tolerance
+- [ ] Add validation for date formats
+- [ ] Add validation for account name patterns
+- [ ] Centralize all validation logic
+
+**Files to Modify:**
+- Create: `constants.py`
+- Modify: `services/transactions.py`
+
+---
+
+## Phase 4: Performance & Scalability
+**Timeline:** Week 5
+**Status:** Not Started
+
+### 4.1 Caching Strategy
+- [ ] Add in-memory cache for ledger entries
+- [ ] Add cache for accounts list with TTL
+- [ ] Add cache for payees list with TTL
+- [ ] Implement cache invalidation on transaction write
+- [ ] Add cache hit/miss metrics
+- [ ] Document caching strategy
+
+**Files to Modify:**
+- Modify: `repositories/ledger_repository.py`
+- Update: `README.md`
+
+---
+
+### 4.2 File Safety
+- [ ] Implement file locking with `fcntl`
+- [ ] Add atomic write operations
+- [ ] Add transaction rollback on failure
+- [ ] Add backup mechanism before writes
+- [ ] Test concurrent write scenarios
+- [ ] Document file safety guarantees
+
+**Files to Modify:**
+- Modify: `repositories/ledger_repository.py`
+- Add tests: `tests/integration/test_concurrent_writes.py`
+
+---
+
+### 4.3 Async Optimization
+- [ ] Evaluate if true async is beneficial
+- [ ] Either remove `async` keywords or make operations truly async
+- [ ] Consider `asyncio.to_thread()` for file I/O
+- [ ] Benchmark sync vs async performance
+- [ ] Document decision and rationale
+
+**Files to Modify:**
+- Potentially: `main.py` (route handlers)
+- Add: Performance benchmarks
+
+---
+
+## Phase 5: API Improvements
+**Timeline:** Week 6
+**Status:** Not Started
+
+### 5.1 API Versioning
+- [ ] Add `/api/v1` prefix to all routes
+- [ ] Update frontend integration to use versioned endpoints
+- [ ] Document versioning strategy
+- [ ] Add deprecation plan for future versions
+
+**Files to Modify:**
+- Modify: `main.py`
+- Update: Backend integration in `backend/src/plugins/ledger/beancount-adapter.ts`
+
+---
+
+### 5.2 Enhanced OpenAPI Documentation
+- [ ] Add OpenAPI tags for endpoint grouping
+- [ ] Add detailed descriptions to all endpoints
+- [ ] Add request/response examples
+- [ ] Document all error codes
+- [ ] Add authentication placeholders (for future)
+- [ ] Generate client SDKs from OpenAPI spec (optional)
+
+**Files to Modify:**
+- Modify: `main.py`, all route handlers
+- Update: `models.py` with better descriptions
+
+---
+
+### 5.3 API Enhancements
+- [ ] Add pagination to accounts endpoint
+- [ ] Add filtering to payees endpoint
+- [ ] Add sorting options
+- [ ] Add field selection (sparse fieldsets)
+- [ ] Consider GraphQL as alternative (evaluation)
+
+**Files to Modify:**
+- Modify: Route handlers, response models
+
+---
+
+## Code Quality Tasks (Ongoing)
+
+### Type Safety
+- [ ] Add return type hints to all functions
+- [ ] Enable strict mypy checking
+- [ ] Fix all type warnings
+- [ ] Add `py.typed` marker file
+
+### Documentation
+- [ ] Add docstrings to all public functions
+- [ ] Document all configuration options
+- [ ] Add architecture decision records (ADRs)
+- [ ] Create developer onboarding guide
+- [ ] Document testing strategy
+
+### Code Style
+- [ ] Add `ruff` for linting
+- [ ] Add `black` for formatting
+- [ ] Configure pre-commit hooks
+- [ ] Add code style to CI/CD
+
+---
+
+## Critical Issues Summary
+
+### High Priority (Phase 1-2) ⚠️
+1. **Configuration Management** - No type safety, global variables
+2. **Error Handling** - Using `print()`, catching generic exceptions
+3. **File I/O** - No abstraction, no file locking, corruption risk
+4. **Dependency Injection** - Hard to test, tight coupling
+
+### Medium Priority (Phase 3-4) 📋
+5. **Test Coverage** - Only 40-50% coverage
+6. **Validation Logic** - Magic numbers, inconsistent patterns
+7. **Performance** - No caching, loading ledger on every request
+
+### Low Priority (Phase 5) 🔍
+8. **API Design** - No versioning, basic documentation
+9. **Async Operations** - Misleading async declarations
+
+---
+
+## Metrics & Success Criteria
+
+### Test Coverage
+- **Current:** ~40-50%
+- **Target:** 80%+
+
+### Code Quality
+- **Current:** No linting enforcement
+- **Target:** 100% type hints, zero linting errors
+
+### Performance
+- **Current:** Ledger loaded on every request
+- **Target:** <50ms response time with caching
+
+### Maintainability
+- **Current:** Medium complexity
+- **Target:** Well-documented, easy to onboard new developers
+
+---
+
+## Risk Assessment
+
+### Before Improvements
+- **Data Corruption Risk:** Medium-High (no file locking)
+- **Debug Difficulty:** High (print statements, no structured logging)
+- **Test Confidence:** Medium (incomplete coverage)
+- **Maintainability:** Medium (lacks abstractions)
+
+### After Improvements
+- **Data Corruption Risk:** Low (file locking, atomic writes)
+- **Debug Difficulty:** Low (structured logging, error tracking)
+- **Test Confidence:** High (80%+ coverage)
+- **Maintainability:** High (clean architecture, well-documented)
+
+---
+
+## Notes
+
+- This plan can be executed incrementally without breaking existing functionality
+- Each phase should be completed with tests and documentation
+- Deployment should happen after each phase for gradual rollout
+- Breaking changes should be communicated to frontend team
+
+---
+
+## Progress Tracking
+
+**Last Updated:** 2025-11-07
+**Completed Phases:** 0/5
+**Completed Tasks:** 0/100+
+**Overall Progress:** 0%
