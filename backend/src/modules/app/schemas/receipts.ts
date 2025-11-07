@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ReceiptStatus } from '../../../domain/types';
+import { OcrNotesSchema, ReceiptStatus } from '../../../domain/types.js';
 
 export const receiptSchema = z
   .object({
@@ -20,6 +20,9 @@ export const receiptSchema = z
       .describe(
         'Status of the receipt (pending, approved, rejected, or error)'
       ),
+    ocrNotes: OcrNotesSchema.nullable().describe(
+      'OCR validation notes from heuristic checks (null for manual receipts)'
+    ),
     filename: z.string().nullable().describe('Filename of the receipt image'),
     fileUrl: z.string().nullable().describe('URL to access the receipt image'),
   })
