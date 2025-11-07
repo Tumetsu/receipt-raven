@@ -2,28 +2,25 @@
 Service for extracting payees from beancount ledger
 """
 from typing import List
-from beancount import loader
 from beancount.core.data import Transaction
 from models import Payee
+from repositories import ILedgerRepository
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def get_payees(ledger_path: str) -> List[Payee]:
+def get_payees(repository: ILedgerRepository) -> List[Payee]:
     """
     Get all payees (shops, vendors) from the beancount ledger
 
     Args:
-        ledger_path: Path to the beancount ledger file
+        repository: Ledger repository instance
 
     Returns:
         List of Payee objects
     """
-    entries, errors, options = loader.load_file(ledger_path)
-
-    if errors:
-        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
+    entries, errors, options = repository.load_entries()
 
     # Extract unique payees from transactions
     payees = set()

@@ -4,29 +4,25 @@ Service for calculating monthly expenses from beancount ledger
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Dict
-from beancount import loader
 from beancount.core import amount
 from beancount.core.data import Transaction, TxnPosting
+from repositories import ILedgerRepository
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def get_current_month_expenses(ledger_path: str) -> Dict[str, float]:
+def get_current_month_expenses(repository: ILedgerRepository) -> Dict[str, float]:
     """
     Calculate total expenses for the current month
 
     Args:
-        ledger_path: Path to the beancount ledger file
+        repository: Ledger repository instance
 
     Returns:
         Dictionary with total expenses per currency
     """
-    entries, errors, options = loader.load_file(ledger_path)
-
-    if errors:
-        # Log errors but continue
-        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
+    entries, errors, options = repository.load_entries()
 
     # Get current month's start and end dates
     now = datetime.now()

@@ -2,9 +2,9 @@
 Service for extracting account information from beancount ledger
 """
 from typing import List, Optional
-from beancount import loader
 from beancount.core import getters
 from models import Account, AccountType
+from repositories import ILedgerRepository
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -40,23 +40,21 @@ def get_display_name(account_name: str) -> str:
 
 
 def get_accounts(
-    ledger_path: str, account_type_filter: Optional[str] = None
+    repository: ILedgerRepository, account_type_filter: Optional[str] = None
 ) -> List[Account]:
     """
     Get all accounts from the beancount ledger
 
     Args:
-        ledger_path: Path to the beancount ledger file
+        repository: Ledger repository instance
         account_type_filter: Optional filter by account type (e.g., "Expenses")
 
     Returns:
         List of Account objects
     """
-    entries, errors, options = loader.load_file(ledger_path)
+    entries, errors, options = repository.load_entries()
 
-    if errors:
-        # Log errors but continue
-        logger.warning("beancount_loader_errors", error_count=len(errors), errors=str(errors)[:200])
+    # Errors are already logged in the repository
 
     # Get all account names from the ledger
     all_accounts = getters.get_accounts(entries)
