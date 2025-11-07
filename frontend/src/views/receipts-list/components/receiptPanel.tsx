@@ -161,21 +161,8 @@ function SumComparison({ control }: SumComparisonProps) {
   );
 }
 
-// Type definitions for OCR notes (from backend)
-type HeuristicLevel = 'WARN' | 'SEVERE' | 'ERROR';
-
-interface HeuristicIssue {
-  level: HeuristicLevel;
-  message: string;
-}
-
-interface OcrNotes {
-  suspiciousDate?: HeuristicIssue;
-}
-
 export type Receipt = Omit<GetApiReceipts200ReceiptsItem, 'id'> & {
   id: number | null;
-  ocrNotes?: OcrNotes | null;
 };
 interface ReceiptPanelProps {
   receipt: Receipt;
