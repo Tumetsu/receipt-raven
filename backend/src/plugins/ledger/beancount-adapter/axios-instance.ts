@@ -1,15 +1,14 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
 // Base URL for beancount service - will be configured via environment variable
-const BEANCOUNT_SERVICE_URL = process.env.BEANCOUNT_SERVICE_URL || 'http://localhost:8000';
+const BEANCOUNT_SERVICE_URL =
+  process.env.BEANCOUNT_SERVICE_URL || 'http://localhost:8000';
 
 /**
  * Custom axios instance function for orval
  * This is the mutator function that orval will use
  */
-export const beancountClient = <T>(
-  config: AxiosRequestConfig
-): Promise<T> => {
+export const beancountClient = <T>(config: AxiosRequestConfig): Promise<T> => {
   const instance = axios.create({
     baseURL: BEANCOUNT_SERVICE_URL,
     headers: {
@@ -20,8 +19,8 @@ export const beancountClient = <T>(
 
   // Add response interceptor for error handling
   instance.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    response => response,
+    error => {
       // Enhanced error handling
       if (error.response) {
         // Server responded with error status
