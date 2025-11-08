@@ -25,9 +25,11 @@ def setup_logging(log_level: str = "INFO") -> None:
     # Configure structlog
     structlog.configure(
         processors=[
+            # Merge thread-local context
+            structlog.contextvars.merge_contextvars,
             # Add log level to event dict
             structlog.stdlib.add_log_level,
-            # Add logger name to event dict
+            # Add logger name to event dict (requires stdlib logger factory)
             structlog.stdlib.add_logger_name,
             # Add timestamp
             structlog.processors.TimeStamper(fmt="iso"),

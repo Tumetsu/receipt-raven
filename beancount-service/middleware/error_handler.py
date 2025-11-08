@@ -216,4 +216,5 @@ def register_exception_handlers(app: FastAPI) -> None:
         BeancountServiceError, generic_beancount_service_error_handler
     )
 
-    logger.info("exception_handlers_registered", handler_count=6)
+    # Logging is done after app startup in main.py to avoid initialization issues
+    # logger.info("exception_handlers_registered", handler_count=6)
