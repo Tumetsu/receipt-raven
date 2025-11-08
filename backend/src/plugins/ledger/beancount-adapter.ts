@@ -73,12 +73,12 @@ export class BeancountAdapter implements ILedgerService {
             description: receiptData.description,
             date: receiptData.date,
             total: receiptData.total,
-            items: this.mergeReceiptItemsByExpenseAccount(receiptData.items).map(
-              i => ({
-                ...i,
-                expense_account: i.expenseAccount,
-              })
-            ),
+            items: this.mergeReceiptItemsByExpenseAccount(
+              receiptData.items
+            ).map(i => ({
+              ...i,
+              expense_account: i.expenseAccount,
+            })),
           },
           undefined // no query params
         );
