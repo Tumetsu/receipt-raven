@@ -34,7 +34,12 @@ export class BeancountAdapter implements ILedgerService {
     const response = await getAccountsEndpointAccountsGet(
       type ? { type } : undefined
     );
-    return response.accounts;
+    // Map generated Account types to our domain Account types
+    return response.accounts.map(account => ({
+      name: account.name,
+      type: account.type as Account['type'],
+      displayName: account.display_name ?? undefined,
+    }));
   }
 
   async getPayees(): Promise<Payee[]> {
