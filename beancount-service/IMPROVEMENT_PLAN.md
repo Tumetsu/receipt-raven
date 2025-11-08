@@ -138,12 +138,8 @@ This document tracks architectural improvements and refactoring tasks for the be
 ---
 
 ### 2.3 Observability
-- [ ] Add request timing middleware
 - [ ] Add structured logging for all requests
 - [ ] Log all errors with full context
-- [ ] Add correlation IDs to requests
-- [ ] Add health check for ledger file accessibility
-- [ ] Add metrics endpoint for monitoring (optional)
 
 **Files to Modify:**
 - Create: `middleware/observability.py`
@@ -164,7 +160,6 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [ ] Write integration tests for all API endpoints
 - [ ] Write integration tests for repository with real files
 - [ ] Add test for concurrent transaction writes
-- [ ] Add test for cache invalidation
 
 **Files to Create:**
 - `tests/unit/test_accounts.py`
@@ -180,9 +175,6 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [ ] Add fixtures for settings configuration
 - [ ] Create factory functions for test data
 - [ ] Add test helpers for API client
-- [ ] Configure pytest-cov for coverage reporting
-- [ ] Set up CI/CD test pipeline (if applicable)
-- [ ] Add coverage badge to README
 
 **Files to Modify:**
 - Create: `tests/conftest.py` (shared fixtures)
@@ -195,7 +187,6 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [ ] Create `constants.py` for business rules
 - [ ] Add validation for transaction tolerance
 - [ ] Add validation for date formats
-- [ ] Add validation for account name patterns
 - [ ] Centralize all validation logic
 
 **Files to Modify:**
@@ -213,8 +204,6 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [x] Add cache for accounts list with TTL *(via ledger entries cache)*
 - [x] Add cache for payees list with TTL *(via ledger entries cache)*
 - [x] Implement cache invalidation on transaction write *(completed in Phase 1)*
-- [ ] Add cache hit/miss metrics
-- [ ] Document caching strategy
 
 **Files Modified:**
 - ✅ Modified: `repositories/ledger_repository.py` (60-second TTL cache implemented)
@@ -227,67 +216,11 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [ ] Add atomic write operations
 - [ ] Add transaction rollback on failure
 - [ ] Add backup mechanism before writes
-- [ ] Test concurrent write scenarios
 - [ ] Document file safety guarantees
 
 **Files to Modify:**
 - Modify: `repositories/ledger_repository.py`
 - Add tests: `tests/integration/test_concurrent_writes.py`
-
----
-
-### 4.3 Async Optimization
-- [ ] Evaluate if true async is beneficial
-- [ ] Either remove `async` keywords or make operations truly async
-- [ ] Consider `asyncio.to_thread()` for file I/O
-- [ ] Benchmark sync vs async performance
-- [ ] Document decision and rationale
-
-**Files to Modify:**
-- Potentially: `main.py` (route handlers)
-- Add: Performance benchmarks
-
----
-
-## Phase 5: API Improvements
-**Timeline:** Week 6
-**Status:** Not Started
-
-### 5.1 API Versioning
-- [ ] Add `/api/v1` prefix to all routes
-- [ ] Update frontend integration to use versioned endpoints
-- [ ] Document versioning strategy
-- [ ] Add deprecation plan for future versions
-
-**Files to Modify:**
-- Modify: `main.py`
-- Update: Backend integration in `backend/src/plugins/ledger/beancount-adapter.ts`
-
----
-
-### 5.2 Enhanced OpenAPI Documentation
-- [ ] Add OpenAPI tags for endpoint grouping
-- [ ] Add detailed descriptions to all endpoints
-- [ ] Add request/response examples
-- [ ] Document all error codes
-- [ ] Add authentication placeholders (for future)
-- [ ] Generate client SDKs from OpenAPI spec (optional)
-
-**Files to Modify:**
-- Modify: `main.py`, all route handlers
-- Update: `models.py` with better descriptions
-
----
-
-### 5.3 API Enhancements
-- [ ] Add pagination to accounts endpoint
-- [ ] Add filtering to payees endpoint
-- [ ] Add sorting options
-- [ ] Add field selection (sparse fieldsets)
-- [ ] Consider GraphQL as alternative (evaluation)
-
-**Files to Modify:**
-- Modify: Route handlers, response models
 
 ---
 
@@ -298,13 +231,6 @@ This document tracks architectural improvements and refactoring tasks for the be
 - [ ] Enable strict mypy checking
 - [ ] Fix all type warnings
 - [ ] Add `py.typed` marker file
-
-### Documentation
-- [ ] Add docstrings to all public functions
-- [ ] Document all configuration options
-- [ ] Add architecture decision records (ADRs)
-- [ ] Create developer onboarding guide
-- [ ] Document testing strategy
 
 ### Code Style
 - [ ] Add `ruff` for linting
