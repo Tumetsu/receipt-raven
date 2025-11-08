@@ -16,7 +16,7 @@ const fastify = Fastify({
     ...(config.nodeEnv === 'production'
       ? {
           formatters: {
-            level: (label) => {
+            level: label => {
               return { level: label };
             },
           },
