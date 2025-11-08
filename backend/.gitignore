@@ -5,3 +5,6 @@ uploads/
 data/
 *.log
 .DS_Store
+
+# Generated OpenAPI spec from beancount service
+beancount-openapi.json
