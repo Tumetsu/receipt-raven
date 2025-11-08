@@ -23,7 +23,7 @@
     "openapi:export": "tsx src/scripts/export-openapi.ts",
     "beancount-client:fetch-spec": "tsx src/scripts/fetch-beancount-openapi.ts",
     "beancount-client:generate": "npm run beancount-client:fetch-spec && orval --config ./orval.config.ts && npm run beancount-client:format",
-    "beancount-client:format": "prettier --write \"src/plugins/ledger/beancount-adapter/generated/**/*.ts\"",
+    "beancount-client:format": "prettier --write \"src/plugins/ledger/beancount-client/generated/**/*.ts\"",
     "copy_production": "npm run copy_production_db && npm run copy_production_uploads",
     "copy_production_db": "scp root@10.0.10.41:/mnt/storage/receipt-raven/data/receipts.db ./data/receipts.db",
     "copy_production_uploads": "rm -rf ./uploads && scp -r root@10.0.10.41:/mnt/storage/receipt-raven/uploads/ ./uploads/"
