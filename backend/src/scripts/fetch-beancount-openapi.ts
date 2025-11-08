@@ -11,11 +11,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const BEANCOUNT_SERVICE_URL = process.env.BEANCOUNT_SERVICE_URL || 'http://localhost:8000';
+const BEANCOUNT_SERVICE_URL =
+  process.env.BEANCOUNT_SERVICE_URL || 'http://localhost:8000';
 const OUTPUT_PATH = path.join(process.cwd(), 'beancount-openapi.json');
 
 async function fetchOpenAPISpec() {
-  console.log(`Fetching OpenAPI spec from ${BEANCOUNT_SERVICE_URL}/openapi.json...`);
+  console.log(
+    `Fetching OpenAPI spec from ${BEANCOUNT_SERVICE_URL}/openapi.json...`
+  );
 
   try {
     const response = await fetch(`${BEANCOUNT_SERVICE_URL}/openapi.json`);
@@ -24,7 +27,7 @@ async function fetchOpenAPISpec() {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const spec = await response.json() as {
+    const spec = (await response.json()) as {
       info?: { title?: string; version?: string };
       paths?: Record<string, unknown>;
     };
@@ -43,8 +46,13 @@ async function fetchOpenAPISpec() {
     } else {
       console.error(`  ${error}`);
     }
-    console.error('\nMake sure the beancount service is running at:', BEANCOUNT_SERVICE_URL);
-    console.error('You can set a custom URL with: BEANCOUNT_SERVICE_URL=http://... npm run beancount-client:fetch-spec');
+    console.error(
+      '\nMake sure the beancount service is running at:',
+      BEANCOUNT_SERVICE_URL
+    );
+    console.error(
+      'You can set a custom URL with: BEANCOUNT_SERVICE_URL=http://... npm run beancount-client:fetch-spec'
+    );
     process.exit(1);
   }
 }
