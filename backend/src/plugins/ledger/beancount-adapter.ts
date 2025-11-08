@@ -3,53 +3,43 @@ import {
   Payee,
   ReceiptTransactionData,
   ReceiptTransactionItem,
-} from './types';
-import { ILedgerService } from './ledger-service';
-import { AccountsResponseSchema, PayeesResponseSchema } from './schemas';
+} from './types.js';
+import { ILedgerService } from './ledger-service.js';
 import _, { groupBy } from 'lodash';
 
+// Import generated API client functions
+import {
+  getAccountsEndpointAccountsGet,
+  getPayeesEndpointPayeesGet,
+  submitReceiptTransactionEndpointTransactionsReceiptPost,
+} from './beancount-adapter/generated/api.js';
+
 /**
- * Beancount adapter implementation
+ * Beancount adapter implementation using generated API client
  * Communicates with Python FastAPI service that uses beancount SDK
  */
 export class BeancountAdapter implements ILedgerService {
-  private baseUrl: string;
-
-  constructor(beancountServiceUrl: string) {
-    this.baseUrl = beancountServiceUrl;
+  constructor(beancountServiceUrl?: string) {
+    // The service URL is configured via environment variable in axios-instance.ts
+    // This parameter is kept for backward compatibility but is no longer used
+    if (beancountServiceUrl) {
+      console.warn(
+        'BeancountAdapter: beancountServiceUrl parameter is deprecated. ' +
+          'Use BEANCOUNT_SERVICE_URL environment variable instead.'
+      );
+    }
   }
 
   async getAccounts(type?: string): Promise<Account[]> {
-    const url = new URL('/accounts', this.baseUrl);
-    if (type) {
-      url.searchParams.set('type', type);
-    }
-
-    const response = await fetch(url.toString());
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch accounts: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    const validated = AccountsResponseSchema.parse(data);
-    return validated.accounts;
+    const response = await getAccountsEndpointAccountsGet(
+      type ? { type } : undefined
+    );
+    return response.accounts;
   }
 
   async getPayees(): Promise<Payee[]> {
-    const url = new URL('/payees', this.baseUrl);
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch payees: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    const validated = PayeesResponseSchema.parse(data);
-    return validated.payees;
+    const response = await getPayeesEndpointPayeesGet();
+    return response.payees;
   }
 
   mergeReceiptItemsByExpenseAccount(
@@ -73,47 +63,47 @@ export class BeancountAdapter implements ILedgerService {
     status?: number;
     message?: string;
   }> {
-    const url = new URL('/transactions/receipt', this.baseUrl);
-    const payload = {
-      receipt_id: receiptData.receiptId,
-      source_account: receiptData.sourceAccount,
-      payee: receiptData.payee,
-      description: receiptData.description,
-      date: receiptData.date,
-      total: receiptData.total,
-      items: this.mergeReceiptItemsByExpenseAccount(receiptData.items).map(
-        i => ({
-          ...i,
-          expense_account: i.expenseAccount,
-        })
-      ),
-    };
+    try {
+      const result =
+        await submitReceiptTransactionEndpointTransactionsReceiptPost(
+          {
+            receipt_id: receiptData.receiptId,
+            source_account: receiptData.sourceAccount,
+            payee: receiptData.payee,
+            description: receiptData.description,
+            date: receiptData.date,
+            total: receiptData.total,
+            items: this.mergeReceiptItemsByExpenseAccount(receiptData.items).map(
+              i => ({
+                ...i,
+                expense_account: i.expenseAccount,
+              })
+            ),
+          },
+          undefined // no query params
+        );
 
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+      return {
+        success: result.success,
+        status: 200, // Successful response from API
+        message: result.message || 'Transaction submitted successfully',
+      };
+    } catch (error) {
+      // Error handling is done in axios-instance.ts
+      // Re-throw with more context if needed
+      if (error instanceof Error) {
+        return {
+          success: false,
+          status: 500,
+          message: error.message,
+        };
+      }
 
-    const responseData = (await response.json()) as {
-      success: boolean;
-      message?: string;
-    };
-
-    if (!response.ok || !responseData.success) {
       return {
         success: false,
-        status: response.status,
-        message: responseData.message,
+        status: 500,
+        message: 'Unknown error occurred',
       };
     }
-
-    return {
-      success: true,
-      status: response.status,
-      message: response.statusText,
-    };
   }
 }
