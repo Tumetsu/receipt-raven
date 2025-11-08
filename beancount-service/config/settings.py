@@ -3,7 +3,7 @@ Application settings using Pydantic Settings for type-safe configuration
 """
 import os
 from functools import lru_cache
-from typing import List
+from typing import List, Union
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,9 +31,9 @@ class Settings(BaseSettings):
     )
 
     # CORS Configuration
-    allowed_origins: List[str] = Field(
-        default_factory=list,
-        description="List of allowed CORS origins",
+    allowed_origins: Union[str, List[str]] = Field(
+        default="",
+        description="List of allowed CORS origins (comma-separated string or JSON array)",
     )
 
     # Logging Configuration
@@ -57,14 +57,19 @@ class Settings(BaseSettings):
             raise ValueError("BEANCOUNT_LEDGER_PATH must be set")
         return v
 
-    @field_validator("allowed_origins", mode="before")
+    @field_validator("allowed_origins")
     @classmethod
     def parse_allowed_origins(cls, v) -> List[str]:
-        """Parse comma-separated allowed origins"""
+        """Parse comma-separated allowed origins or JSON array"""
         if isinstance(v, str):
+            # Handle empty string
+            if not v.strip():
+                return []
             # Split by comma and filter out empty strings
             return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v or []
+        if isinstance(v, list):
+            return v
+        return []
 
     @field_validator("log_level")
     @classmethod

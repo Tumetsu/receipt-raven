@@ -41,6 +41,8 @@ def setup_logging(log_level: str = "INFO") -> None:
         ],
         # Wrapper class for the logger
         wrapper_class=structlog.stdlib.BoundLogger,
+        # Use stdlib logger factory to ensure compatibility with add_logger_name
+        logger_factory=structlog.stdlib.LoggerFactory(),
         # Cache logger instances
         cache_logger_on_first_use=True,
     )
