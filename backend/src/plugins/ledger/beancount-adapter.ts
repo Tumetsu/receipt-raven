@@ -12,7 +12,7 @@ import {
   getAccountsEndpointAccountsGet,
   getPayeesEndpointPayeesGet,
   submitReceiptTransactionEndpointTransactionsReceiptPost,
-} from './beancount-adapter/generated/api.js';
+} from './beancount-client/generated/api.js';
 
 /**
  * Beancount adapter implementation using generated API client
