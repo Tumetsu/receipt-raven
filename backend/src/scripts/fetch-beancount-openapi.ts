@@ -24,7 +24,10 @@ async function fetchOpenAPISpec() {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const spec = await response.json();
+    const spec = await response.json() as {
+      info?: { title?: string; version?: string };
+      paths?: Record<string, unknown>;
+    };
 
     // Write to file
     fs.writeFileSync(OUTPUT_PATH, JSON.stringify(spec, null, 2), 'utf-8');
