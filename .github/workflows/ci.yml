@@ -19,7 +19,7 @@ on:
 jobs:
   frontend-ci:
     name: Frontend CI
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
@@ -58,7 +58,7 @@ jobs:
 
   backend-ci:
     name: Backend CI
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
@@ -91,7 +91,7 @@ jobs:
 
   beancount-ci:
     name: Beancount Service CI
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: beancount-service
