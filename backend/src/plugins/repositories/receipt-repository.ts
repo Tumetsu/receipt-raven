@@ -85,36 +85,41 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
     ocrNotes: OcrNotes,
     parsedBy?: string
   ): Promise<void> {
-    const receipt = await this.db
-      .insertInto('receipts')
-      .values({
-        job_id: jobId,
-        payee: analysis.payee,
-        receipt_date: analysis.date,
-        total_sum: analysis.total,
-        parsed_by: parsedBy ?? 'unknown',
-        status: ReceiptStatus.UNAPPROVED,
-        description: analysis.description,
-        source_account: config.analyze.defaultSourceAccount,
-        ocr_notes: JSON.stringify(ocrNotes),
-      })
-      .executeTakeFirstOrThrow();
+    await this.db.transaction().execute(async trx => {
+      const receipt = await trx
+        .insertInto('receipts')
+        .values({
+          job_id: jobId,
+          payee: analysis.payee,
+          receipt_date: analysis.date,
+          total_sum: analysis.total,
+          parsed_by: parsedBy ?? 'unknown',
+          status: ReceiptStatus.UNAPPROVED,
+          description: analysis.description,
+          source_account: config.analyze.defaultSourceAccount,
+          ocr_notes: JSON.stringify(ocrNotes),
+        })
+        .executeTakeFirstOrThrow();
 
-    if (!receipt.insertId) {
-      throw new Error('Insert failed');
-    }
-    const insertedId = receipt.insertId;
+      if (!receipt.insertId) {
+        throw new Error('Insert failed');
+      }
+      const insertedId = receipt.insertId;
 
-    const items: InsertObject<Database, 'receipt_items'>[] =
-      analysis.products.map(p => ({
-        receipt_id: Number(insertedId),
-        name: p.name,
-        expense_account: p.expenseAccount,
-        price: p.price,
-        parsed_by: parsedBy ?? 'unknown',
-      }));
+      // Only insert items if there are any products to avoid SQL syntax error
+      if (analysis.products.length > 0) {
+        const items: InsertObject<Database, 'receipt_items'>[] =
+          analysis.products.map(p => ({
+            receipt_id: Number(insertedId),
+            name: p.name,
+            expense_account: p.expenseAccount,
+            price: p.price,
+            parsed_by: parsedBy ?? 'unknown',
+          }));
 
-    await this.db.insertInto('receipt_items').values(items).execute();
+        await trx.insertInto('receipt_items').values(items).execute();
+      }
+    });
   }
 
   async createManualReceipt(data: {
@@ -129,39 +134,44 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
       price: number;
     }>;
   }): Promise<number> {
-    const receipt = await this.db
-      .insertInto('receipts')
-      .values({
-        job_id: null, // Manual receipts don't have associated jobs
-        payee: data.payee,
-        receipt_date: data.date,
-        total_sum: data.totalSum,
-        parsed_by: 'user', // Manual entry by user
-        status: ReceiptStatus.UNAPPROVED,
-        description: data.description,
-        source_account: data.sourceAccount,
-        ocr_notes: null, // Manual receipts don't have OCR analysis
-      })
-      .executeTakeFirstOrThrow();
+    return await this.db.transaction().execute(async trx => {
+      const receipt = await trx
+        .insertInto('receipts')
+        .values({
+          job_id: null, // Manual receipts don't have associated jobs
+          payee: data.payee,
+          receipt_date: data.date,
+          total_sum: data.totalSum,
+          parsed_by: 'user', // Manual entry by user
+          status: ReceiptStatus.UNAPPROVED,
+          description: data.description,
+          source_account: data.sourceAccount,
+          ocr_notes: null, // Manual receipts don't have OCR analysis
+        })
+        .executeTakeFirstOrThrow();
 
-    if (!receipt.insertId) {
-      throw new Error('Insert failed');
-    }
-    const insertedId = Number(receipt.insertId);
+      if (!receipt.insertId) {
+        throw new Error('Insert failed');
+      }
+      const insertedId = Number(receipt.insertId);
 
-    const items: InsertObject<Database, 'receipt_items'>[] = data.items.map(
-      item => ({
-        receipt_id: insertedId,
-        name: item.name,
-        expense_account: item.expenseAccount,
-        price: item.price,
-        parsed_by: 'manual',
-      })
-    );
+      // Only insert items if there are any to avoid SQL syntax error
+      if (data.items.length > 0) {
+        const items: InsertObject<Database, 'receipt_items'>[] = data.items.map(
+          item => ({
+            receipt_id: insertedId,
+            name: item.name,
+            expense_account: item.expenseAccount,
+            price: item.price,
+            parsed_by: 'manual',
+          })
+        );
 
-    await this.db.insertInto('receipt_items').values(items).execute();
+        await trx.insertInto('receipt_items').values(items).execute();
+      }
 
-    return insertedId;
+      return insertedId;
+    });
   }
 
   async updateReceipt(
