@@ -17,6 +17,7 @@ export interface ReceiptAnalysisResult {
     price: number;
   }[];
   total: number;
+  sourceAccount?: string | null;
 }
 /**
  * Repository for receipt data access operations
@@ -86,6 +87,10 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
     parsedBy?: string
   ): Promise<void> {
     await this.db.transaction().execute(async trx => {
+      // Use sourceAccount from analysis if provided, otherwise fall back to config default
+      const sourceAccount =
+        analysis.sourceAccount ?? config.analyze.defaultSourceAccount;
+
       const receipt = await trx
         .insertInto('receipts')
         .values({
@@ -96,7 +101,7 @@ export class SQLiteReceiptRepository implements IReceiptRepository {
           parsed_by: parsedBy ?? 'unknown',
           status: ReceiptStatus.UNAPPROVED,
           description: analysis.description,
-          source_account: config.analyze.defaultSourceAccount,
+          source_account: sourceAccount,
           ocr_notes: JSON.stringify(ocrNotes),
         })
         .executeTakeFirstOrThrow();

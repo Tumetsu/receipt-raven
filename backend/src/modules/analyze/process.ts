@@ -5,6 +5,7 @@ import { FastifyInstance } from 'fastify';
 import { IReceiptRepository } from '../../plugins/repositories/receipt-repository.js';
 import path from 'path';
 import { config } from '../../config/index.js';
+import { runPostProcessors } from './post-processors/index.js';
 
 let isProcessing = false;
 export const processReceiptJobFromQueue = async (
@@ -37,11 +38,18 @@ export const processReceiptJobFromQueue = async (
       job.mime_type
     );
 
+    // Run post-processors to enrich the analysis result
+    fastify.log.info(`Running post-processors for ${job.id}`);
+    const enrichedResult = await runPostProcessors(analysisResult.result, {
+      ledgerService: fastify.ledgerService,
+      logger: fastify.log,
+    });
+
     fastify.log.info(`Saving ${job.id} to receipt database`);
     // Save analysis results to database
     await receiptRepository.saveReceipt(
       job.id,
-      analysisResult.result,
+      enrichedResult,
       analysisResult.ocrNotes,
       analysisResult.model
     );
