@@ -1,19 +1,9 @@
 {
   "rules": [
     {
-      "payeePattern": "K-Market|K-Supermarket|K-Citymarket|S-Market|Prisma|Lidl|Alepa",
-      "sourceAccount": "Assets:Bank:Checking",
-      "description": "Grocery stores - paid from checking account"
-    },
-    {
-      "payeePattern": "Shell|Neste|ABC|St1|Teboil",
-      "sourceAccount": "Assets:Bank:CreditCard",
-      "description": "Gas stations - paid with credit card"
-    },
-    {
-      "payeePattern": "Ravintola|Restaurant|McDonald|Hesburger|Subway",
-      "sourceAccount": "Assets:Bank:Checking",
-      "description": "Restaurants - paid from checking account"
+      "payeePattern": ".*S-Market.*|.*Smarket.*|.*Prisma.*",
+      "sourceAccount": "Assets:Spankki:Cash",
+      "description": "Grocery stores - paid from Spankki"
     }
   ]
 }

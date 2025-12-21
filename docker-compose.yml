@@ -62,6 +62,8 @@ services:
       # Persistent data volumes
       - ./backend/data:/app/data
       - ./backend/uploads:/app/uploads
+      # Configuration files (mounted from host)
+      - ./backend/config:/app/config
 
     networks:
       - receipt-raven-network
