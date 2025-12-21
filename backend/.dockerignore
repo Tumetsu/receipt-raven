@@ -57,6 +57,7 @@ docker-compose*.yaml
 # Temporary data (will be volume mounted)
 data/
 uploads/
+config/
 
 # ESLint and Prettier
 .eslintcache
