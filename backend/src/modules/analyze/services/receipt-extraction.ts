@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, toJSONSchema } from 'zod';
 import { DateTime } from 'luxon';
 import { aiClient } from './ai-client.js';
 import { ILedgerService } from '../../../plugins/ledger/ledger-service.js';
@@ -36,43 +36,16 @@ export interface ReceiptAnalysisResponse {
 
 function getPrompt(expenseAccounts: string) {
   return `
-Please read the details of the provided receipt and list the following properties in a structured way in a json format:
-{
-    "payee": "Name of the shop, restaurant or service provider in the receipt",
-    "description": "Short description or summary of the receipt content. Prefer finnish language if possible. Summary of purchased items is usually good description",
-    "date": "Date of the purchase in format YYYY-MM-DD",
-    "products": [
-    {
-        "name": "product name",
-        "expenseAccount": "expense account for the product, choose from the following list entry which you think most likely suits the item in question. Take in account also payee when deciding the account: ${expenseAccounts}",
-        "price": "price of the product in euros for example 12.50",
-    }],
-    "total": "Total sum of the receipt in euros for example 12.50"
-}
+Please read the details of the provided receipt and extract the following:
+- payee: Name of the shop, restaurant or service provider
+- description: Short summary of the receipt content, prefer Finnish if possible
+- date: Date of purchase in YYYY-MM-DD format
+- products: Each line item with name, expenseAccount, and price in euros
+- total: Total sum in euros
 
-The response should be in json format containing nothing else. If you cannot find the information, just return null for that property.
+For expenseAccount, choose the most suitable from this list (consider both the item and the payee): ${expenseAccounts}
 
-Here is an example output:
-{
-    "payee": "K-Market",
-    "date": "2025-04-09",
-    "description": "Ruokaa ja paita",
-    "products": [
-        {
-            "name": "Banaani",
-            "expenseAccount": "Expenses:Consumables:Food",
-            "price": 0.80,
-        }
-        {
-            "name": "T-paita",
-            "expenseAccount": "Expenses:Clothes",
-            "price": 14.99,
-        }
-    ],
-    "total": 15.79
-}
-
-RESPOND ONLY IN JSON *NOT* ANY OTHER TEXT OR MARKDOWN!!!
+If you cannot find information for a property, return null for it.
 `;
 }
 
@@ -93,16 +66,21 @@ export const analyzeReceipt = async (
     const expenseAccounts = await ledgerService.getAccounts('Expenses');
     const accountsForPrompt = expenseAccounts.map(a => a.name).join(',');
 
+    const jsonSchema = toJSONSchema(ReceiptAnalysisSchema) as Record<
+      string,
+      unknown
+    >;
+
     const aiResponse = await aiClient.submitDocument(
       documentBuffer,
       getPrompt(accountsForPrompt),
-      mimeType
+      mimeType,
+      jsonSchema
     );
 
     const jsonResult = JSON.parse(aiResponse.content);
-    console.log('Raw response from photo analysis:', jsonResult);
 
-    // Validate the response against our schema
+    // Validate with Zod (applies defaults like date fallback)
     const validatedResult = ReceiptAnalysisSchema.parse(jsonResult);
 
     // Run heuristics on the validated result

@@ -16,7 +16,8 @@ export interface AiClient {
   submitDocument(
     documentBuffer: Buffer,
     prompt: string,
-    mimeType: string
+    mimeType: string,
+    jsonSchema?: Record<string, unknown>
   ): Promise<OpenAIResponse>;
 }
 
@@ -102,7 +103,8 @@ export class ClaudeClient implements AiClient {
   async submitDocument(
     documentBuffer: Buffer,
     prompt: string,
-    mimeType: string
+    mimeType: string,
+    jsonSchema?: Record<string, unknown>
   ): Promise<OpenAIResponse> {
     try {
       // Convert buffer to base64
@@ -144,11 +146,19 @@ export class ClaudeClient implements AiClient {
               documentBlock,
               {
                 type: 'text',
-                text: prompt + '\n\nRespond with valid JSON only.',
+                text: prompt,
               },
             ],
           },
         ],
+        ...(jsonSchema && {
+          output_config: {
+            format: {
+              type: 'json_schema' as const,
+              schema: jsonSchema,
+            },
+          },
+        }),
       });
 
       // Extract text content from Claude's response
