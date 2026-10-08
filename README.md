@@ -5,7 +5,7 @@ A receipt processing application with OCR and ledger integration. Receipt Raven 
 
 ## Features
 
-- **Smart Receipt Processing**: Upload receipt images and automatically extract shop names, dates, items, and prices using OpenAI Vision API
+- **Smart Receipt Processing**: Upload receipt images and automatically extract shop names, dates, items, and prices using a vision-capable AI model via OpenRouter (or OpenAI directly)
 - **Ledger Integration**: Submit processed receipts directly to your Beancount ledger with account suggestions and category mapping
 - **Modern Web Interface**: Clean, responsive UI built with React and Material-UI
 - **Full-Stack TypeScript**: Type-safe codebase with shared schemas and auto-generated API clients

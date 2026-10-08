@@ -1,6 +1,6 @@
 # Receipt Raven Backend
 
-A Fastify-based REST API for processing receipt images using OpenAI's Vision API.
+A Fastify-based REST API for processing receipt images using an AI vision model via OpenRouter (or OpenAI directly).
 
 ## Quick Start
 
@@ -66,8 +66,9 @@ Environment variables (`.env`):
 
 ```bash
 PORT=3001
-OPENAI_API_KEY=your_openai_api_key_here
-USE_MOCK_OPENAI=false
+AI_PROVIDER=openrouter          # openrouter, openai or mock
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=anthropic/claude-haiku-4.5   # any OpenRouter model ID
 UPLOADS_DIR=./uploads
 DATABASE_PATH=./data/receipts.db
 ```
@@ -84,7 +85,7 @@ backend/src/
     └── analyze/          # Receipt analysis module
         ├── index.ts      # Module plugin
         ├── receipts.ts     # HTTP routes
-        ├── services/     # Business logic (OpenAI, extraction)
+        ├── services/     # Business logic (AI client, extraction)
         └── repositories/ # Data access (SQLite)
 ```
 

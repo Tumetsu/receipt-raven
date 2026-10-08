@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Receipt Raven is a receipt processing application with OCR and ledger integration. It's a full-stack TypeScript monorepo consisting of:
-- **Backend**: Fastify REST API with OpenAI Vision API integration for receipt analysis
+- **Backend**: Fastify REST API with AI vision model integration (OpenRouter or OpenAI) for receipt analysis
 - **Frontend**: React SPA with TanStack Router and Material-UI
 - **Beancount Service**: Python FastAPI microservice for ledger integration
 
@@ -76,7 +76,7 @@ backend/src/
 ├── plugins/           # Fastify plugins (database, ledger, repositories)
 ├── modules/           # Feature modules
 │   ├── upload/        # Receipt upload handling
-│   ├── analyze/       # Receipt analysis with OpenAI
+│   ├── analyze/       # Receipt analysis with AI (OpenRouter/OpenAI)
 │   ├── ledger/        # Ledger integration routes
 │   └── app/           # Main app routes (receipts, jobs)
 ├── database/          # Kysely database schema
@@ -159,7 +159,8 @@ See `LEDGER_INTEGRATION.md` for detailed architecture documentation.
 
 2. **Analysis** (`modules/analyze/`):
    - Backend polls job queue or triggers analysis
-   - `services/ai-client.ts` sends image to OpenAI Vision API
+   - `services/ai-client.ts` sends the image or PDF to the configured AI provider (`AI_PROVIDER`: `openrouter`, `openai` or `mock`)
+   - OpenRouter model is set with `OPENROUTER_MODEL` (any OpenRouter model ID, e.g. `anthropic/claude-haiku-4.5`)
    - Response validated against Zod schema
    - Receipt + items saved to database in transaction
    - Job status updated to 'completed' or 'failed'
