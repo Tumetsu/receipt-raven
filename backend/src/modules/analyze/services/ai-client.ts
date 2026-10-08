@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
 import { config } from '../../../config/index.js';
 
 export interface OpenAIResponse {
@@ -89,14 +88,15 @@ export class OpenAIClient implements AiClient {
 }
 
 /**
- * Claude (Anthropic) implementation of the AI client
+ * OpenRouter implementation of the AI client (OpenAI-compatible API)
  */
-export class ClaudeClient implements AiClient {
-  private client: Anthropic;
+export class OpenRouterClient implements AiClient {
+  private client: OpenAI;
 
   constructor() {
-    this.client = new Anthropic({
-      apiKey: config.anthropic.apiKey,
+    this.client = new OpenAI({
+      apiKey: config.openrouter.apiKey,
+      baseURL: config.openrouter.baseUrl,
     });
   }
 
@@ -109,80 +109,58 @@ export class ClaudeClient implements AiClient {
     try {
       // Convert buffer to base64
       const base64Document = documentBuffer.toString('base64');
+      const dataUrl = `data:${mimeType};base64,${base64Document}`;
 
-      // Determine if it's a PDF or image
-      const isPdf = mimeType === 'application/pdf';
+      // PDFs are sent as file parts, images as image_url parts
+      const documentPart: OpenAI.Chat.ChatCompletionContentPart =
+        mimeType === 'application/pdf'
+          ? {
+              type: 'file',
+              file: { filename: 'receipt.pdf', file_data: dataUrl },
+            }
+          : { type: 'image_url', image_url: { url: dataUrl } };
 
-      // Build content block based on type
-      const documentBlock = isPdf
-        ? {
-            type: 'document' as const,
-            source: {
-              type: 'base64' as const,
-              media_type: 'application/pdf' as const,
-              data: base64Document,
-            },
-          }
-        : {
-            type: 'image' as const,
-            source: {
-              type: 'base64' as const,
-              media_type: mimeType as
-                | 'image/jpeg'
-                | 'image/png'
-                | 'image/gif'
-                | 'image/webp',
-              data: base64Document,
-            },
-          };
-
-      const response = await this.client.messages.create({
-        model: config.anthropic.model,
-        max_tokens: 4000,
+      const response = await this.client.chat.completions.create({
+        model: config.openrouter.model,
+        max_completion_tokens: 4000,
+        response_format: jsonSchema
+          ? {
+              type: 'json_schema',
+              json_schema: {
+                name: 'receipt',
+                strict: true,
+                schema: jsonSchema,
+              },
+            }
+          : { type: 'json_object' },
         messages: [
           {
             role: 'user',
-            content: [
-              documentBlock,
-              {
-                type: 'text',
-                text: prompt,
-              },
-            ],
+            content: [documentPart, { type: 'text', text: prompt }],
           },
         ],
-        ...(jsonSchema && {
-          output_config: {
-            format: {
-              type: 'json_schema' as const,
-              schema: jsonSchema,
-            },
-          },
-        }),
       });
 
-      // Extract text content from Claude's response
-      const textContent = response.content.find(block => block.type === 'text');
-      if (!textContent || textContent.type !== 'text') {
-        throw new Error('No text content in Claude response');
+      const result = response.choices[0];
+      if (!result?.message?.content) {
+        throw new Error('No content in OpenRouter response');
       }
 
       return {
-        content: textContent.text,
+        content: result.message.content,
         model: response.model,
         usage: {
-          promptTokens: response.usage.input_tokens,
-          completionTokens: response.usage.output_tokens,
-          totalTokens:
-            response.usage.input_tokens + response.usage.output_tokens,
+          promptTokens: response.usage?.prompt_tokens || 0,
+          completionTokens: response.usage?.completion_tokens || 0,
+          totalTokens: response.usage?.total_tokens || 0,
         },
       };
     } catch (error) {
-      console.error('Claude API error:', error);
+      console.error('OpenRouter API error:', error);
       throw new Error(
         error instanceof Error
-          ? `Claude API error: ${error.message}`
-          : 'Unknown error occurred while calling Claude API'
+          ? `OpenRouter API error: ${error.message}`
+          : 'Unknown error occurred while calling OpenRouter API'
       );
     }
   }
@@ -235,8 +213,8 @@ export class MockAIClient implements AiClient {
  */
 export const getAIClient = (): AiClient => {
   switch (config.ai.provider) {
-    case 'anthropic':
-      return new ClaudeClient();
+    case 'openrouter':
+      return new OpenRouterClient();
     case 'openai':
       return new OpenAIClient();
     case 'mock':

@@ -12,16 +12,17 @@ export const config = {
   ai: {
     provider: (process.env.AI_PROVIDER || 'openai') as
       | 'openai'
-      | 'anthropic'
+      | 'openrouter'
       | 'mock',
   },
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
     model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
   },
-  anthropic: {
-    apiKey: process.env.ANTHROPIC_API_KEY || '',
-    model: process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022',
+  openrouter: {
+    apiKey: process.env.OPENROUTER_API_KEY || '',
+    model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
+    baseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
   },
   storage: {
     uploadsDir: process.env.UPLOADS_DIR || './uploads',
